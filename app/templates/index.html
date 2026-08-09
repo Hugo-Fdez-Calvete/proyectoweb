@@ -1,34 +1,86 @@
 {% extends "base.html" %}
-{% block title %}Inicio{% endblock %}
+
+{% block title %}Home_bp Cloud{% endblock %}
+
+
 {% block content %}
-<div class="body-index">
-  <img src="{{ url_for('static', filename='img/X') }}" alt="X" class="image">
-  <div class="form-box">
-    <p class="subtitle" style="margin-top: 25px;">
-      X
-    </p>
-    {% if session.user%}
-    <p>Bienvenido {{session.user}}</p>
-    {% else %}
-    <form method="POST" action="/">
-      {{ form.hidden_tag() }}
-      <p>
-        {{ form.nombre.label }}<br>
-        {{ form.nombre(size=30) }}<br>
-        {{ form.password.label }}<br>
-        {{ form.password(size=30) }}
-        {% for error in form.nombre.errors %}
-          <span style="color:red;">{{ error }}</span><br>
-        {% endfor %}
-      </p>
-      {% for error in form.password.errors %}
-          <span style="color:red;">{{ error }}</span><br>
-        {% endfor %}
-      </p>
-      
-      <p>{{ form.enviar(class_="btn-primary") }}</p>
-    </form>
-    {%endif%}
-  </div>
-</div>
+
+<section class="hero is-fullheight-with-navbar">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-6">
+                    <h1 class="title is-1">
+                        Tus archivos.
+                        <br>
+                        <span class="has-text-primary">
+                            En un solo lugar.
+                        </span>
+                    </h1>
+                    <p class="subtitle is-4 mt-6">
+                        Guarda, organiza y comparte tus archivos
+                        de forma sencilla y segura.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-2">
+                Todo lo que necesitas
+            </h2>
+            <p class="subtitle">
+                Un gestor de archivos sencillo y sin complicaciones.
+            </p>
+        </div>
+        <div class="columns">
+            <div class="column">
+                <div class="box has-text-centered">
+                    <span class="icon is-large">
+                        <i class="fas fa-folder-open fa-2x"></i>
+                    </span>
+
+                    <h3 class="title is-4 mt-4">
+                        Organiza
+                    </h3>
+                    <p>
+                        Crea carpetas y organiza todos tus archivos
+                        fácilmente.
+                    </p>
+                </div>
+            </div>
+            <div class="column">
+                <div class="box has-text-centered">
+                    <span class="icon is-large">
+                        <i class="fas fa-cloud-arrow-up fa-2x"></i>
+                    </span>
+                    <h3 class="title is-4 mt-4">
+                        Guarda
+                    </h3>
+                    <p>
+                        Sube tus documentos, imágenes y archivos
+                        desde cualquier dispositivo.
+                    </p>
+                </div>
+            </div>
+            <div class="column">
+                <div class="box has-text-centered">
+                    <span class="icon is-large">
+                        <i class="fas fa-link fa-2x"></i>
+                    </span>
+                    <h3 class="title is-4 mt-4">
+                        Comparte
+                    </h3>
+                    <p>
+                        Genera enlaces para compartir tus archivos
+                        cuando quieras.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

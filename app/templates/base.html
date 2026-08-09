@@ -1,35 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
+  <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Pokettle{% endblock %}</title>
+    <title>{% block title %}La Nube{% endblock %}</title>
+
+      <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+      <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+
+      <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   </head>
-  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
   <body>
-    <nav class="navbar">
-      <div class="navbar-container">
-        <a href="{{ url_for('.home') }}" class="navbar-logo">
-          <img src="{{ url_for('static', filename='img/X') }}" alt="Logo">
-        </a>
-        <div class="navbar-links">
-          <a href="{{ url_for('.home') }}">Inicio</a>
-          {% if session.trainer %}
-            <a href="{{ url_for('.x') }}">x</a>
-            <a href="{{ url_for('.logout') }}">Cerrar Sesion</a>
-            <a href="{{ url_for('.historial') }}">Historial</a>
-          {% else %}
-            <a href="{{ url_for('.registro') }}">Registrarse</a>
-          {% endif %}
+    <nav class="navbar is-fixed-top" role="navigation">
+
+        <div class="container">
+
+            <!-- Logo -->
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <strong>Home Cloud</strong>
+                </a>
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <!-- Navbar -->
+            <div id="mainNavbar" class="navbar-menu">
+                <div class="navbar-end">
+                    <!-- Tema -->
+                    <div class="navbar-item">
+                        <button id="theme-toggle" class="button is-ghost" title="Cambiar tema">
+                            <span class="icon">
+                                <i class="fas fa-moon"></i>
+                            </span>
+                        </button>
+                    </div>
+
+                    {% if session.get('user_id') %}
+                        <div class="navbar-item">
+                            <a href="{{ url_for('home_bp.login') }}">
+                                Mis archivos
+                            </a>
+                        </div>
+                        <div class="navbar-item">
+                            <a href="{{ url_for('home_bp.login') }}">
+                                Cerrar sesión
+                            </a>
+                        </div>
+
+                    {% else %}
+                        <div class="navbar-item">
+                            <a class="button is-light" href="{{ url_for('home_bp.login') }}">
+                                Iniciar sesión
+                            </a>
+                        </div>
+                        <div class="navbar-item">
+                            <a class="button is-primary" href="{{ url_for('home_bp.register') }}">
+                                Crear cuenta
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </div>
-    /nav>
+    </nav>
     <main>
       {% block content %}{% endblock %}
     </main>
 
     <footer class="footer-portada">
-      <p>Proyecto Personal &copy; 2026</p>
+      <p>La Nube - Proyecto Personal&copy; 2026</p>
     </footer>
   </body>
 </html>

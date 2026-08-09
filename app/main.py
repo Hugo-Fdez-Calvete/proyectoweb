@@ -1,7 +1,9 @@
 from flask import Flask, session
 from flask_session import Session 
+import json, random, os
+from app.routes.primary_routes import root_bp, home_bp
+
 from app.database.db import db
-import json, random, app, os
 
 app = Flask(__name__)
 
@@ -19,17 +21,14 @@ app.secret_key= "SECRETA"
 Session(app)
 
 db.init_app(app)
-
-# Cargar el JSON solo una vez
-app.register_blueprint(x_bp, url_prefix="/")
-app.register_blueprint(y_bp, url_prefix="/y")
+app.register_blueprint(root_bp, url_prefix="/")
+app.register_blueprint(home_bp, url_prefix="/HomeCloud")
 
 @app.cli.command("crear-tablas")
 def crear_tablas():
     print("Creando tablas de base de datos")
     db.create_all()
     print("Base de datos creada correctamente")
-
 
 if __name__ == "__main__":
     app.run(debug=True)
