@@ -1,29 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
+<script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
   <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
     <title>{% block title %}La Nube{% endblock %}</title>
-
-      <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
       <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
+        <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
       <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   </head>
-  <body>
-    <nav class="navbar is-fixed-top" role="navigation">
-
+  <body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
         <div class="container">
-
             <!-- Logo -->
             <div class="navbar-brand">
-                <a class="navbar-item" href="/">
+                <a class="navbar-item" href="{{ url_for('home_bp.index') }}">
                     <strong>Home Cloud</strong>
                 </a>
-                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">
+                <!-- Menú móvil -->
+                <a role="button"
+                class="navbar-burger"
+                aria-label="menu"
+                aria-expanded="false"
+                data-target="mainNavbar">
                     <span aria-hidden="true"></span>
                     <span aria-hidden="true"></span>
                     <span aria-hidden="true"></span>
@@ -32,35 +37,30 @@
             <!-- Navbar -->
             <div id="mainNavbar" class="navbar-menu">
                 <div class="navbar-end">
+
                     <!-- Tema -->
                     <div class="navbar-item">
+
                         <button id="theme-toggle" class="button is-ghost" title="Cambiar tema">
                             <span class="icon">
                                 <i class="fas fa-moon"></i>
                             </span>
                         </button>
                     </div>
-
                     {% if session.get('user_id') %}
                         <div class="navbar-item">
-                            <a href="{{ url_for('home_bp.login') }}">
-                                Mis archivos
-                            </a>
+                            <a href="#">Mis archivos</a>
                         </div>
                         <div class="navbar-item">
-                            <a href="{{ url_for('home_bp.login') }}">
-                                Cerrar sesión
-                            </a>
+                            <a href="#">Cerrar sesión</a>
                         </div>
-
                     {% else %}
                         <div class="navbar-item">
-                            <a class="button is-light" href="{{ url_for('home_bp.login') }}">
-                                Iniciar sesión
-                            </a>
+                            <a class="button is-light" href="{{ url_for('home_bp.login') }}"> Iniciar sesión</a>
                         </div>
                         <div class="navbar-item">
-                            <a class="button is-primary" href="{{ url_for('home_bp.register') }}">
+                            <a class="button is-primary"
+                            href="{{ url_for('home_bp.register') }}">
                                 Crear cuenta
                             </a>
                         </div>
@@ -69,11 +69,11 @@
             </div>
         </div>
     </nav>
-    <main>
+    <main class="is-flex-grow-1">
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer-portada">
+    <footer class="footer-portada has-text-centered">
       <p>La Nube - Proyecto Personal&copy; 2026</p>
     </footer>
   </body>
