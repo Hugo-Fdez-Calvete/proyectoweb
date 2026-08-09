@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Pokettle{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+  <body>
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="{{ url_for('.home') }}" class="navbar-logo">
+          <img src="{{ url_for('static', filename='img/X') }}" alt="Logo">
+        </a>
+        <div class="navbar-links">
+          <a href="{{ url_for('.home') }}">Inicio</a>
+          {% if session.trainer %}
+            <a href="{{ url_for('.x') }}">x</a>
+            <a href="{{ url_for('.logout') }}">Cerrar Sesion</a>
+            <a href="{{ url_for('.historial') }}">Historial</a>
+          {% else %}
+            <a href="{{ url_for('.registro') }}">Registrarse</a>
+          {% endif %}
+        </div>
+      </div>
+    /nav>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer-portada">
+      <p>Proyecto Personal &copy; 2026</p>
+    </footer>
+  </body>
+</html>

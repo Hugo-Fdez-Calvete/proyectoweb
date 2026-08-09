@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}X{% endblock %}
+
+{% block content %}
+<div class="body-index">
+  <img src="{{ url_for('static', filename='img/x') }}" alt="X" class="image">
+  <div class="form-box">
+    <p class="subtitle" style="margin-top: 25px;">
+      Registrate aquí abajo para continuar
+    </p>
+    <form method="POST" action="/registro">
+      {{ form.hidden_tag() }}
+      <p>
+        {{ form.nombre.label }}<br>
+        {{ form.nombre(size=30) }}<br>
+        {{ form.password.label }}<br>
+        {{ form.password(size=30) }}
+        {% for error in form.nombre.errors %}
+          <span style="color:red;">{{ error }}</span><br>
+        {% endfor %}
+      </p>
+      {% for error in form.password.errors %}
+          <span style="color:red;">{{ error }}</span><br>
+        {% endfor %}
+      </p>
+      
+      <p>{{ form.enviar(class_="btn-primary") }}</p>
+      
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+from flask import Flask, session
+from flask_session import Session 
+from app.database.db import db
+import json, random, app, os
+
+app = Flask(__name__)
+
+# Configuración de Flask-Session
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "data", "pokemons.db")
+
+app.config["SESSION_TYPE"] = "filesystem"   
+app.config["SESSION_PERMANENT"] = False    
+app.config["SESSION_FILE_DIR"] = "./.flask_session"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
+app.secret_key= "SECRETA"
+
+Session(app)
+
+db.init_app(app)
+
+# Cargar el JSON solo una vez
+app.register_blueprint(x_bp, url_prefix="/")
+app.register_blueprint(y_bp, url_prefix="/y")
+
+@app.cli.command("crear-tablas")
+def crear_tablas():
+    print("Creando tablas de base de datos")
+    db.create_all()
+    print("Base de datos creada correctamente")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
