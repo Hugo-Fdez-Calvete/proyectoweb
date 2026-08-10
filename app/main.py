@@ -1,15 +1,16 @@
 from flask import Flask, session
 from flask_session import Session 
 import json, random, os
-from app.routes.primary_routes import root_bp, home_bp
 
+from app.routes.primary_routes import root_bp, home_bp
+from app.models.users_db import User
 from app.database.db import db
 
 app = Flask(__name__)
 
 # Configuración de Flask-Session
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "data", "pokemons.db")
+DB_PATH = os.path.join(BASE_DIR, "data", "users.db")
 
 app.config["SESSION_TYPE"] = "filesystem"   
 app.config["SESSION_PERMANENT"] = False    

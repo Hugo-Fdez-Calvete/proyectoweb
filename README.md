@@ -56,9 +56,9 @@ Sigue estos pasos para ejecutar la aplicación Flask de forma local:
 
 - Clonar el repositorio
 
-    ``git clone https://github.com/aaronceiro/WIRTZ-POKEMON.git``
+    ``git clone https://github.com/Hugo-Fdez-Calvete/proyectoweb.git``
 
-    ``cd WIRTZ-POKEMON``
+    ``cd proyectoweb``
 
 - Crear y activar el entorno virtual
 

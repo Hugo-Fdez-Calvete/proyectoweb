@@ -1,4 +1,4 @@
-from app import db
+from app.database.db import db
 from datetime import datetime, timezone
 from app.models.users_db import User
 
