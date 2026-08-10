@@ -8,7 +8,7 @@
                     <div class="has-text-centered mb-5">
                         <h1 class="title is-3">Crear cuenta</h1>
                     </div>
-                    <form method="POST" action="{{ url_for('home_bp.register') }}">
+                    <form method="POST" action="{{url_for('home_bp.register')}}">
                         <!-- Nombre de usuario -->
                         <div class="field">
                             <label class="label" for="username">
@@ -83,7 +83,7 @@
                     <div class="has-text-centered mt-5">
                         <p>
                             ¿Ya tienes una cuenta?
-                            <a href="{{ url_for('home_bp.login') }}">
+                            <a href="{{url_for('home_bp.login')}}">
                                 Inicia sesión
                             </a>
                         </p>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+<script src="{{url_for('static', filename='js/navbar.js')}}"></script>
   <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
         <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
 
       <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -20,7 +20,7 @@
         <div class="container">
             <!-- Logo -->
             <div class="navbar-brand">
-                <a class="navbar-item" href="{{ url_for('home_bp.index') }}">
+                <a class="navbar-item" href="{{url_for('home_bp.index')}}">
                     <strong>Home Cloud</strong>
                 </a>
                 <!-- Menú móvil -->
@@ -49,20 +49,17 @@
                     </div>
                     {% if session.get('user_id') %}
                         <div class="navbar-item">
-                            <a href="#">Mis archivos</a>
+                            <a class="button is-light" href="">Mis archivos</a>
                         </div>
                         <div class="navbar-item">
-                            <a href="#">Cerrar sesión</a>
+                            <a class="button is-primary" href="{{url_for('home_bp.logout')}}">Cerrar sesión</a>
                         </div>
                     {% else %}
                         <div class="navbar-item">
-                            <a class="button is-light" href="{{ url_for('home_bp.login') }}"> Iniciar sesión</a>
+                            <a class="button is-light" href="{{url_for('home_bp.login')}}"> Iniciar sesión</a>
                         </div>
                         <div class="navbar-item">
-                            <a class="button is-primary"
-                            href="{{ url_for('home_bp.register') }}">
-                                Crear cuenta
-                            </a>
+                            <a class="button is-primary" href="{{url_for('home_bp.register')}}">Crear cuenta</a>
                         </div>
                     {% endif %}
                 </div>

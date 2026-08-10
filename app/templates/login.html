@@ -6,6 +6,16 @@
         <div class="column is-4 mt-6">
 
             <div class="box mt-6">
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="notification is-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
                 <div class="has-text-centered mb-5">
                     <h1 class="title is-3">Iniciar sesión</h1>
@@ -14,7 +24,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ url_for('home_bp.login') }}">
+                <form method="POST" action="{{url_for('home_bp.login')}}">
 
                     <!-- Método de acceso -->
                     <div class="field">
@@ -88,7 +98,7 @@
                 <div class="has-text-centered mt-5">
                     <p>
                         ¿No tienes una cuenta?
-                        <a href="{{ url_for('home_bp.register') }}">
+                        <a href="{{url_for('home_bp.register')}}">
                             Crear una cuenta
                         </a>
                     </p>

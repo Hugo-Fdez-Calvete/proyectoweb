@@ -21,11 +21,13 @@ def index():
 def login():
     if request.method == "POST":
 
-        username = request.form.get("username", "").strip()
+        login_method = request.form.get("login_method", "username")
+        identifier = request.form.get("identifier", "").strip()
         password = request.form.get("password", "")
 
         success, user, error = login_service.login_user(
-            username,
+            identifier,
+            login_method,
             password
         )
 
@@ -73,3 +75,8 @@ def register():
 
         return redirect(url_for("home_bp.login"))
     return render_template("register.html")
+
+@home_bp.route("/logout")
+def logout():
+    login_service.logout_user()
+    return redirect(url_for("home_bp.index"))
