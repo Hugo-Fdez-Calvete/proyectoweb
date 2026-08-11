@@ -15,21 +15,8 @@ def get_user_by_phone(phone):
     return User.query.filter_by(phone=phone).first()
 
 
-def create_user(
-    username,
-    email,
-    phone,
-    password_hash
-    ):
-    user = User(
-        username=username,
-        email=email,
-        phone=phone,
-        password_hash=password_hash,
-        storage_gb=0,
-        is_admin=False,
-        status="pending"
-    )
+def create_user(username, email, phone, password_hash):
+    user = User(username=username, email=email, phone=phone, password_hash=password_hash, storage_gb=0, is_admin=False, status="pending")
 
     db.session.add(user)
     db.session.commit()

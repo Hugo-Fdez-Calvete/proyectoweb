@@ -1,17 +1,18 @@
-from app.services import hash_service
-from app.services import query_service
 from flask import session
+
+from app.services import hash_service
+from app.repositories import primary_repo
 
 def login_user(identifier, login_method, password):
 
     if login_method == "username":
-        user = query_service.get_user_by_username(identifier)
+        user = primary_repo.get_user_by_username(identifier)
 
     elif login_method == "email":
-        user = query_service.get_user_by_email(identifier)
+        user = primary_repo.get_user_by_email(identifier)
 
     elif login_method == "phone":
-        user = query_service.get_user_by_phone(identifier)
+        user = primary_repo.get_user_by_phone(identifier)
 
     else:
         return False, None, "Método de acceso no válido."
@@ -33,9 +34,15 @@ def login_user(identifier, login_method, password):
         return (False,None,"Tu solicitud de registro ha sido rechazada.")
 
     # Actualizar última conexión
-    query_service.update_last_login(user.id)
+    primary_repo.update_last_login(user.id)
+
+    # Guardar usuario en sesión
+    session["user_id"] = user.id
 
     return True, user, None
 
 def logout_user():
     session.clear()
+
+def is_logged_in():
+    return "user_id" in session

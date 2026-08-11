@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="section">
+    <div class="container mt-6">
+
+        <div class="level mb-5">
+            <div class="level-left">
+                <div>
+                    <h1 class="title is-3">Mis archivos</h1>
+                    <p class="subtitle is-6">
+                        Gestiona tus archivos y carpetas.
+                    </p>
+                </div>
+            </div>
+
+            <div class="level-right">
+                <div class="buttons">
+                    <button class="button is-primary">
+                        <span class="icon">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span>Subir archivo</span>
+                    </button>
+
+                    <button class="button">
+                        <span class="icon">
+                            <i class="fas fa-folder-plus"></i>
+                        </span>
+                        <span>Nueva carpeta</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+
+            <div class="has-text-centered py-6">
+                <span class="icon is-large has-text-grey">
+                    <i class="fas fa-folder-open fa-3x"></i>
+                </span>
+
+                <p class="title is-5 mt-4">
+                    No hay archivos
+                </p>
+
+                <p class="has-text-grey">
+                    Sube un archivo o crea una carpeta para comenzar.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
