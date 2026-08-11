@@ -1,0 +1,67 @@
+@import url("https://fonts.bunny.net/css?family=jura:300,500");
+
+:root {
+    --nav-indicator-active: rgb(75, 82, 97);
+    --nav-bg: rgba(20, 22, 26);
+    --nav-link-color: white;
+    --nav-padding: 5px;
+    --nav-border-radius: 999vw;
+}
+
+
+/* NAVBAR */
+
+.wrapper {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+
+    width: fit-content;
+    padding: var(--nav-padding);
+
+    background-color: var(--nav-bg);
+
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: var(--nav-border-radius);
+
+    z-index: 1000;
+}
+
+
+/* ENLACES */
+
+.wrapper > a {
+    display: block;
+
+    padding: .5em 1em;
+
+    color: white !important;
+
+    font-family: "Jura", sans-serif;
+    font-size: 1.2rem;
+
+    text-decoration: none;
+
+    border-radius: var(--nav-border-radius);
+}
+
+
+/* TEXTO SIEMPRE BLANCO */
+
+.wrapper > a:visited,
+.wrapper > a:hover,
+.wrapper > a:active {
+    color: white !important;
+}
+
+
+/* PÁGINA ACTUAL */
+
+.wrapper > a.active {
+    background-color: var(--nav-indicator-active);
+    color: white !important;
+}

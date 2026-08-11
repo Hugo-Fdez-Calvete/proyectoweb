@@ -1,77 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <script src="{{url_for('static', filename='js/navbar.js')}}"></script>
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
     <title>{% block title %}La Nube{% endblock %}</title>
 
-      <!-- Bulma -->
+    <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
-        <!-- CSS -->
+    <!-- CSS -->
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+    <!-- CSS - Navbar -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
 
-      <!-- Font Awesome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  </head>
-  <body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
-    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
-        <div class="container">
-            <!-- Logo -->
-            <div class="navbar-brand">
-                <a class="navbar-item" href="{{url_for('home_bp.index')}}">
-                    <strong>Home Cloud</strong>
-                </a>
-                <!-- Menú móvil -->
-                <a role="button"
-                class="navbar-burger"
-                aria-label="menu"
-                aria-expanded="false"
-                data-target="mainNavbar">
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                </a>
-            </div>
-            <!-- Navbar -->
-            <div id="mainNavbar" class="navbar-menu">
-                <div class="navbar-end">
+</head>
 
-                    <!-- Tema -->
-                    <div class="navbar-item">
+<body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
 
-                        <button id="theme-toggle" class="button is-black" title="Cambiar tema">
-                            <span class="icon">
-                                <i class="fas fa-moon"></i>
-                            </span>
-                        </button>
-                    </div>
-                    {% if session.get('user_id') %}
-                        <div class="navbar-item">
-                            <a class="button is-light" href="{{url_for('dashboard_bp.dashboard')}}">Mis archivos</a>
-                        </div>
-                        <div class="navbar-item">
-                            <a class="button is-primary" href="{{url_for('home_bp.logout')}}">Cerrar sesión</a>
-                        </div>
-                    {% else %}
-                        <div class="navbar-item">
-                            <a class="button is-light" href="{{url_for('home_bp.login')}}"> Iniciar sesión</a>
-                        </div>
-                        <div class="navbar-item">
-                            <a class="button is-primary" href="{{url_for('home_bp.register')}}">Crear cuenta</a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+    <nav class="wrapper">
+        <!-- Inicio -->
+        <a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %}class="active" {% endif %}>
+            <strong>Home Cloud</strong>
+        </a>
+
+        {% if session.get('user_id') %}
+        <!-- Mis archivos -->
+        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
+            %}class="active" {% endif %}>
+            Mis archivos
+        </a>
+        <!-- Cerrar sesión -->
+        <a href="{{ url_for('home_bp.logout') }}">
+            Cerrar sesión
+        </a>
+
+        {% else %}
+        <!-- Iniciar sesión -->
+        <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %}class="active" {% endif %}>
+            Iniciar sesión
+        </a>
+
+        <!-- Crear cuenta -->
+        <a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register' %}class="active" {% endif
+            %}>
+            Crear cuenta
+        </a>
+        {% endif %}
     </nav>
+
     <main class="is-flex-grow-1">
-      {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <footer class="footer-portada has-text-centered">
-      <p>La Nube - Proyecto Personal&copy; 2026</p>
+        <p>La Nube - Proyecto Personal&copy; 2026</p>
     </footer>
-  </body>
+</body>
+
 </html>
