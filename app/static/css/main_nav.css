@@ -1,7 +1,7 @@
 @import url("https://fonts.bunny.net/css?family=jura:300,500");
 
 :root {
-    --nav-indicator-active: rgb(75, 82, 97);
+    --nav-indicator-active: rgb(75, 82, 97, 0.9);
     --nav-bg: rgb(20, 22, 26, 0.8);
     --nav-link-color: white;
     --nav-padding: 5px;
@@ -63,5 +63,5 @@
 
 .wrapper > a.active {
     background-color: var(--nav-indicator-active);
-    color: white !important;
+    color: rgba(0, 209, 178) !important;
 }

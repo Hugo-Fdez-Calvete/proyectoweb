@@ -4,6 +4,7 @@ import json, random, os
 
 from app.routes.primary_routes import root_bp, home_bp
 from app.routes.dashboard_routes import dashboard_bp
+from app.routes.admin_routes import admin_bp
 from app.models.users_db import User
 from app.database.db import db
 
@@ -26,6 +27,7 @@ db.init_app(app)
 app.register_blueprint(root_bp, url_prefix="/")
 app.register_blueprint(home_bp, url_prefix="/HomeCloud")
 app.register_blueprint(dashboard_bp, url_prefix="/HomeCloud")
+app.register_blueprint(admin_bp, url_prefix="/HomeCloud")
 
 @app.cli.command("crear-tablas")
 def crear_tablas():

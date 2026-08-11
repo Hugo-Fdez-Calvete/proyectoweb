@@ -7,13 +7,14 @@
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
     <title>{% block title %}La Nube{% endblock %}</title>
 
+    <!-- CSS - Navbar -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
+
     <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
-    <!-- CSS - Navbar -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -27,16 +28,15 @@
             <strong>Home Cloud</strong>
         </a>
 
+        {% if session.get("is_admin") %}
+            <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %}class="active" {% endif %}>Administración</a>
+        {% endif %}
+
         {% if session.get('user_id') %}
         <!-- Mis archivos -->
-        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
-            %}class="active" {% endif %}>
-            Mis archivos
-        </a>
+        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %}class="active" {% endif %}>Mis archivos</a>
         <!-- Cerrar sesión -->
-        <a href="{{ url_for('home_bp.logout') }}">
-            Cerrar sesión
-        </a>
+        <a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a>
 
         {% else %}
         <!-- Iniciar sesión -->
