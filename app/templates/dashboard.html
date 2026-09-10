@@ -5,6 +5,17 @@
 <section class="section">
     <div class="container mt-6">
 
+        <!-- MENSAJES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="notification is-{{ category }} mb-5">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <!-- CABECERA -->
         <div class="level mb-5">
             <div class="level-left">
@@ -21,11 +32,9 @@
                 <div class="buttons">
 
                     <!-- BOTÓN SUBIR -->
-                    <form action="{{ url_for('cloud_bp.upload') }}" method="POST" enctype="multipart/form-data"
-                        id="upload-form">
-                        <input type="file" name="file" id="file-input" hidden>
-                        <button type="button" class="button is-primary"
-                            onclick="document.getElementById('file-input').click()">
+                    <form action="{{ url_for('cloud_bp.upload') }}" method="POST" enctype="multipart/form-data" id="upload-form">
+                        <input type="file" name="file" id="file-input" hidden >
+                        <button type="button" class="button is-primary" onclick="document.getElementById('file-input').click()">
                             <span class="icon">
                                 <i class="fas fa-upload"></i>
                             </span>
@@ -69,17 +78,17 @@
 
                     {% if user.storage_gb > 0 %}
 
-                    {% set storage_percentage = (used_storage / user.storage_gb) * 100 %}
+                        {% set storage_percentage=(used_storage / user.storage_gb)*100%}
 
-                    {% if storage_percentage > 100 %}
-                    {% set storage_percentage = 100 %}
-                    {% endif %}
+                        {% if storage_percentage > 100 %}
+                            {% set storage_percentage = 100 %}
+                        {% endif %}
 
-                    <div style="width: 250px;">
+                        <div style="width: 250px;">
                         <progress class="progress is-primary" value="{{ storage_percentage }}" max="100">
-                            {{ "%.0f"|format(storage_percentage) }}%
-                        </progress>
-                    </div>
+                                {{ "%.0f"|format(storage_percentage) }}%
+                            </progress>
+                        </div>
 
                     {% endif %}
                 </div>
@@ -91,120 +100,120 @@
             {% if available_storage < 0 %} {% set available_storage=0 %} {% endif %} <p
                 class="has-text-grey is-size-7 mt-2">
                 {{ "%.2f"|format(available_storage) }} GB disponibles
-                </p>
+            </p>
         </div>
 
         <!-- ARCHIVOS -->
         <div class="box">
 
             {% if files %}
-            <div class="table-container">
-                <table class="table is-fullwidth is-hoverable">
-                    <thead>
-                        <tr>
-                            <th>
-                                Nombre
-                            </th>
-                            <th>
-                                Tamaño
-                            </th>
-                            <th>
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-hoverable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Nombre
+                                </th>
+                                <th>
+                                    Tamaño
+                                </th>
+                                <th>
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                        {% for file in files %}
-                        <tr>
+                            {% for file in files %}
+                                <tr>
 
-                            <!-- NOMBRE -->
-                            <td>
-                                <span class="icon mr-2">
-                                    {% if file.is_dir() %}
-                                    <i class="fas fa-folder"></i>
-                                    {% else %}
-                                    <i class="fas fa-file"></i>
-                                    {% endif %}
-                                </span>
-                                {{ file.name }}
-                            </td>
+                                    <!-- NOMBRE -->
+                                    <td>
+                                        <span class="icon mr-2">
+                                            {% if file.is_dir() %}
+                                                <i class="fas fa-folder"></i>
+                                            {% else %}
+                                                <i class="fas fa-file"></i>
+                                            {% endif %}
+                                        </span>
+                                        {{ file.name }}
+                                    </td>
 
-                            <!-- TAMAÑO -->
-                            <td>
-                                {% if file.is_dir() %}
-                                <span class="has-text-grey">
-                                    —
-                                </span>
-                                {% else %}
-                                {{ "%.2f"|format(file.stat().st_size / (1024 ** 2)) }} MB
-                                {% endif %}
-                            </td>
+                                    <!-- TAMAÑO -->
+                                    <td>
+                                        {% if file.is_dir() %}
+                                            <span class="has-text-grey">
+                                                —
+                                            </span>
+                                        {% else %}
+                                            {{ "%.2f"|format(file.stat().st_size / (1024 ** 2)) }} MB
+                                        {% endif %}
+                                    </td>
 
-                            <!-- ACCIONES -->
-                            <td>
-                                <div class="buttons are-small">
+                                    <!-- ACCIONES -->
+                                    <td>
+                                        <div class="buttons are-small">
 
-                                    {% if file.is_dir() %}
+                                            {% if file.is_dir() %}
 
-                                    <!-- ABRIR CARPETA -->
+                                                <!-- ABRIR CARPETA -->
                                     <a href="#" class="button is-link is-light">
-                                        <span class="icon">
-                                            <i class="fas fa-folder-open"></i>
-                                        </span>
-                                        <span>
-                                            Abrir
-                                        </span>
-                                    </a>
+                                                    <span class="icon">
+                                                        <i class="fas fa-folder-open"></i>
+                                                    </span>
+                                                    <span>
+                                                        Abrir
+                                                    </span>
+                                                </a>
 
-                                    {% else %}
+                                            {% else %}
 
-                                    <!-- DESCARGAR -->
+                                                <!-- DESCARGAR -->
                                     <a href="{{ url_for('cloud_bp.download', filename=file.name) }}" class="button is-info is-light">
-                                        <span class="icon">
-                                            <i class="fas fa-download"></i>
-                                        </span>
-                                        <span>
-                                            Descargar
-                                        </span>
-                                    </a>
+                                                    <span class="icon">
+                                                        <i class="fas fa-download"></i>
+                                                    </span>
+                                                    <span>
+                                                        Descargar
+                                                    </span>
+                                                </a>
 
-                                    {% endif %}
+                                            {% endif %}
 
-                                    <!-- ELIMINAR -->
+                                            <!-- ELIMINAR -->
                                     <form action="{{ url_for('cloud_bp.delete',filename=file.name) }}" method="POST">
                                         <button type="submit" class="button is-danger is-light" onclick="return confirm('¿Seguro que quieres eliminar este elemento?')">
-                                            <span class="icon">
-                                                <i class="fas fa-trash"></i>
-                                            </span>
-                                            <span>
-                                                Eliminar
-                                            </span>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                                    <span class="icon">
+                                                        <i class="fas fa-trash"></i>
+                                                    </span>
+                                                    <span>
+                                                        Eliminar
+                                                    </span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
 
-            <!-- SIN ARCHIVOS -->
-            <div class="has-text-centered py-6">
-                <span class="icon is-large has-text-grey">
-                    <i class="fas fa-folder-open fa-3x"></i>
-                </span>
+                <!-- SIN ARCHIVOS -->
+                <div class="has-text-centered py-6">
+                    <span class="icon is-large has-text-grey">
+                        <i class="fas fa-folder-open fa-3x"></i>
+                    </span>
 
-                <p class="title is-5 mt-4">
-                    No hay archivos
-                </p>
+                    <p class="title is-5 mt-4">
+                        No hay archivos
+                    </p>
 
-                <p class="has-text-grey">
-                    Sube un archivo o crea una carpeta para comenzar.
-                </p>
-            </div>
+                    <p class="has-text-grey">
+                        Sube un archivo o crea una carpeta para comenzar.
+                    </p>
+                </div>
 
             {% endif %}
         </div>
@@ -213,9 +222,7 @@
 
 <!-- SUBIDA AUTOMÁTICA -->
 <script>
-    document.getElementById("file-input").addEventListener(
-        "change",
-        function () {
+    document.getElementById("file-input").addEventListener("change", function () {
             if (this.files.length > 0) {
                 document
                     .getElementById("upload-form")
