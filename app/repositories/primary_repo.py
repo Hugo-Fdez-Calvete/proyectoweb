@@ -15,6 +15,9 @@ def get_user_by_email(email):
 def get_user_by_phone(phone):
     return User.query.filter_by(phone=phone).first()
 
+def get_user_by_id(user_id):
+    return User.query.get(user_id)
+
 
 def create_user(username, email, phone, password_hash):
     user = User(username=username, email=email, phone=phone, password_hash=password_hash, storage_gb=0, is_admin=False, status="pending")
