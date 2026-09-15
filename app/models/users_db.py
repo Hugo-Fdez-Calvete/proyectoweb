@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer,String,ForeignKey,DateTime
 from datetime import datetime, timezone
-from app.database.db import db
 from sqlalchemy.orm import relationship
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = "users"

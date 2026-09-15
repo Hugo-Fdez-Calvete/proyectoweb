@@ -69,6 +69,10 @@ Sigue estos pasos para ejecutar la aplicación Flask de forma local:
 
     ``.\venv\Scripts\pip.exe install -r requirements.txt``
 
+- Levantar la db
+
+    ``.\venv\Scripts\flask.exe --app app.main crear-tablas``
+
 - Ejecutar la aplicación Flask
 
     Desde la carpeta raíz del proyecto:

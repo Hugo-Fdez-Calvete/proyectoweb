@@ -7,13 +7,13 @@ from app.routes.dashboard_routes import dashboard_bp
 from app.routes.admin_routes import admin_bp
 from app.routes.cloud_routes import cloud_bp
 from app.models.users_db import User
-from app.database.db import db
+from app.models.users_db import db
 
 app = Flask(__name__)
 
 # Configuración de Flask-Session
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "data", "users.db")
+DB_PATH = os.path.join(BASE_DIR, "database", "users.db")
 
 app.config["SESSION_TYPE"] = "filesystem"   
 app.config["SESSION_PERMANENT"] = False    
@@ -37,5 +37,8 @@ def crear_tablas():
     db.create_all()
     print("Base de datos creada correctamente")
 
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=5000, debug=True)
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)

@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
-
-from app.database.db import db
-from app.models.users_db import User
+from app.models.users_db import User,db
 
 
 def get_user_by_username(username):
