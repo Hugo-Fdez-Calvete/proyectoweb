@@ -1,31 +1,37 @@
-from app.database.db import db
-from datetime import datetime, timezone
-from app.models.users_db import User
+from app.repositories.query_repo import UserRepository
 
 
-def get_user_by_username(username):
-    return User.query.filter_by(username=username).first()
+user_repo = UserRepository()
 
 
-def get_user_by_email(email):
-    return User.query.filter_by(email=email).first()
+def get_user_by_username(username: str, repo: UserRepository = None):
+    repository = repo or user_repo
+
+    return repository.find_by_username(username)
 
 
-def get_user_by_phone(phone):
-    return User.query.filter_by(phone=phone).first()
+def get_user_by_email(email: str, repo: UserRepository = None):
+    repository = repo or user_repo
+
+    return repository.find_by_email(email)
 
 
-def create_user(username, email, phone, password_hash):
-    user = User(username=username, email=email, phone=phone, password_hash=password_hash, storage_gb=0, is_admin=False, status="pending")
+def get_user_by_phone(phone: str, repo: UserRepository = None):
+    repository = repo or user_repo
 
-    db.session.add(user)
-    db.session.commit()
+    return repository.find_by_phone(phone)
 
-    return user
 
-def update_last_login(user_id):
-    user = User.query.get(user_id)
+def create_user(username: str,email: str,phone: str,password_hash: str,repo: UserRepository = None):
+    repository = repo or user_repo
 
+    return repository.create(username, email, phone, password_hash)
+
+
+def update_last_login(user_id, repo: UserRepository = None):
+    repository = repo or user_repo
+
+    user = repository.find_by_id(user_id)
     if user:
-        user.last_login = datetime.now(timezone.utc)
-        db.session.commit()
+        return repository.update_last_login(user)
+    return None
