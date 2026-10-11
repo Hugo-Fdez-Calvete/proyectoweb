@@ -16,9 +16,4 @@ COPY . .
 
 EXPOSE 5000
 
-<<<<<<< HEAD:DockerFile
 CMD ["python", "app/main.py"]
-=======
-# Comando para iniciar la aplicación (ejecutando main.py)
-CMD ["python", "main.py"]
->>>>>>> aeaabfe4748ca497939372570aaa8d78875611ad:Dockerfile
