@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  flaskapp:
+    build: .
+    image: proyectoweb:latest
+    container_name: proyectoweb_container
+    restart: always
+    pull_policy: build
+    ports:
+      - "5000:5000"
+    volumes:
+      - flask_data:/app/data
+      - flask_sessions:/app/.flask_session
+
+volumes:
+  flask_data:
+  flask_sessions:
