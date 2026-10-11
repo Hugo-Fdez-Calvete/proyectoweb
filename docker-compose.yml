@@ -5,8 +5,9 @@ services:
     container_name: proyectoweb_container
     restart: always
     pull_policy: build
+    # Solo accesible desde la propia Raspberry (Nginx del host hace de proxy HTTPS)
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     volumes:
       # Base de datos SQLite (/app/app/database/users.db)
       - flask_data:/app/app/database
