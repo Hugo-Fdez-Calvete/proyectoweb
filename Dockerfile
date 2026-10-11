@@ -2,18 +2,17 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Instalar herramientas de compilación esenciales para arquitectura ARM / Raspberry Pi
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar e instalar requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del código
 COPY . .
+
+# Añadir esta línea para que Python reconozca la raíz como módulo
+ENV PYTHONPATH=/app
 
 EXPOSE 5000
 
