@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   flaskapp:
     build: .
@@ -10,9 +8,14 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - flask_data:/app/data
+      # Base de datos SQLite (/app/app/database/users.db)
+      - flask_data:/app/app/database
+      # Archivos subidos por los usuarios (/app/app/cloud)
+      - flask_cloud:/app/app/cloud
+      # Sesiones de Flask-Session
       - flask_sessions:/app/.flask_session
 
 volumes:
   flask_data:
+  flask_cloud:
   flask_sessions:

@@ -1,5 +1,5 @@
 from flask import Flask, session
-from flask_session import Session 
+from flask_session import Session
 import json, random, os
 
 from app.routes.primary_routes import root_bp, home_bp
@@ -16,14 +16,17 @@ app = Flask(__name__)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "users.db")
 
+# SQLite no crea carpetas: asegurar que exista (Git no sube carpetas vacías)
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
 
 # Config de la app
-app.config["SESSION_TYPE"] = "filesystem"   
-app.config["SESSION_PERMANENT"] = False    
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_FILE_DIR"] = "./.flask_session"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
-app.secret_key= "SECRETA"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.secret_key = "SECRETA"
 
 Session(app)
 
@@ -45,10 +48,11 @@ def crear_tablas():
     print("Base de datos creada correctamente")
 
 
-# Para abrir el servicio a toda la red local
-#
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=5000, debug=True)
-
+# Abierto a toda la red local / al exterior del contenedor.
+# El modo debug solo se activa si defines FLASK_DEBUG=1 (no usar en producción).
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=os.environ.get("FLASK_DEBUG") == "1",
+    )
