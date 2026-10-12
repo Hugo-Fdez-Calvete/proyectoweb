@@ -62,6 +62,6 @@ def logout():
     login_service.logout_user()
     return redirect(url_for("home_bp.index"))
 
-@cv_bp.route("/cv")
+@cv_bp.route("/info")
 def curriculum():
     return render_template("cv.html")
