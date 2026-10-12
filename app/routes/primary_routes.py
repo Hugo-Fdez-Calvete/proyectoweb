@@ -2,13 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from functools import wraps
 from app.services import login_service, register_service
 
-root_bp = Blueprint("root", __name__)
 home_bp = Blueprint("home_bp", __name__)
 cv_bp = Blueprint("cv_bp",__name__)
 
-@root_bp.route("/")
-def redirect_homecloud():
-    return redirect(url_for("home_bp.index"))
 
 @home_bp.route("/")
 def index():
