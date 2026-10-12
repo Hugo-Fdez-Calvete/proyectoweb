@@ -1,0 +1,30 @@
+.cv-nav-button {
+            position: fixed;
+            top: 1rem;
+            right: 1.25rem;
+            z-index: 1000;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .7rem 1rem;
+            border-radius: 999px;
+            background: #3273dc;
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .16);
+            transition: background .2s ease, transform .2s ease;
+        }
+        .cv-nav-button:hover {
+            background: #245bb5;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        @media (max-width: 600px) {
+            .cv-nav-button {
+                top: .65rem;
+                right: .65rem;
+                padding: .6rem .75rem;
+                font-size: .9rem;
+            }
+        }

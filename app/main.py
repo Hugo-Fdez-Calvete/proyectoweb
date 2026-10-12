@@ -2,7 +2,7 @@ from flask import Flask, session
 from flask_session import Session
 import json, random, os
 
-from app.routes.primary_routes import root_bp, home_bp
+from app.routes.primary_routes import root_bp, home_bp, cv_bp
 from app.routes.dashboard_routes import dashboard_bp
 from app.routes.admin_routes import admin_bp
 from app.routes.cloud_routes import cloud_bp
@@ -39,6 +39,7 @@ app.register_blueprint(home_bp, url_prefix="/HomeCloud")
 app.register_blueprint(dashboard_bp, url_prefix="/HomeCloud")
 app.register_blueprint(admin_bp, url_prefix="/HomeCloud")
 app.register_blueprint(cloud_bp, url_prefix="/HomeCloud")
+app.register_blueprint(cv_bp, url_prefix="/HomeCloud")
 
 # Comando para crear la db
 @app.cli.command("crear-tablas")

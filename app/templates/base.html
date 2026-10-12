@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="{{url_for('static', filename='js/navbar.js')}}"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -9,6 +8,7 @@
 
     <!-- CSS - Navbar -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cv_button.css') }}">
 
     <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
@@ -23,30 +23,34 @@
 <body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
 
     <nav class="wrapper">
+        {% if request.path.rstrip('/') != '/cv' %}
+        <a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum' %} class="active" {% endif %}>
+            <span>INFO</span>
+        </a>
+        {% endif %}
         <!-- Inicio -->
-        <a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %}class="active" {% endif %}>
+        <a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %} class="active" {% endif %}>
             <strong>Home Cloud</strong>
         </a>
 
         {% if session.get("is_admin") %}
-            <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %}class="active" {% endif %}>Administración</a>
+            <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %} class="active" {% endif %}>Administración</a>
         {% endif %}
 
         {% if session.get('user_id') %}
         <!-- Mis archivos -->
-        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %}class="active" {% endif %}>Mis archivos</a>
+        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %} class="active" {% endif %}>Mis archivos</a>
         <!-- Cerrar sesión -->
         <a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a>
 
         {% else %}
         <!-- Iniciar sesión -->
-        <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %}class="active" {% endif %}>
+        <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %} class="active" {% endif %}>
             Iniciar sesión
         </a>
 
         <!-- Crear cuenta -->
-        <a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register' %}class="active" {% endif
-            %}>
+        <a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register' %} class="active" {% endif%}>
             Crear cuenta
         </a>
         {% endif %}

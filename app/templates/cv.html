@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Currículum{% endblock %}
+
+{% block content %}
+
+{# ============================================================
+DATOS DEL CV
+============================================================ #}
+{% set orbita_externa = [
+("HTML5", "fa-brands fa-html5"),
+("CSS", "fa-brands fa-css3-alt"),
+("JavaScript", "fa-brands fa-js"),
+("Java", "fa-brands fa-java"),
+("Python", "fa-brands fa-python"),
+("Spring Boot", "fa-solid fa-leaf")
+] %}
+{% set orbita_interna = [
+("SQL", "fa-solid fa-database"),
+("Git", "fa-brands fa-git-alt"),
+("COBOL", "fa-solid fa-hard-drive"),
+("RPG", "fa-solid fa-terminal")
+] %}
+
+{% set stack = [
+{"id": "web", "titulo": "Desarrollo web", "icono": "fa-solid fa-globe", "tecnologias": [("HTML5", "fa-brands fa-html5"), ("CSS", "fa-brands fa-css3-alt"), ("JavaScript", "fa-brands fa-js")]},
+
+{"id": "lang", "titulo": "Lenguajes de programación", "icono": "fa-solid fa-code", "tecnologias": [("Java", "fa-brands fa-java"), ("Python", "fa-brands fa-python"), ("Spring Boot", "fa-solid fa-leaf"), ("Spring Framework", "fa-solid fa-seedling")]},
+
+{"id": "legacy", "titulo": "Sistemas legacy", "icono": "fa-solid fa-server", "tecnologias": [("RPG", "fa-solid fa-terminal"), ("COBOL", "fa-solid fa-hard-drive")]},
+
+{"id": "db", "titulo": "Bases de datos", "icono": "fa-solid fa-database", "tecnologias": [("SQL", "fa-solid fa-database")]},
+
+{"id": "vcs", "titulo": "Control de versiones y DevOps", "icono": "fa-solid fa-code-branch", "tecnologias": [("Git", "fa-brands fa-git-alt"), ("Git BASH", "fa-solid fa-terminal"), ("GitFlow", "fa-solid fa-code-branch"), ("GitHub", "fa-brands fa-github"), ("GitLab", "fa-brands fa-gitlab")]}
+] %}
+
+{% set trayectoria = [
+{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "Educación Secundaria Obligatoria", "centro": "I.E.S. Salvador de Madariaga", "detalle": "", "actual": false},
+
+{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "Bachillerato en Ciencias Sociales", "centro": "I.E.S. Agra do Orzán", "detalle": "", "actual": false},
+
+{"tipo": "Experiencia", "icono": "fa-solid fa-briefcase", "titulo": "Programador junior", "centro": "SEIDOR", "detalle": "Primer año de prácticas en empresa dentro del ciclo dual de Desarrollo de Aplicaciones Web."},
+
+{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "FP Dual de Grado Superior en Desarrollo deAplicaciones Web","centro": "I.E.S. Fernando Wirtz", "detalle": "", "actual": true}
+] %}
+
+{% set idiomas = [
+{"nombre": "Español", "nivel": "Nativo", "pasos": 6},
+{"nombre": "Gallego", "nivel": "Nativo", "pasos": 6},
+{"nombre": "Inglés", "nivel": "Avanzado (C1)", "pasos": 5},
+{"nombre": "Francés", "nivel": "Básico (B1)", "pasos": 3}
+] %}
+
+{% set habilidades = [
+"Gran capacidad de adaptabilidad",
+"Trabajo en equipo",
+"Planificación y organización",
+"Capacidad para realizar múltiples tareas",
+"Buena gestión del tiempo",
+"Capacidad de aprendizaje",
+"Autodidacta"
+] %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cv.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+<div class="cv">
+    <script src="{{url_for('static', filename='js/cv.js')}}"></script>
+
+    <!-- ===================== HERO ===================== -->
+    <header class="cv-hero">
+        <div class="cv-wrap hero-grid">
+            <div>
+                <p class="badge" data-in style="--i:0"><span class="dot"></span> Programador junior</p>
+
+                <h1 class="cv-name" data-in style="--i:1"><span>Hugo</span><span>Fernández</span></h1>
+
+                <p class="cv-role" data-in style="--i:2">Estudiante de Desarrollo de Aplicaciones Web</p>
+                <p class="cv-tagline" data-in style="--i:3">
+                    Apasionado por la tecnología y en constante aprendizaje para mejorar mis habilidades en desarrollo
+                    web.
+                </p>
+
+                <div class="cta-row" data-in style="--i:4">
+                    <a class="btn btn-primary" href="{{ url_for('static', filename='docs/Curriculum_Hugo_Fdez.pdf') }}" download>
+                        <i class="fa-solid fa-file-arrow-down"></i> Descargar CV
+                    </a>
+                    <a class="btn btn-ghost" href="#contacto">
+                        <i class="fa-regular fa-envelope"></i> Contactar
+                    </a>
+                </div>
+            </div>
+
+            <div data-in style="--i:3">
+                <div class="orbit" role="img"
+                    aria-label="Tecnologías que utilizo girando alrededor de las iniciales HF">
+                    <div class="orbit-core"><b>HF</b></div>
+
+                    {% set paso_ext = 360 // (orbita_externa | length) %}
+                    <div class="ring ring-out" aria-hidden="true">
+                        {% for nombre, icono in orbita_externa %}
+                        <div class="orb" style="--a: {{ loop.index0 * paso_ext }}deg"><span><i
+                                    class="{{ icono }}"></i>{{ nombre }}</span></div>
+                        {% endfor %}
+                    </div>
+
+                    {% set paso_int = 360 // (orbita_interna | length) %}
+                    <div class="ring ring-in" aria-hidden="true">
+                        {% for nombre, icono in orbita_interna %}
+                        <div class="orb" style="--a: {{ loop.index0 * paso_int + 45 }}deg"><span><i
+                                    class="{{ icono }}"></i>{{ nombre }}</span></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="cv-wrap">
+
+        <!-- ===================== PERFIL ===================== -->
+        <section class="sec" id="perfil">
+            <div class="sec-h">
+                <h2>Perfil</h2>
+            </div>
+            <div class="perfil-grid">
+                <div>
+                    <p class="perfil-lead">
+                        Apasionado por la tecnología y en constante aprendizaje para mejorar mis habilidades en
+                        desarrollo web.
+                    </p>
+                    <p class="perfil-sub">
+                        Busco oportunidades para iniciarme en el mundo laboral donde aplicar mis conocimientos y
+                        habilidades.
+                    </p>
+                </div>
+                <div class="hud skills-panel">
+                    <h3>Habilidades</h3>
+                    <ul>
+                        {% for h in habilidades %}<li>{{ h }}</li>{% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== STACK ===================== -->
+        <section class="sec" id="stack">
+            <div class="sec-h">
+                <h2>Habilidades técnicas</h2>
+            </div>
+            <div class="stack-grid">
+                <div class="tabs" role="tablist" aria-label="Categorías técnicas" aria-orientation="vertical">
+                    {% for cat in stack %}
+                    <button class="tab" role="tab" id="tab-{{ cat.id }}" aria-controls="panel-{{ cat.id }}"
+                        aria-selected="{{ 'true' if loop.first else 'false' }}"
+                        tabindex="{{ 0 if loop.first else -1 }}">
+                        <i class="{{ cat.icono }}"></i>{{ cat.titulo }}
+                    </button>
+                    {% endfor %}
+                </div>
+
+                {% for cat in stack %}
+                <div class="hud tab-panel" role="tabpanel" id="panel-{{ cat.id }}" aria-labelledby="tab-{{ cat.id }}" {%
+                    if not loop.first %}hidden{% endif %}>
+                    <h3>{{ cat.titulo }}</h3>
+                    <ul class="chips">
+                        {% for nombre, icono in cat.tecnologias %}
+                        <li class="chip"><i class="{{ icono }}"></i>{{ nombre }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- ===================== TRAYECTORIA ===================== -->
+        <section class="sec" id="trayectoria">
+            <div class="sec-h">
+                <h2>Formación y experiencia</h2>
+            </div>
+            <div class="tl">
+                {% for t in trayectoria %}
+                <article class="hud tl-item{{ ' actual' if t.actual }}">
+                    <span class="tl-node"><i class="{{ t.icono }}"></i></span>
+                    <div class="tl-meta">
+                        {{ t.tipo }}
+                        {% if t.actual %}<span class="tl-tag">En curso</span>{% endif %}
+                    </div>
+                    <h3>{{ t.titulo }}</h3>
+                    <p class="tl-centro">{{ t.centro }}</p>
+                    {% if t.detalle %}<p class="tl-detalle">{{ t.detalle }}</p>{% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- ===================== IDIOMAS + ÁRBITRO ===================== -->
+        <section class="sec" id="mas">
+            <div class="sec-h">
+                <h2>Idiomas y más allá del código</h2>
+            </div>
+            <div class="dos-col">
+                <div class="hud lang-panel">
+                    <h3>Idiomas</h3>
+                    {% for l in idiomas %}
+                    <div class="lang">
+                        <div class="lang-top"><span>{{ l.nombre }}</span><em>{{ l.nivel }}</em></div>
+                        <div class="meter" role="img" aria-label="{{ l.nombre }}: {{ l.nivel }}">
+                            {% for i in range(6) %}<i class="{{ 'on' if i < l.pasos }}"></i>{% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="meter-scale" aria-hidden="true">
+                        <span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span>
+                    </div>
+                </div>
+
+                <div class="hud arbitro-panel">
+                    <h3>Árbitro federado</h3>
+                    <div class="arbitro-big"><strong>+10</strong><span>años de experiencia</span></div>
+                    <p>
+                        Una trayectoria que me ha permitido desarrollar habilidades clave. Destaco por mi
+                        responsabilidad,
+                        disciplina y capacidad de adaptación, aportando criterio, compromiso y una actitud proactiva
+                        en cada entorno en el que participo.
+                    </p>
+                    <ul class="tags">
+                        <li>Toma de decisiones bajo presión</li>
+                        <li>Gestión de situaciones complejas</li>
+                        <li>Trabajo con distintos perfiles de personas</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== CONTACTO ===================== -->
+        <section class="sec cv-end" id="contacto">
+            <div class="sec-h">
+                <h2>Contacto</h2>
+            </div>
+            <p class="contacto-intro">Escríbeme, llámame o conecta conmigo en LinkedIn. También puedes descargar mi
+                currículum en PDF.
+            </p>
+
+            <div class="contact-grid">
+                <div class="hud contact-card">
+                    <i class="ico fa-regular fa-envelope"></i>
+                    <div class="contact-main">
+                        <small>Correo</small>
+                        <a href="mailto:hugofernandezcalvete@gmail.com">hugofernandezcalvete@gmail.com</a>
+                    </div>
+                    <button class="copy" type="button" data-copy="hugofernandezcalvete@gmail.com"
+                        data-msg="Correo copiado" aria-label="Copiar correo">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+
+                <div class="hud contact-card">
+                    <i class="ico fa-solid fa-phone"></i>
+                    <div class="contact-main">
+                        <small>Teléfono</small>
+                        <a href="tel:+34604028009">604 028 009</a>
+                    </div>
+                    <button class="copy" type="button" data-copy="604028009" data-msg="Teléfono copiado"
+                        aria-label="Copiar teléfono">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+
+                <div class="hud contact-card">
+                    <i class="ico fa-brands fa-linkedin"></i>
+                    <div class="contact-main">
+                        <small>LinkedIn</small>
+                        <a href="https://www.linkedin.com/in/hugofernandezcalvete" target="_blank"
+                            rel="noopener noreferrer">hugofernandezcalvete</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-cta">
+                <a class="btn btn-primary" href="{{ url_for('static', filename='docs/Curriculum_Hugo_Fdez.pdf') }}" download>
+                    <i class="fa-solid fa-file-arrow-down"></i> Descargar CV en PDF
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Interruptor de tema -->
+    <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Modo claro">
+        <i class="fa-solid fa-sun icon-sun"></i>
+        <i class="fa-solid fa-moon icon-moon"></i>
+        <span class="theme-label">Modo claro</span>
+    </button>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="{{url_for('static', filename='js/cv_2.js')}}"></script>
+
+{% endblock %}

@@ -4,6 +4,7 @@ from app.services import login_service, register_service
 
 root_bp = Blueprint("root", __name__)
 home_bp = Blueprint("home_bp", __name__)
+cv_bp = Blueprint("cv_bp",__name__)
 
 @root_bp.route("/")
 def redirect_homecloud():
@@ -60,3 +61,7 @@ def register():
 def logout():
     login_service.logout_user()
     return redirect(url_for("home_bp.index"))
+
+@cv_bp.route("/cv")
+def curriculum():
+    return render_template("cv.html")
