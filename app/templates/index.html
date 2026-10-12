@@ -1,86 +1,170 @@
 {% extends "base.html" %}
 
-{% block title %}Home Cloud{% endblock %}
-
+{% block title %}Hugo Fernández | Inicio{% endblock %}
 
 {% block content %}
 
-<section class="hero is-fullheight-with-navbar">
-    <div class="hero-body">
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column is-10">
-                    <h1 class="title is-1">
-                        Tus archivos.
-                        <br>
-                        <span class="has-text-primary">
-                            En un solo lugar.
-                        </span>
-                    </h1>
-                    <p class="subtitle is-4 mt-6">
-                        Guarda, organiza y comparte tus archivos
-                        de forma sencilla y segura.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<section class="section">
-    <div class="container">
-        <div class="has-text-centered mb-6">
-            <h2 class="title is-2">
-                Todo lo que necesitas
-            </h2>
-            <p class="subtitle">
-                Un gestor de archivos sencillo y sin complicaciones.
-            </p>
-        </div>
-        <div class="columns mb-6">
-            <div class="column">
-                <div class="box has-text-centered">
-                    <span class="icon is-large">
-                        <i class="fas fa-folder-open fa-2x"></i>
-                    </span>
+{# ============================================================
+DATOS DE LA PÁGINA
+Ajusta aquí las rutas de cada módulo (campo "ruta").
+Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
+============================================================ #}
+{% set modulos = [
+{"titulo": "Proyectos web", "icono": "fa-solid fa-laptop-code", "ancho": true, "ruta": "/", "accion": "Ver proyectos",
+"texto": "Mis proyectos web personales: lo que he construido para aprender, probar ideas y resolver problemas reales."},
 
-                    <h3 class="title is-4 mt-4">
-                        Organiza
-                    </h3>
-                    <p>
-                        Crea carpetas y organiza todos tus archivos
-                        de forma sencilla.
-                    </p>
+{"titulo": "Perfil y currículum", "icono": "fa-regular fa-id-card", "ancho": false, "ruta": "/cv", "accion": "Ver mi perfil",
+"texto": "Formación, experiencia, habilidades técnicas e idiomas. Con el CV listo para descargar en PDF."},
+
+{"titulo": "Home Cloud", "icono": "fa-solid fa-cloud", "ancho": false, "ruta": "/cloud", "accion": "Abrir mi cloud",
+"texto": "Mi nube personal. Sube, organiza y comparte archivos con un enlace."},
+
+{"titulo": "Mensajería interna", "icono": "fa-regular fa-comments", "ancho": false, "ruta": "/mensajeria", "accion": "Abrir mensajería",
+"texto": "Un sistema de mensajes propio para hablar con otros usuarios de la web."},
+
+{"titulo": "Y mucho más", "icono": "fa-solid fa-flask", "ancho": false, "ruta": None, "accion": "Se amplía con el tiempo",
+"texto": "Experimentos, herramientas y novedades. Esta web crece conmigo."}
+] %}
+
+{% set arranque = [
+"cargando perfil",
+"montando home cloud",
+"activando mensajería interna",
+"listando proyectos",
+"preparando novedades"
+] %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+
+<div class="home" data-theme="dark">
+    {% raw %}
+    <script src="{{url_for('static', filename='js/index.js')}}"></script>
+    {% endraw %}
+
+    <div class="hm-bg" aria-hidden="true"></div>
+
+    <!-- ===================== HERO ===================== -->
+    <header class="hm-hero" id="inicio">
+        <canvas class="hm-canvas" aria-hidden="true"></canvas>
+        <div class="hm-scan" aria-hidden="true"></div>
+
+        <div class="hm-wrap hm-hero-grid">
+            <div>
+                <p class="hm-badge"><span class="hm-dot"></span> Web personal de Hugo Fernández</p>
+
+                <h1 class="hm-title" aria-label="Todo lo que construyo, en un solo lugar.">
+                    <span class="w" aria-hidden="true"><span style="--i:0">Todo</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:1">lo</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:2">que</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:3">construyo,</span></span>
+                    <br>
+                    <span class="w" aria-hidden="true"><span style="--i:4">en</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:5">un</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:6">solo</span></span>
+                    <span class="w" aria-hidden="true"><span style="--i:7">lugar.</span></span>
+                </h1>
+
+                <p class="hm-lead">
+                    Aquí están mis proyectos web personales, mi perfil profesional, mi home cloud, un sistema de
+                    mensajería interno y varias cosas más. Explora lo que quieras.
+                </p>
+
+                <div class="hm-cta">
+                    <a class="hm-btn hm-btn-primary" href="#modulos">
+                        <i class="fa-solid fa-compass"></i> Explorar la web
+                    </a>
+                    <a class="hm-btn hm-btn-ghost" href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum' %} {% endif %}>
+                        <i class="fa-regular fa-id-card"></i> Ver mi perfil
+                    </a>
                 </div>
             </div>
-            <div class="column">
-                <div class="box has-text-centered">
-                    <span class="icon is-large">
-                        <i class="fas fa-cloud-arrow-up fa-2x"></i>
-                    </span>
-                    <h3 class="title is-4 mt-4">
-                        Guarda
-                    </h3>
-                    <p>
-                        Sube tus documentos, imágenes y archivos
-                        desde cualquier dispositivo.
-                    </p>
+
+            <div class="hm-term" aria-hidden="true">
+                <div class="hm-term-head">
+                    <span>estado del sistema</span>
+                    <span><i class="hm-dot"></i> en línea</span>
                 </div>
-            </div>
-            <div class="column">
-                <div class="box has-text-centered">
-                    <span class="icon is-large">
-                        <i class="fas fa-link fa-2x"></i>
-                    </span>
-                    <h3 class="title is-4 mt-4">
-                        Comparte
-                    </h3>
-                    <p>
-                        Genera enlaces para compartir tus archivos
-                        cuando quieras.
-                    </p>
+                <div class="hm-term-body">
+                    {% for linea in arranque %}
+                    <div class="hm-row">
+                        <span class="hm-prompt">&gt;</span>
+                        <span class="hm-txt">{{ linea }}</span>
+                        <span class="hm-ok">ok</span>
+                    </div>
+                    {% endfor %}
+                    <div class="hm-row hm-row-final">
+                        <span class="hm-prompt">&gt;</span>
+                        <span class="hm-txt">Todo en línea. Bienvenido.</span><span class="hm-caret"></span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </header>
+
+    <!-- ===================== MÓDULOS ===================== -->
+    <section class="hm-sec" id="modulos">
+        <div class="hm-wrap">
+            <div class="hm-sec-h">
+                <h2>Qué vas a encontrar aquí</h2>
+                <p>Todo lo que he ido montando, organizado por secciones. Entra en la que te interese.</p>
+            </div>
+
+            <div class="hm-bento">
+                {% for m in modulos %}
+                {% set tag = 'a' if m.ruta else 'div' %}
+                <{{ tag }} class="hm-card{{ ' wide' if m.ancho }}" style="--i:{{ loop.index0 }}" {% if m.ruta %}href="{{ m.ruta }}"{% endif %}>
+                    <span class="hm-ico"><i class="{{ m.icono }}"></i></span>
+                    {% if m.ruta %}<i class="hm-open fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>{% endif %}
+                    <div class="hm-body">
+                        <h3>{{ m.titulo }}</h3>
+                        <p>{{ m.texto }}</p>
+                    </div>
+                    {% if m.ancho %}
+                    <div class="hm-mock" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+                    {% endif %}
+                    <span class="hm-act">{{ m.accion }}</span>
+                </{{ tag }}>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== CIERRE ===================== -->
+    <section class="hm-sec hm-end" id="contacto">
+        <div class="hm-wrap">
+            <div class="hm-end-box">
+                <div>
+                    <h2>Diseñada y programada por mí</h2>
+                    <p>Si quieres comentarme algo, proponerme un proyecto o ver mi currículum completo, aquí me tienes.</p>
+                </div>
+                <div class="hm-cta">
+                    <a class="hm-btn hm-btn-primary" href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum' %} {% endif %}>
+                        <i class="fa-regular fa-envelope"></i> Escríbeme
+                    </a>
+                    <a class="hm-btn hm-btn-ghost" href="{{ url_for('static', filename='docs/Curriculum_Hugo_Fdez.pdf') }}" download>
+                        <i class="fa-solid fa-file-arrow-down"></i> Descargar CV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interruptor de tema -->
+    <button class="hm-theme" type="button" aria-label="Modo claro">
+        <i class="fa-solid fa-sun icon-sun"></i>
+        <i class="fa-solid fa-moon icon-moon"></i>
+        <span class="hm-theme-label">Modo claro</span>
+    </button>
+</div>
+
+{% raw %}
+<script src="{{url_for('static', filename='js/cv.js')}}"></script>
+{% endraw %}
+
 {% endblock %}

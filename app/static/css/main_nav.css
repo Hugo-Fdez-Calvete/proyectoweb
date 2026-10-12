@@ -63,5 +63,5 @@
 
 .wrapper > a.active {
     background-color: var(--nav-indicator-active);
-    color: rgba(0, 209, 178) !important;
+    color: rgb(0, 150, 209) !important;
 }

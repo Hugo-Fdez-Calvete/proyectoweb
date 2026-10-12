@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 # Configuración de Flask-Session
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "database", "users.db")
+DB_PATH = os.path.join(BASE_DIR, "data", "users.db")
 
 # SQLite no crea carpetas: asegurar que exista (Git no sube carpetas vacías)
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -35,11 +35,11 @@ db.init_app(app)
 
 # Blueprints
 app.register_blueprint(root_bp, url_prefix="/")
-app.register_blueprint(home_bp, url_prefix="/HomeCloud")
-app.register_blueprint(dashboard_bp, url_prefix="/HomeCloud")
-app.register_blueprint(admin_bp, url_prefix="/HomeCloud")
-app.register_blueprint(cloud_bp, url_prefix="/HomeCloud")
-app.register_blueprint(cv_bp, url_prefix="/HomeCloud")
+app.register_blueprint(home_bp, url_prefix="/HFC")
+app.register_blueprint(dashboard_bp, url_prefix="/HFC")
+app.register_blueprint(admin_bp, url_prefix="/HFC")
+app.register_blueprint(cloud_bp, url_prefix="/HFC")
+app.register_blueprint(cv_bp, url_prefix="/HFC")
 
 # Comando para crear la db
 @app.cli.command("crear-tablas")

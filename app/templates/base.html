@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
-    <title>{% block title %}La Nube{% endblock %}</title>
 
     <!-- CSS - Navbar -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
@@ -30,7 +29,7 @@
         {% endif %}
         <!-- Inicio -->
         <a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %} class="active" {% endif %}>
-            <strong>Home Cloud</strong>
+            <strong>HFC</strong>
         </a>
 
         {% if session.get("is_admin") %}
