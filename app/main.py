@@ -36,10 +36,10 @@ db.init_app(app)
 # Blueprints
 app.register_blueprint(root_bp, url_prefix="/")
 app.register_blueprint(home_bp, url_prefix="/HFC")
-app.register_blueprint(dashboard_bp, url_prefix="/HFC")
-app.register_blueprint(admin_bp, url_prefix="/HFC")
-app.register_blueprint(cloud_bp, url_prefix="/HFC")
-app.register_blueprint(cv_bp, url_prefix="/HFC")
+app.register_blueprint(dashboard_bp, url_prefix="/HomeCloud")
+app.register_blueprint(admin_bp, url_prefix="/HomeCloud")
+app.register_blueprint(cloud_bp, url_prefix="/HomeCloud")
+app.register_blueprint(cv_bp)
 
 # Comando para crear la db
 @app.cli.command("crear-tablas")

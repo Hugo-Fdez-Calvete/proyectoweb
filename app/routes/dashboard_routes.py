@@ -18,14 +18,14 @@ def dashboard():
     user_id = session.get("user_id")
 
     if not user_id:
-        return redirect(url_for("home_bp.index"))
+        return redirect(url_for("home_bp.login"))
 
     # Obtener usuario mediante el ID de sesión
     user = primary_repo.get_user_by_id(user_id)
 
     if not user:
         session.clear()
-        return redirect(url_for("home_bp.index"))
+        return redirect(url_for("home_bp.login"))
 
     # Crear carpeta del usuario si no existe
     cloud_service.create_user_cloud(user.username)

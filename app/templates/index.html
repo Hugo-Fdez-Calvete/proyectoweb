@@ -16,10 +16,10 @@ Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
 {"titulo": "Perfil y currículum", "icono": "fa-regular fa-id-card", "ancho": false, "ruta": "/cv", "accion": "Ver mi perfil",
 "texto": "Formación, experiencia, habilidades técnicas e idiomas. Con el CV listo para descargar en PDF."},
 
-{"titulo": "Home Cloud", "icono": "fa-solid fa-cloud", "ancho": false, "ruta": "/cloud", "accion": "Abrir mi cloud",
+{"titulo": "Home Cloud", "icono": "fa-solid fa-cloud", "ancho": false, "ruta": "/HomeCloud/dashboard", "accion": "Abrir mi cloud",
 "texto": "Mi nube personal. Sube, organiza y comparte archivos con un enlace."},
 
-{"titulo": "Mensajería interna", "icono": "fa-regular fa-comments", "ancho": false, "ruta": "/mensajeria", "accion": "Abrir mensajería",
+{"titulo": "Mensajería interna", "icono": "fa-regular fa-comments", "ancho": false, "ruta": "/", "accion": "Abrir mensajería",
 "texto": "Un sistema de mensajes propio para hablar con otros usuarios de la web."},
 
 {"titulo": "Y mucho más", "icono": "fa-solid fa-flask", "ancho": false, "ruta": None, "accion": "Se amplía con el tiempo",
@@ -43,9 +43,7 @@ Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
 
 
 <div class="home" data-theme="dark">
-    {% raw %}
     <script src="{{url_for('static', filename='js/index.js')}}"></script>
-    {% endraw %}
 
     <div class="hm-bg" aria-hidden="true"></div>
 
@@ -163,8 +161,6 @@ Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
     </button>
 </div>
 
-{% raw %}
-<script src="{{url_for('static', filename='js/cv.js')}}"></script>
-{% endraw %}
+<script src="{{url_for('static', filename='js/index_2.js')}}"></script>
 
 {% endblock %}
