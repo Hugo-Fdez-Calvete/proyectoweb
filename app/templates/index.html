@@ -4,36 +4,6 @@
 
 {% block content %}
 
-{# ============================================================
-DATOS DE LA PÁGINA
-Ajusta aquí las rutas de cada módulo (campo "ruta").
-Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
-============================================================ #}
-{% set modulos = [
-{"titulo": "Proyectos web", "icono": "fa-solid fa-laptop-code", "ancho": true, "ruta": "/", "accion": "Ver proyectos",
-"texto": "Mis proyectos web personales: lo que he construido para aprender, probar ideas y resolver problemas reales."},
-
-{"titulo": "Perfil y currículum", "icono": "fa-regular fa-id-card", "ancho": false, "ruta": "/info", "accion": "Ver mi perfil",
-"texto": "Formación, experiencia, habilidades técnicas e idiomas. Con el CV listo para descargar en PDF."},
-
-{"titulo": "Home Cloud", "icono": "fa-solid fa-cloud", "ancho": false, "ruta": "/HomeCloud/dashboard", "accion": "Abrir mi cloud",
-"texto": "Mi nube personal. Sube, organiza y comparte archivos con un enlace."},
-
-{"titulo": "Mensajería interna", "icono": "fa-regular fa-comments", "ancho": false, "ruta": "/", "accion": "Abrir mensajería",
-"texto": "Un sistema de mensajes propio para hablar con otros usuarios de la web."},
-
-{"titulo": "Y mucho más", "icono": "fa-solid fa-flask", "ancho": false, "ruta": None, "accion": "Se amplía con el tiempo",
-"texto": "Experimentos, herramientas y novedades. Esta web crece conmigo."}
-] %}
-
-{% set arranque = [
-"cargando perfil",
-"montando home cloud",
-"activando mensajería interna",
-"listando proyectos",
-"preparando novedades"
-] %}
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -42,8 +12,7 @@ Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
 
-<div class="home" data-theme="dark">
-    <script src="{{url_for('static', filename='js/index.js')}}"></script>
+<div class="home">
 
     <div class="hm-bg" aria-hidden="true"></div>
 
@@ -152,15 +121,8 @@ Si un módulo no tiene ruta (None), se muestra como tarjeta sin enlace.
             </div>
         </div>
     </section>
-
-    <!-- Interruptor de tema -->
-    <button class="hm-theme" type="button" aria-label="Modo claro">
-        <i class="fa-solid fa-sun icon-sun"></i>
-        <i class="fa-solid fa-moon icon-moon"></i>
-        <span class="hm-theme-label">Modo claro</span>
-    </button>
 </div>
 
-<script src="{{url_for('static', filename='js/index_2.js')}}"></script>
+<script src="{{url_for('static', filename='js/index.js')}}"></script>
 
 {% endblock %}

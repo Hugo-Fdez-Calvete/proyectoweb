@@ -1,6 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from functools import wraps
 from app.services import login_service, register_service
+from app.data.cv_tecnologias import (orbita_externa,orbita_interna,stack,)
+from app.data.cv_trayectoria import trayectoria
+from app.data.cv_perfil import (idiomas,habilidades,)
+from app.data.index_modulos import modulos, arranque
+
+
 
 home_bp = Blueprint("home_bp", __name__)
 cv_bp = Blueprint("cv_bp",__name__)
@@ -8,7 +14,7 @@ cv_bp = Blueprint("cv_bp",__name__)
 
 @home_bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", modulos=modulos, arranque=arranque)
 
 
 @home_bp.route("/login", methods=["GET", "POST"])
@@ -60,4 +66,4 @@ def logout():
 
 @cv_bp.route("/info")
 def curriculum():
-    return render_template("cv.html")
+    return render_template( "cv.html", orbita_externa=orbita_externa, orbita_interna=orbita_interna, stack=stack, trayectoria=trayectoria,idiomas=idiomas,habilidades=habilidades,)

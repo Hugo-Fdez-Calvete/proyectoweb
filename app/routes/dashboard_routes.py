@@ -4,11 +4,7 @@ from app.services import cloud_service
 from app.repositories import primary_repo
 
 
-dashboard_bp = Blueprint(
-    "dashboard_bp",
-    __name__,
-    url_prefix="/HomeCloud"
-)
+dashboard_bp = Blueprint("dashboard_bp", __name__, url_prefix="/HomeCloud")
 
 
 @dashboard_bp.route("/dashboard")
@@ -38,9 +34,4 @@ def dashboard():
         user.username
     )
 
-    return render_template(
-        "dashboard.html",
-        user=user,
-        files=files,
-        used_storage=used_storage
-    )
+    return render_template("dashboard.html", user=user, files=files, used_storage=used_storage)

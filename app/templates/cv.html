@@ -4,62 +4,6 @@
 
 {% block content %}
 
-{# ============================================================
-DATOS DEL CV
-============================================================ #}
-{% set orbita_externa = [
-("HTML5", "fa-brands fa-html5"),
-("CSS", "fa-brands fa-css3-alt"),
-("JavaScript", "fa-brands fa-js"),
-("Java", "fa-brands fa-java"),
-("Python", "fa-brands fa-python"),
-("Spring Boot", "fa-solid fa-leaf")
-] %}
-{% set orbita_interna = [
-("SQL", "fa-solid fa-database"),
-("Git", "fa-brands fa-git-alt"),
-("COBOL", "fa-solid fa-hard-drive"),
-("RPG", "fa-solid fa-terminal")
-] %}
-
-{% set stack = [
-{"id": "web", "titulo": "Desarrollo web", "icono": "fa-solid fa-globe", "tecnologias": [("HTML5", "fa-brands fa-html5"), ("CSS", "fa-brands fa-css3-alt"), ("JavaScript", "fa-brands fa-js")]},
-
-{"id": "lang", "titulo": "Lenguajes de programación", "icono": "fa-solid fa-code", "tecnologias": [("Java", "fa-brands fa-java"), ("Python", "fa-brands fa-python"), ("Spring Boot", "fa-solid fa-leaf"), ("Spring Framework", "fa-solid fa-seedling")]},
-
-{"id": "legacy", "titulo": "Sistemas legacy", "icono": "fa-solid fa-server", "tecnologias": [("RPG", "fa-solid fa-terminal"), ("COBOL", "fa-solid fa-hard-drive")]},
-
-{"id": "db", "titulo": "Bases de datos", "icono": "fa-solid fa-database", "tecnologias": [("SQL", "fa-solid fa-database")]},
-
-{"id": "vcs", "titulo": "Control de versiones y DevOps", "icono": "fa-solid fa-code-branch", "tecnologias": [("Git", "fa-brands fa-git-alt"), ("Git BASH", "fa-solid fa-terminal"), ("GitFlow", "fa-solid fa-code-branch"), ("GitHub", "fa-brands fa-github"), ("GitLab", "fa-brands fa-gitlab")]}
-] %}
-
-{% set trayectoria = [
-{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "Educación Secundaria Obligatoria", "centro": "I.E.S. Salvador de Madariaga", "detalle": "", "actual": false},
-
-{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "Bachillerato en Ciencias Sociales", "centro": "I.E.S. Agra do Orzán", "detalle": "", "actual": false},
-
-{"tipo": "Experiencia", "icono": "fa-solid fa-briefcase", "titulo": "Programador junior", "centro": "SEIDOR", "detalle": "Primer año de prácticas en empresa dentro del ciclo dual de Desarrollo de Aplicaciones Web."},
-
-{"tipo": "Formación", "icono": "fa-solid fa-graduation-cap", "titulo": "FP Dual de Grado Superior en Desarrollo deAplicaciones Web","centro": "I.E.S. Fernando Wirtz", "detalle": "", "actual": true}
-] %}
-
-{% set idiomas = [
-{"nombre": "Español", "nivel": "Nativo", "pasos": 6},
-{"nombre": "Gallego", "nivel": "Nativo", "pasos": 6},
-{"nombre": "Inglés", "nivel": "Avanzado (C1)", "pasos": 5},
-{"nombre": "Francés", "nivel": "Básico (B1)", "pasos": 3}
-] %}
-
-{% set habilidades = [
-"Gran capacidad de adaptabilidad",
-"Trabajo en equipo",
-"Planificación y organización",
-"Capacidad para realizar múltiples tareas",
-"Buena gestión del tiempo",
-"Capacidad de aprendizaje",
-"Autodidacta"
-] %}
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/cv.css') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,7 +12,6 @@ DATOS DEL CV
 
 
 <div class="cv">
-    <script src="{{url_for('static', filename='js/cv.js')}}"></script>
 
     <!-- ===================== HERO ===================== -->
     <header class="cv-hero">
@@ -298,6 +241,6 @@ DATOS DEL CV
     <div class="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="{{url_for('static', filename='js/cv_2.js')}}"></script>
+<script src="{{url_for('static', filename='js/cv.js')}}"></script>
 
 {% endblock %}

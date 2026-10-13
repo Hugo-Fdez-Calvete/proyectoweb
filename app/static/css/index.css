@@ -17,7 +17,7 @@
     --hm-shadow: 0 20px 50px -25px rgba(0, 0, 0, .8);
 }
 
-.home[data-theme="light"] {
+:root[data-theme="light"] .home {
     --hm-bg: #f2f6fc;
     --hm-panel: rgba(255, 255, 255, .8);
     --hm-line: rgba(20, 50, 100, .14);
@@ -285,10 +285,10 @@
 }
 
 /* Estado inicial solo si hay animación activa (JS) */
-.hm-anim .hm-row { opacity: 0; }
-.hm-anim .hm-row.show { opacity: 1; }
-.hm-anim .hm-ok { opacity: 0; }
-.hm-anim .hm-ok.on { opacity: 1; }
+:root.hm-anim .hm-row { opacity: 0; }
+:root.hm-anim .hm-row.show { opacity: 1; }
+:root.hm-anim .hm-ok { opacity: 0; }
+:root.hm-anim .hm-ok.on { opacity: 1; }
 
 /* ============================================================
    SECCIONES
@@ -445,8 +445,8 @@ div.hm-card .hm-act { color: var(--hm-muted); font-weight: 600; }
 }
 
 /* aparición de tarjetas: "encendido" una sola vez al entrar en pantalla */
-.hm-anim .hm-card { opacity: 0; }
-.hm-anim .hm-card.in {
+:root.hm-anim .hm-card { opacity: 0; }
+:root.hm-anim .hm-card.in {
     animation: powerOn .85s cubic-bezier(.2, .8, .2, 1) calc(var(--i) * .09s) both;
 }
 
@@ -474,33 +474,6 @@ div.hm-card .hm-act { color: var(--hm-muted); font-weight: 600; }
 }
 .hm-end-box p { margin: 0; max-width: 50ch; color: var(--hm-muted); }
 .hm-end-box .hm-cta { justify-content: flex-end; animation: none; }
-
-/* ---------- Interruptor de tema ---------- */
-.hm-theme {
-    position: fixed;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    z-index: 50;
-    display: inline-flex;
-    align-items: center;
-    gap: .6rem;
-    padding: .65rem 1.05rem;
-    border: 1px solid var(--hm-line);
-    border-radius: 999px;
-    background: var(--hm-panel);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    color: var(--hm-text);
-    font: 600 .88rem 'Manrope', sans-serif;
-    cursor: pointer;
-    box-shadow: var(--hm-shadow);
-    transition: border-color .25s ease, transform .25s ease;
-}
-.hm-theme:hover { border-color: rgb(var(--hm-acc-rgb) / .6); transform: translateY(-2px); }
-.hm-theme i { color: var(--hm-acc-text); }
-.hm-theme .icon-moon { display: none; }
-.home[data-theme="light"] .hm-theme .icon-sun { display: none; }
-.home[data-theme="light"] .hm-theme .icon-moon { display: inline; }
 
 /* ============================================================
    KEYFRAMES
@@ -546,8 +519,6 @@ div.hm-card .hm-act { color: var(--hm-muted); font-weight: 600; }
     .hm-card, .hm-card.wide { grid-column: span 1; }
     .hm-sec { padding: 3.6rem 0; }
     .hm-end-box { padding: 1.8rem; }
-    .hm-theme-label { display: none; }
-    .hm-theme { padding: .8rem .9rem; }
 }
 
 /* ============================================================

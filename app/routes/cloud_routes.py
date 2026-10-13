@@ -4,11 +4,7 @@ from app.services import cloud_service
 from app.repositories import primary_repo
 
 
-cloud_bp = Blueprint(
-    "cloud_bp",
-    __name__,
-    url_prefix="/cloud"
-)
+cloud_bp = Blueprint("cloud_bp", __name__, url_prefix="/cloud")
 
 
 @cloud_bp.route("/")
@@ -36,12 +32,7 @@ def cloud():
     # Obtener almacenamiento utilizado
     used_storage = cloud_service.get_used_storage_gb(user.username)
 
-    return render_template(
-        "dashboard.html",
-        user=user,
-        files=files,
-        used_storage=used_storage
-    )
+    return render_template("dashboard.html", user=user, files=files, used_storage=used_storage)
 
 
 @cloud_bp.route("/upload", methods=["POST"])

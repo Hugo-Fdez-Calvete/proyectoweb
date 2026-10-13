@@ -1,10 +1,64 @@
-/* Aplica el tema antes de pintar el resto para evitar parpadeos */
 (function () {
-    var root = document.currentScript.parentElement;
-    var theme = null;
-    try { theme = localStorage.getItem('cv-theme'); } catch (e) { }
-    if (theme !== 'light' && theme !== 'dark') {
-        theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    var root = document.querySelector('.cv');
+
+    /* ---------- Pestañas de habilidades técnicas ---------- */
+    var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+
+    function select(tab, focus) {
+        tabs.forEach(function (t) {
+            var on = t === tab;
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+            t.tabIndex = on ? 0 : -1;
+            document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        });
+        if (focus) tab.focus();
     }
-    root.setAttribute('data-theme', theme);
+
+    tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { select(tab, false); });
+        tab.addEventListener('keydown', function (e) {
+            var next = null;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+            if (e.key === 'Home') next = tabs[0];
+            if (e.key === 'End') next = tabs[tabs.length - 1];
+            if (next) { e.preventDefault(); select(next, true); }
+        });
+    });
+
+    /* ---------- Copiar al portapapeles ---------- */
+    var toast = root.querySelector('.toast');
+    var timer = null;
+
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(timer);
+        timer = setTimeout(function () { toast.classList.remove('show'); }, 1800);
+    }
+
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { }
+        document.body.removeChild(ta);
+    }
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-copy]'), function (btn) {
+        btn.addEventListener('click', function () {
+            var text = btn.getAttribute('data-copy');
+            var done = function () { showToast(btn.getAttribute('data-msg') || 'Copiado'); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+            } else {
+                fallbackCopy(text);
+                done();
+            }
+        });
+    });
 })();

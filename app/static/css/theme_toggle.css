@@ -1,0 +1,45 @@
+/* Interruptor de tema compartido (base.html) */
+.hf-theme-toggle {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .65rem 1.05rem;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 211, 238, .4);
+    background: rgba(10, 15, 30, .85);
+    color: #e6f1ff;
+    font: 600 .88rem 'Manrope', sans-serif;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 34px -14px rgba(34, 211, 238, .45);
+    transition: border-color .25s ease, transform .25s ease, background-color .35s ease, color .35s ease;
+}
+.hf-theme-toggle:hover { border-color: #22d3ee; transform: translateY(-2px); }
+.hf-theme-toggle i { color: #22d3ee; font-size: 1.05rem; }
+
+:root[data-theme="light"] .hf-theme-toggle {
+    background: rgba(255, 255, 255, .92);
+    color: #0f172a;
+    border-color: rgba(14, 116, 144, .4);
+    box-shadow: 0 12px 34px -16px rgba(20, 50, 100, .4);
+}
+:root[data-theme="light"] .hf-theme-toggle:hover { border-color: #0e7490; }
+:root[data-theme="light"] .hf-theme-toggle i { color: #0e7490; }
+
+/* Muestra la acción que se ejecutará: sol en oscuro, luna en claro */
+.hf-theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .hf-theme-toggle .icon-sun { display: none; }
+:root[data-theme="light"] .hf-theme-toggle .icon-moon { display: inline; }
+
+@media (max-width: 600px) {
+    .hf-theme-toggle { padding: .8rem .9rem; }
+    .hf-theme-label { display: none; }
+}
+@media print {
+    .hf-theme-toggle { display: none !important; }
+}
