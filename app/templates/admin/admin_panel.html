@@ -1,188 +1,103 @@
 {% extends "base.html" %}
+{% from "admin/_user_actions.html" import status_tag, role_tag, action_form, flash_messages %}
 
-{% block title %}
-    HomeCloud_Admin
-{% endblock %}
+{% block title %}HomeCloud_Admin{% endblock %}
 
 {% block content %}
-
 <div class="columns is-gapless mt-6">
 
-    <!-- SIDEBAR -->
-    <aside class="column is-2 has-background-dark">
+    {% include "admin/_sidebar.html" %}
 
-        <div class="menu p-4 my-4">
-
-            <p class="menu-label has-text-grey-light">
-                Administración
-            </p>
-
-            <ul class="menu-list mt-6">
-
-                <li>
-                    <a class="has-text-white is-active my-2">
-                        Dashboard
-                    </a>
-                </li>
-
-                <li>
-                    <a class="has-text-white my-2">
-                        Usuarios
-                    </a>
-                </li>
-
-                <li>
-                    <a class="has-text-white my-2">
-                        Archivos
-                    </a>
-                </li>
-
-                <li>
-                    <a class="has-text-white my-2">
-                        Configuración
-                    </a>
-                </li>
-
-            </ul>
-
-        </div>
-
-    </aside>
-
-
-    <!-- CONTENIDO -->
     <main class="column">
-
         <section class="section">
-
             <div class="container">
 
-                <h1 class="title">
-                    Panel de administración
-                </h1>
+                <h1 class="title">Panel de administración</h1>
+                <p class="subtitle">Gestiona tu instancia de HomeCloud.</p>
 
-                <p class="subtitle">
-                    Gestiona tu instancia de HomeCloud.
-                </p>
-
+                {{ flash_messages() }}
 
                 <!-- ESTADÍSTICAS -->
                 <div class="columns">
-
-                    <div class="column">
-                        <div class="box">
-                            <p class="heading">Usuarios</p>
-                            <p class="title">X</p>
-                        </div>
-                    </div>
-
-                    <div class="column">
-                        <div class="box">
-                            <p class="heading">Pendientes</p>
-                            <p class="title has-text-white">X</p>
-                        </div>
-                    </div>
-
-                    <div class="column">
-                        <div class="box">
-                            <p class="heading">Archivos</p>
-                            <p class="title">X</p>
-                        </div>
-                    </div>
-
-                    <div class="column">
-                        <div class="box">
-                            <p class="heading">Almacenamiento</p>
-                            <p class="title">X GB</p>
-                        </div>
-                    </div>
-
+                    <div class="column"><div class="box">
+                        <p class="heading">Usuarios</p>
+                        <p class="title">{{ stats.users }}</p>
+                    </div></div>
+                    <div class="column"><div class="box">
+                        <p class="heading">Pendientes</p>
+                        <p class="title {% if stats.pending %}has-text-warning{% endif %}">{{ stats.pending }}</p>
+                    </div></div>
+                    <div class="column"><div class="box">
+                        <p class="heading">Archivos</p>
+                        <p class="title">{{ stats.files }}</p>
+                    </div></div>
+                    <div class="column"><div class="box">
+                        <p class="heading">Almacenamiento</p>
+                        <p class="title">{{ "%.1f"|format(stats.storage_gb) }} GB</p>
+                    </div></div>
                 </div>
 
-
-                <!-- USUARIOS -->
+                <!-- PENDIENTES -->
+                {% if pending_users %}
                 <div class="box mt-5">
+                    <h2 class="title is-4">Solicitudes pendientes</h2>
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-hoverable">
+                            <thead><tr><th>Usuario</th><th>Email</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                            {% for u in pending_users %}
+                                <tr>
+                                    <td>{{ u.username }}</td>
+                                    <td>{{ u.email }}</td>
+                                    <td>{{ u.phone }}</td>
+                                    <td>
+                                        {{ action_form('admin_bp.approve', u.id, 'Aprobar', 'is-success') }}
+                                        {{ action_form('admin_bp.delete', u.id, 'Rechazar', 'is-danger',
+                                                       '¿Rechazar y eliminar esta solicitud?') }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
 
+                <!-- ÚLTIMOS USUARIOS -->
+                <div class="box mt-5">
                     <div class="level">
-
                         <div class="level-left">
                             <div>
-                                <h2 class="title is-4">
-                                    Usuarios
-                                </h2>
-
-                                <p class="subtitle is-6">
-                                    Usuarios registrados en HomeCloud
-                                </p>
+                                <h2 class="title is-4">Usuarios</h2>
+                                <p class="subtitle is-6">Últimos usuarios registrados en HomeCloud</p>
                             </div>
                         </div>
-
                         <div class="level-right">
-                            <a class="button is-link">
-                                Gestionar usuarios
-                            </a>
+                            <a class="button is-link" href="{{ url_for('admin_bp.users') }}">Gestionar usuarios</a>
                         </div>
-
                     </div>
-
 
                     <div class="table-container">
-
                         <table class="table is-fullwidth is-hoverable">
-
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Email</th>
-                                    <th>Estado</th>
-                                    <th>Rol</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-
+                            <thead><tr><th>Usuario</th><th>Email</th><th>Estado</th><th>Rol</th></tr></thead>
                             <tbody>
-
+                            {% for u in latest_users %}
                                 <tr>
-                                    <td>admin</td>
-                                    <td>admin@homecloud.local</td>
-
-                                    <td>
-                                        <span class="tag is-success">
-                                            Activo
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="tag is-danger">
-                                            Administrador
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <button class="button is-small is-info">
-                                            Ver
-                                        </button>
-
-                                        <button class="button is-small is-danger">
-                                            Eliminar
-                                        </button>
-                                    </td>
+                                    <td>{{ u.username }}</td>
+                                    <td>{{ u.email }}</td>
+                                    <td>{{ status_tag(u.status) }}</td>
+                                    <td>{{ role_tag(u) }}</td>
                                 </tr>
-
+                            {% else %}
+                                <tr><td colspan="4" class="has-text-centered">Aún no hay usuarios.</td></tr>
+                            {% endfor %}
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
 
             </div>
-
         </section>
-
     </main>
-
 </div>
-
 {% endblock %}

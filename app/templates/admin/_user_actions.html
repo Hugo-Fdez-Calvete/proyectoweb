@@ -1,0 +1,24 @@
+{# Macros reutilizables: estado, rol y botones de acción #}
+{% macro status_tag(status) %}
+    {% if status == 'active' %}<span class="tag is-success">Activo</span>
+    {% elif status == 'pending' %}<span class="tag is-warning">Pendiente</span>
+    {% else %}<span class="tag is-danger is-dark">Suspendido</span>{% endif %}
+{% endmacro %}
+
+{% macro role_tag(user) %}
+    {% if user.is_admin %}<span class="tag is-danger">Administrador</span>
+    {% else %}<span class="tag is-dark">Usuario</span>{% endif %}
+{% endmacro %}
+
+{% macro action_form(endpoint, user_id, label, css, confirm=None) %}
+    <form method="post" action="{{ url_for(endpoint, user_id=user_id) }}" style="display:inline"
+          {% if confirm %}onsubmit="return confirm('{{ confirm }}');"{% endif %}>
+        <button class="button is-small {{ css }}" type="submit">{{ label }}</button>
+    </form>
+{% endmacro %}
+
+{% macro flash_messages() %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="notification is-{{ category }} is-dark">{{ message }}</div>
+    {% endfor %}
+{% endmacro %}

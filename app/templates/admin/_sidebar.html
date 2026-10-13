@@ -1,0 +1,17 @@
+<aside class="column is-2 has-background-dark">
+    <div class="menu p-4 my-4">
+        <p class="menu-label has-text-grey-light">Administración</p>
+        <ul class="menu-list mt-6">
+            <li>
+                <a class="has-text-white my-2 {% if active_page == 'dashboard' %}is-active{% endif %}"
+                   href="{{ url_for('admin_bp.admin') }}">Dashboard</a>
+            </li>
+            <li>
+                <a class="has-text-white my-2 {% if active_page == 'users' %}is-active{% endif %}"
+                   href="{{ url_for('admin_bp.users') }}">Usuarios</a>
+            </li>
+            <li><a class="has-text-grey my-2" title="Próximamente">Archivos</a></li>
+            <li><a class="has-text-grey my-2" title="Próximamente">Configuración</a></li>
+        </ul>
+    </div>
+</aside>

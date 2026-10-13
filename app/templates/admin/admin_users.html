@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "admin/_user_actions.html" import status_tag, role_tag, action_form, flash_messages %}
+
+{% block title %}HomeCloud_Admin · Usuarios{% endblock %}
+
+{% block content %}
+<div class="columns is-gapless mt-6">
+
+    {% include "admin/_sidebar.html" %}
+
+    <main class="column">
+        <section class="section">
+            <div class="container">
+
+                <h1 class="title">Gestión de usuarios</h1>
+                {{ flash_messages() }}
+
+                <!-- FILTROS -->
+                <form method="get" class="box">
+                    <div class="field has-addons">
+                        <div class="control is-expanded">
+                            <input class="input" type="text" name="q" value="{{ search }}"
+                                   placeholder="Buscar por usuario, email o teléfono">
+                        </div>
+                        <div class="control">
+                            <div class="select">
+                                <select name="status">
+                                    <option value="">Todos los estados</option>
+                                    <option value="active" {% if status == 'active' %}selected{% endif %}>Activos</option>
+                                    <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pendientes</option>
+                                    <option value="suspended" {% if status == 'suspended' %}selected{% endif %}>Suspendidos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control"><button class="button is-link" type="submit">Filtrar</button></div>
+                    </div>
+                </form>
+
+                <!-- TABLA -->
+                <div class="box">
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th><th>Email</th><th>Estado</th><th>Rol</th>
+                                    <th>Almac. (GB)</th><th>Último acceso</th><th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for u in pagination.items %}
+                                <tr>
+                                    <td>{{ u.username }}</td>
+                                    <td>{{ u.email }}</td>
+                                    <td>{{ status_tag(u.status) }}</td>
+                                    <td>{{ role_tag(u) }}</td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('admin_bp.storage', user_id=u.id) }}"
+                                              class="field has-addons" style="min-width:9rem">
+                                            <div class="control">
+                                                <input class="input is-small" type="number" name="storage_gb"
+                                                       min="0" step="0.1" value="{{ u.storage_gb }}" style="width:5rem">
+                                            </div>
+                                            <div class="control"><button class="button is-small" type="submit">OK</button></div>
+                                        </form>
+                                    </td>
+                                    <td>{{ u.last_login.strftime('%d/%m/%Y %H:%M') if u.last_login else '—' }}</td>
+                                    <td>
+                                        {% if u.status != 'active' %}
+                                            {{ action_form('admin_bp.approve', u.id, 'Activar', 'is-success') }}
+                                        {% elif u.id != current_user.id %}
+                                            {{ action_form('admin_bp.suspend', u.id, 'Suspender', 'is-warning',
+                                                           '¿Suspender a este usuario?') }}
+                                        {% endif %}
+                                        {% if u.id != current_user.id %}
+                                            {{ action_form('admin_bp.toggle_admin', u.id,
+                                                           'Quitar admin' if u.is_admin else 'Hacer admin', 'is-info') }}
+                                            {{ action_form('admin_bp.delete', u.id, 'Eliminar', 'is-danger',
+                                                           '¿Eliminar definitivamente a este usuario?') }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="7" class="has-text-centered">No se han encontrado usuarios.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINACIÓN -->
+                    {% if pagination.pages > 1 %}
+                    <nav class="pagination is-centered" role="navigation">
+                        {% if pagination.has_prev %}
+                            <a class="pagination-previous"
+                               href="{{ url_for('admin_bp.users', page=pagination.prev_num, q=search, status=status) }}">Anterior</a>
+                        {% endif %}
+                        {% if pagination.has_next %}
+                            <a class="pagination-next"
+                               href="{{ url_for('admin_bp.users', page=pagination.next_num, q=search, status=status) }}">Siguiente</a>
+                        {% endif %}
+                        <ul class="pagination-list">
+                            <li><span class="pagination-link is-current">{{ pagination.page }} / {{ pagination.pages }}</span></li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}
