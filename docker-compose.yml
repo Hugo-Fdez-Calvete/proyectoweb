@@ -9,8 +9,8 @@ services:
     ports:
       - "127.0.0.1:5000:5000"
     volumes:
-      # Base de datos SQLite (/app/app/database/users.db)
-      - flask_data:/app/app/database
+      # Base de datos SQLite (/app/app/data/users.db)
+      - flask_data:/app/app/data
       # Archivos subidos por los usuarios (/app/app/cloud)
       - flask_cloud:/app/app/cloud
       # Sesiones de Flask-Session
