@@ -1,7 +1,8 @@
 /* Interruptor de tema compartido (base.html) */
 .hf-theme-toggle {
     position: fixed;
-    right: 1.25rem;
+    left: 1.25rem;
+    bottom: 1.25rem;
     bottom: 1.25rem;
     z-index: 1000;
     display: inline-flex;

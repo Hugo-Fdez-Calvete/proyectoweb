@@ -1,139 +1,95 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="container mt-6">
-    <div class="columns is-centered">
-        <div class="column is-4 mt-6">
+<section class="auth">
+    <div class="auth-card">
 
-            <div class="box mt-6">
-                
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="notification is-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="notification is-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-                <div class="has-text-centered mb-5">
-                    <h1 class="title is-3">Iniciar sesión</h1>
-                    <p class="subtitle is-6 mt-2">
-                        Accede a tu cuenta de Home Cloud
-                    </p>
+        <header class="auth-head">
+            <span class="auth-ico"><i class="fa-solid fa-right-to-bracket"></i></span>
+            <h1 class="auth-title">Iniciar sesión</h1>
+            <p class="auth-sub">Accede a tu cuenta de Home Cloud</p>
+        </header>
+
+        <form method="POST" action="{{url_for('home_bp.login')}}">
+
+            <!-- Método de acceso -->
+            <div class="field">
+                <label class="label" for="login_method">Iniciar sesión con</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="login_method" name="login_method" required>
+                            <option value="username">Nombre de usuario</option>
+                            <option value="email">Correo electrónico</option>
+                            <option value="phone">Número de teléfono</option>
+                        </select>
+                    </div>
                 </div>
-
-                <form method="POST" action="{{url_for('home_bp.login')}}">
-
-                    <!-- Método de acceso -->
-                    <div class="field">
-                        <label class="label" for="login_method">
-                            Iniciar sesión con
-                        </label>
-
-                        <div class="control">
-                            <div class="select is-fullwidth">
-                                <select id="login_method" name="login_method" required>
-                                    <option value="username">
-                                        Nombre de usuario
-                                    </option>
-                                    <option value="email">
-                                        Correo electrónico
-                                    </option>
-                                    <option value="phone">
-                                        Número de teléfono
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Identificador -->
-                    <div class="field">
-                        <label class="label" for="identifier" id="identifier_label">
-                            Nombre de usuario
-                        </label>
-
-                        <div class="control">
-                            <input
-                                class="input"
-                                type="text"
-                                id="identifier"
-                                name="identifier"
-                                placeholder="Introduce tu nombre de usuario"
-                                autocomplete="username"
-                                required>
-                        </div>
-                    </div>
-
-                    <!-- Contraseña -->
-                    <div class="field">
-                        <label class="label" for="password">
-                            Contraseña
-                        </label>
-
-                        <div class="control">
-                            <input
-                                class="input"
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Introduce tu contraseña"
-                                autocomplete="current-password"
-                                required>
-                        </div>
-                    </div>
-
-                    <!-- Botón -->
-                    <div class="field mt-5">
-                        <div class="control">
-                            <button class="button is-primary is-outlined is-fullwidth" type="submit">Iniciar sesión</button>
-                        </div>
-                    </div>
-
-                </form>
-
-                <!-- Enlace al registro -->
-                <div class="has-text-centered mt-5">
-                    <p>
-                        ¿No tienes una cuenta?
-                        <a href="{{url_for('home_bp.register')}}">
-                            Crear una cuenta
-                        </a>
-                    </p>
-                </div>
-
             </div>
-        </div>
+
+            <!-- Identificador -->
+            <div class="field">
+                <label class="label" for="identifier" id="identifier_label">Nombre de usuario</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="identifier" name="identifier"
+                        placeholder="Introduce tu nombre de usuario" autocomplete="username" required>
+                    <span class="icon is-left"><i class="fa-solid fa-user" id="identifier_icon"></i></span>
+                </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="field">
+                <label class="label" for="password">Contraseña</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="password" id="password" name="password"
+                        placeholder="Introduce tu contraseña" autocomplete="current-password" required>
+                    <span class="icon is-left"><i class="fa-solid fa-lock"></i></span>
+                </div>
+            </div>
+
+            <button class="auth-btn" type="submit">
+                <span>Iniciar sesión</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Enlace al registro -->
+        <p class="auth-alt">
+            ¿No tienes una cuenta?
+            <a href="{{url_for('home_bp.register')}}">Crear una cuenta</a>
+        </p>
+
     </div>
-</div>
+</section>
 
 <script>
     const loginMethod = document.getElementById("login_method");
     const identifier = document.getElementById("identifier");
     const identifierLabel = document.getElementById("identifier_label");
+    const identifierIcon = document.getElementById("identifier_icon");
+
+    const methods = {
+        username: { label: "Nombre de usuario", type: "text", placeholder: "Introduce tu nombre de usuario", autocomplete: "username", icon: "fa-user" },
+        email:    { label: "Correo electrónico", type: "email", placeholder: "correo@ejemplo.com", autocomplete: "email", icon: "fa-envelope" },
+        phone:    { label: "Número de teléfono", type: "tel", placeholder: "+34 123 456 789", autocomplete: "tel", icon: "fa-phone" }
+    };
 
     loginMethod.addEventListener("change", function () {
-
-        if (this.value === "username") {
-            identifierLabel.textContent = "Nombre de usuario";
-            identifier.type = "text";
-            identifier.placeholder = "Introduce tu nombre de usuario";
-            identifier.autocomplete = "username";
-
-        } else if (this.value === "email") {
-            identifierLabel.textContent = "Correo electrónico";
-            identifier.type = "email";
-            identifier.placeholder = "correo@ejemplo.com";
-            identifier.autocomplete = "email";
-
-        } else if (this.value === "phone") {
-            identifierLabel.textContent = "Número de teléfono";
-            identifier.type = "tel";
-            identifier.placeholder = "+34 123 456 789";
-            identifier.autocomplete = "tel";
-        }
+        const m = methods[this.value];
+        identifierLabel.textContent = m.label;
+        identifier.type = m.type;
+        identifier.placeholder = m.placeholder;
+        identifier.autocomplete = m.autocomplete;
+        identifierIcon.className = "fa-solid " + m.icon;
     });
 </script>
 

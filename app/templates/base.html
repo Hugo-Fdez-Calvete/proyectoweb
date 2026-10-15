@@ -3,57 +3,108 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
-
-    <!-- CSS - Navbar -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cv_button.css') }}">
 
     <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
-    <!-- CSS -->
+    <!-- CSS propios -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main_nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_toggle.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu_fab.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 
 <body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
 
+    <!-- Botón circular de menú (fijo) -->
+    <button class="hf-menu-btn" type="button" aria-expanded="false" aria-controls="hf-menu" aria-label="Abrir menú">
+        <span class="hf-burger" aria-hidden="true"><i></i><i></i><i></i></span>
+    </button>
+
+    <div class="hf-menu-panel" id="hf-menu">
+        <details class="hf-acc" {% if request.endpoint in ['home_bp.index', 'cv_bp.curriculum' ] %}open{% endif %}>
+            <summary><i class="fa-solid fa-compass"></i> Explorar <i class="fa-solid fa-chevron-down chev"></i>
+            </summary>
+            <ul>
+                <li><a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %}class="active" {%
+                        endif %}>Inicio</a></li>
+                <li><a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum'
+                        %}class="active" {% endif %}>Currículum</a></li>
+            </ul>
+        </details>
+
+        {% if session.get('user_id') %}
+        <details class="hf-acc" {% if request.endpoint=='dashboard_bp.dashboard' %}open{% endif %}>
+            <summary><i class="fa-solid fa-cloud"></i> Mi espacio <i class="fa-solid fa-chevron-down chev"></i>
+            </summary>
+            <ul>
+                <li><a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
+                        %}class="active" {% endif %}>Mis archivos</a></li>
+                <li><a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a></li>
+            </ul>
+        </details>
+        {% else %}
+        <details class="hf-acc" {% if request.endpoint in ['home_bp.login', 'home_bp.register' ] %}open{% endif %}>
+            <summary><i class="fa-solid fa-user"></i> Cuenta <i class="fa-solid fa-chevron-down chev"></i></summary>
+            <ul>
+                <li><a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %}class="active" {%
+                        endif %}>Iniciar sesión</a></li>
+                <li><a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register'
+                        %}class="active" {% endif %}>Crear cuenta</a></li>
+            </ul>
+        </details>
+        {% endif %}
+
+        {% if session.get('is_admin') %}
+        <details class="hf-acc" {% if request.endpoint=='admin_bp.admin' %}open{% endif %}>
+            <summary><i class="fa-solid fa-shield-halved"></i> Administración <i
+                    class="fa-solid fa-chevron-down chev"></i></summary>
+            <ul>
+                <li><a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %}class="active"
+                        {% endif %}>Panel de administración</a></li>
+            </ul>
+        </details>
+        {% endif %}
+    </div>
+
+    <!-- Navbar (ya NO fijo: se desplaza con la página) -->
     <nav class="wrapper">
         {% if request.path.rstrip('/') != '/cv' %}
-        <a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum' %} class="active" {% endif %}>
+        <a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum' %} class="active" {%
+            endif %}>
             <span>INFO</span>
         </a>
         {% endif %}
-        <!-- Inicio -->
+
         <a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %} class="active" {% endif %}>
             <strong>HFC</strong>
         </a>
 
         {% if session.get("is_admin") %}
-            <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %} class="active" {% endif %}>Administración</a>
+        <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %} class="active" {% endif
+            %}>Administración</a>
         {% endif %}
 
         {% if session.get('user_id') %}
-        <!-- Mis archivos -->
-        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %} class="active" {% endif %}>Mis archivos</a>
-        <!-- Cerrar sesión -->
+        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %}
+            class="active" {% endif %}>Mis archivos</a>
         <a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a>
-
         {% else %}
-        <!-- Iniciar sesión -->
-        <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %} class="active" {% endif %}>
-            Iniciar sesión
-        </a>
-
-        <!-- Crear cuenta -->
-        <a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register' %} class="active" {% endif%}>
-            Crear cuenta
-        </a>
+        <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %} class="active" {% endif
+            %}>Iniciar sesión</a>
+        <a href="{{ url_for('home_bp.register') }}" {% if request.endpoint=='home_bp.register' %} class="active" {%
+            endif%}>Crear cuenta</a>
         {% endif %}
     </nav>
 
@@ -65,11 +116,15 @@
     <footer class="footer-portada has-text-centered">
         <p> Proyecto Personal&copy; 2026</p>
     </footer>
+
+    <!-- Modo claro/oscuro (fijo, ahora a la izquierda) -->
     <button class="hf-theme-toggle" type="button" aria-pressed="false" aria-label="Cambiar a modo claro">
         <i class="fa-solid fa-sun icon-sun"></i>
         <i class="fa-solid fa-moon icon-moon"></i>
         <span class="hf-theme-label">Modo claro</span>
     </button>
+
+    <script src="{{ url_for('static', filename='js/menu.js') }}" defer></script>
 </body>
 
 </html>

@@ -1,65 +1,164 @@
+/* ============================================================
+   NAVBAR · mismos tokens que el resto de la web
+   ============================================================ */
 :root {
-    --nav-indicator-active: rgb(75, 82, 97, 0.9);
-    --nav-bg: rgb(20, 22, 26, 0.8);
-    --nav-link-color: white;
+    --nav-bg: rgba(10, 15, 30, .72);
+    --nav-border: rgba(34, 211, 238, .32);
+    --nav-link: #c3d0e8;
+    --nav-link-hover: #ffffff;
+    --nav-hover-bg: rgba(34, 211, 238, .09);
+    --nav-active: #22d3ee;
+    --nav-active-bg: rgba(34, 211, 238, .13);
+    --nav-brand-from: #22d3ee;
+    --nav-brand-to: #8e7cff;
+    --nav-shadow: 0 12px 34px -16px rgba(34, 211, 238, .45);
     --nav-padding: 5px;
     --nav-border-radius: 999vw;
 }
 
+:root[data-theme="light"] {
+    --nav-bg: rgba(255, 255, 255, .8);
+    --nav-border: rgba(14, 116, 144, .35);
+    --nav-link: #334155;
+    --nav-link-hover: #0a1222;
+    --nav-hover-bg: rgba(14, 116, 144, .09);
+    --nav-active: #0e7490;
+    --nav-active-bg: rgba(14, 116, 144, .12);
+    --nav-brand-from: #0e7490;
+    --nav-brand-to: #4338ca;
+    --nav-shadow: 0 12px 34px -18px rgba(20, 50, 100, .4);
+}
 
-/* NAVBAR */
+/* Evita que el navbar se mueva al cambiar de página:
+   el hueco de la barra de scroll se reserva siempre */
+html {
+    scrollbar-gutter: stable;
+}
 
+/* ---------- Contenedor (fijo; menu.js controla --nav-hide) ---------- */
 .wrapper {
     position: fixed;
     top: 10px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(calc(var(--nav-hide, 0px) * -1));
+    will-change: transform;
+    z-index: 1000;
 
     display: flex;
     align-items: center;
+    gap: .15rem;
 
     width: fit-content;
+    /* deja libre el hueco del botón de menú a cada lado */
+    max-width: calc(100vw - 10.5rem);
+    margin: 0;
     padding: var(--nav-padding);
 
-    background-color: var(--nav-bg);
-
-    border: 1px solid rgb(75, 82, 97, 0.35);
+    background: var(--nav-bg);
+    border: 1px solid var(--nav-border);
     border-radius: var(--nav-border-radius);
+    box-shadow: var(--nav-shadow);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
 
-    z-index: 1000;
+    /* si hay muchos enlaces en pantallas pequeñas, se desplaza en horizontal */
+    overflow-x: auto;
+    scrollbar-width: none;
+    transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease;
 }
+.wrapper::-webkit-scrollbar { display: none; }
 
-
-/* ENLACES */
-
+/* ---------- Enlaces ---------- */
 .wrapper > a {
+    position: relative;
+    flex: none;
     display: block;
+    padding: .5em 1.05em;
 
-    padding: .5em 1em;
-
-    color: white !important;
-
-    font-family: "Jura", sans-serif;
-    font-size: 1.2rem;
-
+    color: var(--nav-link);
+    font-family: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    white-space: nowrap;
     text-decoration: none;
 
     border-radius: var(--nav-border-radius);
+    transition: color .2s ease, background-color .2s ease;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
 }
 
+.wrapper > a:visited { color: var(--nav-link); }
 
-/* TEXTO SIEMPRE BLANCO */
-
-.wrapper > a:visited,
 .wrapper > a:hover,
-.wrapper > a:active {
-    color: white !important;
+.wrapper > a:focus-visible {
+    color: var(--nav-link-hover);
+    background: var(--nav-hover-bg);
 }
 
+.wrapper > a:focus-visible {
+    outline: 2px solid var(--nav-active);
+    outline-offset: -2px;
+}
 
-/* PÁGINA ACTUAL */
+/* ---------- Marca (HFC) ---------- */
+.wrapper > a strong {
+    font-weight: 700;
+    letter-spacing: .08em;
+    background: linear-gradient(110deg, var(--nav-brand-from), var(--nav-brand-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
 
-.wrapper > a.active {
-    background-color: var(--nav-indicator-active);
-    color: rgb(0, 150, 209) !important;
+/* ---------- Página actual ---------- */
+.wrapper > a.active,
+.wrapper > a.active:visited {
+    color: var(--nav-active);
+    background: var(--nav-active-bg);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nav-active) 40%, transparent);
+}
+
+/* pequeño indicador luminoso bajo el enlace activo */
+.wrapper > a.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 1.1rem;
+    height: 2px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--nav-brand-from), var(--nav-brand-to));
+    box-shadow: 0 0 8px var(--nav-active);
+}
+
+/* Navegadores antiguos sin scrollbar-gutter (Safari < 18.2) */
+@supports not (scrollbar-gutter: stable) {
+    html { overflow-y: scroll; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .wrapper {
+        top: .75rem;
+        max-width: calc(100vw - 8.5rem);
+    }
+    .wrapper > a {
+        padding: .45em .8em;
+        font-size: .92rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wrapper,
+    .wrapper > a { transition: none; }
+}
+
+@media print {
+    .wrapper { display: none !important; }
 }
