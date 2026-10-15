@@ -63,6 +63,7 @@ html {
 
     /* si hay muchos enlaces en pantallas pequeñas, se desplaza en horizontal */
     overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
     transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease;
 }
@@ -85,10 +86,6 @@ html {
 
     border-radius: var(--nav-border-radius);
     transition: color .2s ease, background-color .2s ease;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
 }
 
 .wrapper > a:visited { color: var(--nav-link); }
