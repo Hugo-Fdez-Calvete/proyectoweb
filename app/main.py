@@ -7,8 +7,8 @@ from app.routes.dashboard_routes import dashboard_bp
 from app.routes.admin_routes import admin_bp
 from app.routes.cloud_routes import cloud_bp
 
-from app.models.users_db import User
-from app.models.db import db
+from app.models.db.users_db import User
+from app.models.db.db import db
 
 app = Flask(__name__)
 

@@ -1,7 +1,7 @@
 from sqlalchemy import func, or_
 
-from app.models.db import db
-from app.models.users_db import User
+from app.models.db.db import db
+from app.models.db.users_db import User
 
 
 class AdminRepository:

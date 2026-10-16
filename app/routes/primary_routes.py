@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from functools import wraps
 from app.services import login_service, register_service
-from app.models.cv_tecnologias import (orbita_externa,orbita_interna,stack,)
-from app.models.cv_trayectoria import trayectoria
-from app.models.cv_perfil import (idiomas,habilidades,)
-from app.models.index_modulos import modulos, arranque
+from app.models.list.cv_tecnologias import (orbita_externa,orbita_interna,stack,)
+from app.models.list.cv_trayectoria import trayectoria
+from app.models.list.cv_perfil import (idiomas,habilidades,)
+from app.models.list.index_modulos import modulos, arranque
 
 
 
