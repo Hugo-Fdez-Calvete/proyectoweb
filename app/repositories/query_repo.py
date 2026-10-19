@@ -1,6 +1,6 @@
-from app.models import db
+from app.models.db import db
 from datetime import datetime, timezone
-from app.models.users_db import User
+from app.models.db.users_db import User
 
 class UserRepository:
     def find_by_username(self, username):
