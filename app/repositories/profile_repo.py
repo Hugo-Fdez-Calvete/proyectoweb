@@ -1,6 +1,6 @@
 from sqlalchemy import func
 
-from app.models.db import db
+from app.models.db.db import db
 from app.models.db.users_db import User
 
 
