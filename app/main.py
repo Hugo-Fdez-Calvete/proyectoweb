@@ -6,6 +6,7 @@ from app.routes.primary_routes import home_bp, cv_bp
 from app.routes.dashboard_routes import dashboard_bp
 from app.routes.admin_routes import admin_bp
 from app.routes.cloud_routes import cloud_bp
+from app.routes.profile_routes import profile_bp
 
 from app.models.users_db import User
 from app.models.db import db
@@ -35,6 +36,7 @@ db.init_app(app)
 
 # Blueprints
 app.register_blueprint(home_bp)
+app.register_blueprint(profile_bp)
 app.register_blueprint(dashboard_bp, url_prefix="/HomeCloud")
 app.register_blueprint(admin_bp, url_prefix="/HomeCloud")
 app.register_blueprint(cloud_bp, url_prefix="/HomeCloud")

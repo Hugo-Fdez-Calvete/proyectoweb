@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}HomeCloud · Mi perfil{% endblock %}
+
+{% block content %}
+<section class="section mt-6">
+    <div class="container" style="max-width: 720px;">
+
+        <h1 class="title">Configuración del perfil</h1>
+        <p class="subtitle">Gestiona tus datos de acceso.</p>
+
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="notification is-{{ category }} is-light">{{ message }}</div>
+        {% endfor %}
+
+        {% for e in profile_form.csrf_token.errors + password_form.csrf_token.errors %}
+            <div class="notification is-danger is-light">La sesión del formulario ha caducado. Recarga la página e inténtalo de nuevo.</div>
+        {% endfor %}
+
+        <!-- DATOS -->
+        <form method="post" action="{{ url_for('profile_bp.update_data') }}" class="box">
+            {{ profile_form.csrf_token(id="csrf_datos") }}
+            <h2 class="title is-4">Datos personales</h2>
+
+            <div class="field">
+                <label class="label" for="username">Nombre de usuario</label>
+                <div class="control">
+                    {{ profile_form.username(class_="input" ~ (" is-danger" if profile_form.username.errors else ""),
+                                             data_original=user.username,
+                                             autocomplete="username") }}
+                </div>
+                <p class="help" id="username-help"></p>
+                {% for e in profile_form.username.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="email">Correo electrónico</label>
+                <div class="control">
+                    {{ profile_form.email(class_="input" ~ (" is-danger" if profile_form.email.errors else ""),
+                                          type="email", autocomplete="email") }}
+                </div>
+                {% for e in profile_form.email.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="phone">Teléfono</label>
+                <div class="control">
+                    {{ profile_form.phone(class_="input" ~ (" is-danger" if profile_form.phone.errors else ""),
+                                          type="tel", autocomplete="tel") }}
+                </div>
+                {% for e in profile_form.phone.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            {{ profile_form.guardar(class_="button is-link", id="save-data") }}
+        </form>
+
+        <!-- CONTRASEÑA -->
+        <form method="post" action="{{ url_for('profile_bp.update_password') }}" class="box">
+            {{ password_form.csrf_token(id="csrf_password") }}
+            <h2 class="title is-4">Cambiar contraseña</h2>
+
+            <div class="field">
+                <label class="label" for="current_password">Contraseña actual</label>
+                <div class="control">
+                    {{ password_form.current_password(class_="input" ~ (" is-danger" if password_form.current_password.errors else ""),
+                                                      autocomplete="current-password") }}
+                </div>
+                {% for e in password_form.current_password.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="new_password">Nueva contraseña</label>
+                <div class="control">
+                    {{ password_form.new_password(class_="input" ~ (" is-danger" if password_form.new_password.errors else ""),
+                                                  autocomplete="new-password") }}
+                </div>
+                <p class="help">Mínimo 8 caracteres.</p>
+                {% for e in password_form.new_password.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="confirm_password">Repite la nueva contraseña</label>
+                <div class="control">
+                    {{ password_form.confirm_password(class_="input" ~ (" is-danger" if password_form.confirm_password.errors else ""),
+                                                      autocomplete="new-password") }}
+                </div>
+                {% for e in password_form.confirm_password.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            {{ password_form.cambiar(class_="button is-link") }}
+        </form>
+
+    </div>
+</section>
+
+<script>
+    // Comprobación en vivo de la disponibilidad del nombre de usuario
+    (function () {
+        const input = document.getElementById("username");
+        const help = document.getElementById("username-help");
+        const save = document.getElementById("save-data");
+        const original = input.dataset.original;
+        let timer;
+
+        input.addEventListener("input", function () {
+            clearTimeout(timer);
+            const value = input.value.trim();
+
+            if (value === original) {
+                help.textContent = "";
+                input.classList.remove("is-danger", "is-success");
+                save.disabled = false;
+                return;
+            }
+
+            timer = setTimeout(async function () {
+                try {
+                    const res = await fetch(
+                        "{{ url_for('profile_bp.check_username') }}?u=" + encodeURIComponent(value)
+                    );
+                    const data = await res.json();
+                    help.textContent = data.message;
+                    help.className = "help " + (data.available ? "is-success" : "is-danger");
+                    input.classList.toggle("is-success", data.available);
+                    input.classList.toggle("is-danger", !data.available);
+                    save.disabled = !data.available;
+                } catch (e) {
+                    help.textContent = "";  // si falla, el servidor valida igualmente al guardar
+                    save.disabled = false;
+                }
+            }, 350);
+        });
+    })();
+</script>
+{% endblock %}

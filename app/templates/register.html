@@ -7,12 +7,14 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="notification is-{{ category }}">
-                        {{ message }}
-                    </div>
+                    <div class="notification is-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
+
+        {% for e in form.csrf_token.errors %}
+            <div class="notification is-danger">La sesión del formulario ha caducado. Recarga la página e inténtalo de nuevo.</div>
+        {% endfor %}
 
         <header class="auth-head">
             <span class="auth-ico"><i class="fa-solid fa-user-plus"></i></span>
@@ -20,16 +22,21 @@
             <p class="auth-sub">Únete a Home Cloud en un momento</p>
         </header>
 
-        <form method="POST" action="{{url_for('home_bp.register')}}">
+        <form method="POST" action="{{ url_for('home_bp.register') }}">
+            {{ form.csrf_token }}
 
             <!-- Nombre de usuario -->
             <div class="field">
                 <label class="label" for="username">Nombre de usuario</label>
                 <div class="control has-icons-left">
-                    <input class="input" type="text" id="username" name="username"
-                        placeholder="Elige un nombre de usuario" autocomplete="username" minlength="3" required>
+                    {{ form.username(class_="input" ~ (" is-danger" if form.username.errors else ""),
+                                     placeholder="Elige un nombre de usuario",
+                                     autocomplete="username") }}
                     <span class="icon is-left"><i class="fa-solid fa-user"></i></span>
                 </div>
+                {% for e in form.username.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
             </div>
 
             <div class="auth-row">
@@ -37,20 +44,28 @@
                 <div class="field">
                     <label class="label" for="email">Correo electrónico <span class="au-opt">(opcional)</span></label>
                     <div class="control has-icons-left">
-                        <input class="input" type="email" id="email" name="email"
-                            placeholder="correo@ejemplo.com" autocomplete="email">
+                        {{ form.email(class_="input" ~ (" is-danger" if form.email.errors else ""),
+                                      type="email", placeholder="correo@ejemplo.com",
+                                      autocomplete="email") }}
                         <span class="icon is-left"><i class="fa-solid fa-envelope"></i></span>
                     </div>
+                    {% for e in form.email.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
 
-                <!-- Número de teléfono -->
+                <!-- Teléfono -->
                 <div class="field">
                     <label class="label" for="phone">Teléfono <span class="au-opt">(opcional)</span></label>
                     <div class="control has-icons-left">
-                        <input class="input" type="tel" id="phone" name="phone"
-                            placeholder="+34 123 456 789" autocomplete="tel">
+                        {{ form.phone(class_="input" ~ (" is-danger" if form.phone.errors else ""),
+                                      type="tel", placeholder="+34 123 456 789",
+                                      autocomplete="tel") }}
                         <span class="icon is-left"><i class="fa-solid fa-phone"></i></span>
                     </div>
+                    {% for e in form.phone.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -59,21 +74,29 @@
                 <div class="field">
                     <label class="label" for="password">Contraseña</label>
                     <div class="control has-icons-left">
-                        <input class="input" type="password" id="password" name="password"
-                            placeholder="Crea una contraseña" autocomplete="new-password" minlength="8" required>
+                        {{ form.password(class_="input" ~ (" is-danger" if form.password.errors else ""),
+                                         placeholder="Crea una contraseña",
+                                         autocomplete="new-password") }}
                         <span class="icon is-left"><i class="fa-solid fa-lock"></i></span>
                     </div>
                     <p class="help">Mínimo 8 caracteres.</p>
+                    {% for e in form.password.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
 
                 <!-- Confirmar contraseña -->
                 <div class="field">
                     <label class="label" for="password_confirm">Repetir contraseña</label>
                     <div class="control has-icons-left">
-                        <input class="input" type="password" id="password_confirm" name="password_confirm"
-                            placeholder="Repite tu contraseña" autocomplete="new-password" minlength="8" required>
+                        {{ form.password_confirm(class_="input" ~ (" is-danger" if form.password_confirm.errors else ""),
+                                                 placeholder="Repite tu contraseña",
+                                                 autocomplete="new-password") }}
                         <span class="icon is-left"><i class="fa-solid fa-shield-halved"></i></span>
                     </div>
+                    {% for e in form.password_confirm.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -83,10 +106,9 @@
             </button>
         </form>
 
-        <!-- Enlace al login -->
         <p class="auth-alt">
             ¿Ya tienes una cuenta?
-            <a href="{{url_for('home_bp.login')}}">Inicia sesión</a>
+            <a href="{{ url_for('home_bp.login') }}">Inicia sesión</a>
         </p>
 
     </div>

@@ -20,7 +20,9 @@
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
@@ -45,12 +47,15 @@
         </details>
 
         {% if session.get('user_id') %}
-        <details class="hf-acc" {% if request.endpoint=='dashboard_bp.dashboard' %}open{% endif %}>
+        <details class="hf-acc" {% if request.endpoint in ['dashboard_bp.dashboard', 'profile_bp.profile' ] %}open{%
+            endif %}>
             <summary><i class="fa-solid fa-cloud"></i> Mi espacio <i class="fa-solid fa-chevron-down chev"></i>
             </summary>
             <ul>
                 <li><a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
                         %}class="active" {% endif %}>Mis archivos</a></li>
+                <li><a href="{{ url_for('profile_bp.profile') }}" {% if request.endpoint=='profile_bp.profile'
+                        %}class="active" {% endif %}>Configurar perfil</a></li>
                 <li><a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a></li>
             </ul>
         </details>
@@ -97,8 +102,6 @@
         {% endif %}
 
         {% if session.get('user_id') %}
-        <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard' %}
-            class="active" {% endif %}>Mis archivos</a>
         <a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a>
         {% else %}
         <a href="{{ url_for('home_bp.login') }}" {% if request.endpoint=='home_bp.login' %} class="active" {% endif

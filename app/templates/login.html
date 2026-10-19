@@ -7,12 +7,14 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="notification is-{{ category }}">
-                        {{ message }}
-                    </div>
+                    <div class="notification is-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
+
+        {% for e in form.csrf_token.errors %}
+            <div class="notification is-danger">La sesión del formulario ha caducado. Recarga la página e inténtalo de nuevo.</div>
+        {% endfor %}
 
         <header class="auth-head">
             <span class="auth-ico"><i class="fa-solid fa-right-to-bracket"></i></span>
@@ -20,18 +22,15 @@
             <p class="auth-sub">Accede a tu cuenta de Home Cloud</p>
         </header>
 
-        <form method="POST" action="{{url_for('home_bp.login')}}">
+        <form method="POST" action="{{ url_for('home_bp.login') }}">
+            {{ form.csrf_token }}
 
             <!-- Método de acceso -->
             <div class="field">
                 <label class="label" for="login_method">Iniciar sesión con</label>
                 <div class="control">
                     <div class="select is-fullwidth">
-                        <select id="login_method" name="login_method" required>
-                            <option value="username">Nombre de usuario</option>
-                            <option value="email">Correo electrónico</option>
-                            <option value="phone">Número de teléfono</option>
-                        </select>
+                        {{ form.login_method(required=True) }}
                     </div>
                 </div>
             </div>
@@ -40,20 +39,28 @@
             <div class="field">
                 <label class="label" for="identifier" id="identifier_label">Nombre de usuario</label>
                 <div class="control has-icons-left">
-                    <input class="input" type="text" id="identifier" name="identifier"
-                        placeholder="Introduce tu nombre de usuario" autocomplete="username" required>
+                    {{ form.identifier(class_="input" ~ (" is-danger" if form.identifier.errors else ""),
+                                       placeholder="Introduce tu nombre de usuario",
+                                       autocomplete="username") }}
                     <span class="icon is-left"><i class="fa-solid fa-user" id="identifier_icon"></i></span>
                 </div>
+                {% for e in form.identifier.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
             </div>
 
             <!-- Contraseña -->
             <div class="field">
                 <label class="label" for="password">Contraseña</label>
                 <div class="control has-icons-left">
-                    <input class="input" type="password" id="password" name="password"
-                        placeholder="Introduce tu contraseña" autocomplete="current-password" required>
+                    {{ form.password(class_="input" ~ (" is-danger" if form.password.errors else ""),
+                                     placeholder="Introduce tu contraseña",
+                                     autocomplete="current-password") }}
                     <span class="icon is-left"><i class="fa-solid fa-lock"></i></span>
                 </div>
+                {% for e in form.password.errors %}
+                    <p class="help is-danger">{{ e }}</p>
+                {% endfor %}
             </div>
 
             <button class="auth-btn" type="submit">
@@ -62,10 +69,9 @@
             </button>
         </form>
 
-        <!-- Enlace al registro -->
         <p class="auth-alt">
             ¿No tienes una cuenta?
-            <a href="{{url_for('home_bp.register')}}">Crear una cuenta</a>
+            <a href="{{ url_for('home_bp.register') }}">Crear una cuenta</a>
         </p>
 
     </div>
@@ -83,14 +89,17 @@
         phone:    { label: "Número de teléfono", type: "tel", placeholder: "+34 123 456 789", autocomplete: "tel", icon: "fa-phone" }
     };
 
-    loginMethod.addEventListener("change", function () {
-        const m = methods[this.value];
+    function applyMethod() {
+        const m = methods[loginMethod.value];
         identifierLabel.textContent = m.label;
         identifier.type = m.type;
         identifier.placeholder = m.placeholder;
         identifier.autocomplete = m.autocomplete;
         identifierIcon.className = "fa-solid " + m.icon;
-    });
+    }
+
+    loginMethod.addEventListener("change", applyMethod);
+    applyMethod(); // mantiene etiqueta e icono correctos si el formulario se recarga con un error
 </script>
 
 {% endblock %}

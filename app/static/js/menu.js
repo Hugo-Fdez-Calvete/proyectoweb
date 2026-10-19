@@ -27,14 +27,6 @@
     panel.addEventListener('click', function (e) {
         if (e.target.closest('a')) setOpen(false);
     });
-
-    // Acordeón: solo un desplegable abierto a la vez
-    var groups = panel.querySelectorAll('details');
-    groups.forEach(function (d) {
-        d.addEventListener('toggle', function () {
-            if (d.open) groups.forEach(function (o) { if (o !== d) o.open = false; });
-        });
-    });
 })();
 
 /* Navbar que se esconde acorde al scroll */
