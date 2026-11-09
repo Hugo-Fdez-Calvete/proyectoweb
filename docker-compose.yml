@@ -5,15 +5,16 @@ services:
     container_name: proyectoweb_container
     restart: always
     pull_policy: build
-    # Solo accesible desde la propia Raspberry (Nginx del host hace de proxy HTTPS)
+
+    environment:
+      SECRET_KEY=PEGA_AQUI_TU_CLAVE
+
     ports:
       - "127.0.0.1:5000:5000"
+
     volumes:
-      # Base de datos SQLite (/app/app/data/users.db)
       - flask_data:/app/app/data
-      # Archivos subidos por los usuarios (/app/app/cloud)
       - flask_cloud:/app/app/cloud
-      # Sesiones de Flask-Session
       - flask_sessions:/app/.flask_session
 
 volumes:

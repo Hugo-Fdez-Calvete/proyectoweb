@@ -27,7 +27,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_FILE_DIR"] = "./.flask_session"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "SECRETA"
+app.secret_key = os.environ.get("SECRET_KEY")
+
+if not app.secret_key:
+    raise RuntimeError("Falta configurar SECRET_KEY")
 
 Session(app)
 
