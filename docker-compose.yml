@@ -7,7 +7,7 @@ services:
     pull_policy: build
 
     environment:
-      SECRET_KEY=PEGA_AQUI_TU_CLAVE
+      SECRET_KEY=${SECRET_KEY:?SECRET_KEY no configurada}
 
     ports:
       - "127.0.0.1:5000:5000"
