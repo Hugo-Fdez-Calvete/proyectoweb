@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session, request, flash
 
 from app.services import cloud_service
 from app.repositories import primary_repo
@@ -26,12 +26,28 @@ def dashboard():
     # Crear carpeta del usuario si no existe
     cloud_service.create_user_cloud(user.username)
 
-    # Obtener archivos
-    files = cloud_service.get_user_files(user.username)
+    # Carpeta actual (vacía = raíz del usuario)
+    listing = cloud_service.get_listing(
+        user.username,
+        request.args.get("path", "")
+    )
+
+    if listing is None:
+        flash("La carpeta no existe.", "danger")
+
+        return redirect(url_for("dashboard_bp.dashboard"))
 
     # Obtener almacenamiento utilizado
     used_storage = cloud_service.get_used_storage_gb(
         user.username
     )
 
-    return render_template("dashboard.html", user=user, files=files, used_storage=used_storage)
+    return render_template(
+        "dashboard.html",
+        user=user,
+        files=listing["entries"],
+        current_path=listing["current_path"],
+        breadcrumbs=listing["breadcrumbs"],
+        parent_path=listing["parent_path"],
+        used_storage=used_storage
+    )

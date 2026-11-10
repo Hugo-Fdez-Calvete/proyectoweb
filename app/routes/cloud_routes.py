@@ -26,13 +26,29 @@ def cloud():
     # Crear carpeta del usuario
     cloud_service.create_user_cloud(user.username)
 
-    # Obtener archivos
-    files = cloud_service.get_user_files(user.username)
+    # Carpeta actual (vacía = raíz del usuario)
+    listing = cloud_service.get_listing(
+        user.username,
+        request.args.get("path", "")
+    )
+
+    if listing is None:
+        flash("La carpeta no existe.", "danger")
+
+        return redirect(url_for("dashboard_bp.dashboard"))
 
     # Obtener almacenamiento utilizado
     used_storage = cloud_service.get_used_storage_gb(user.username)
 
-    return render_template("dashboard.html", user=user, files=files, used_storage=used_storage)
+    return render_template(
+        "dashboard.html",
+        user=user,
+        files=listing["entries"],
+        current_path=listing["current_path"],
+        breadcrumbs=listing["breadcrumbs"],
+        parent_path=listing["parent_path"],
+        used_storage=used_storage
+    )
 
 
 @cloud_bp.route("/upload", methods=["POST"])
@@ -51,6 +67,9 @@ def upload():
         session.clear()
         return redirect(url_for("home_bp.index"))
 
+    # Carpeta actual (vacía = raíz del usuario)
+    current_path = request.values.get("path", "")
+
     # Obtener archivo
     file = request.files.get("file")
 
@@ -60,26 +79,69 @@ def upload():
             "danger"
         )
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     # Guardar archivo
     success, error = cloud_service.save_file(
         user.username,
         file,
-        user.storage_gb
+        user.storage_gb,
+        current_path
     )
 
     if not success:
         flash(error, "danger")
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     flash(
         "Archivo subido correctamente.",
         "success"
     )
 
-    return redirect(url_for("dashboard_bp.dashboard"))
+    return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
+
+
+@cloud_bp.route("/folder/create", methods=["POST"])
+def create_folder():
+
+    # Comprobar sesión
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("home_bp.index"))
+
+    # Obtener usuario
+    user = primary_repo.get_user_by_id(user_id)
+
+    if not user:
+        session.clear()
+        return redirect(url_for("home_bp.index"))
+
+    # Carpeta actual (vacía = raíz del usuario)
+    current_path = request.values.get("path", "")
+
+    # Nombre de la nueva carpeta
+    folder_name = request.form.get("folder_name", "")
+
+    # Crear carpeta
+    success, error = cloud_service.create_folder(
+        user.username,
+        folder_name,
+        current_path
+    )
+
+    if not success:
+        flash(error, "danger")
+
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
+
+    flash(
+        "Carpeta creada correctamente.",
+        "success"
+    )
+
+    return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
 
 @cloud_bp.route("/download/<filename>")
@@ -98,10 +160,14 @@ def download(filename):
         session.clear()
         return redirect(url_for("home_bp.index"))
 
+    # Carpeta actual (vacía = raíz del usuario)
+    current_path = request.values.get("path", "")
+
     # Obtener archivo
     file = cloud_service.download_file(
         user.username,
-        filename
+        filename,
+        current_path
     )
 
     if file is None:
@@ -110,7 +176,7 @@ def download(filename):
             "danger"
         )
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     return file
 
@@ -131,23 +197,27 @@ def delete(filename):
         session.clear()
         return redirect(url_for("home_bp.index"))
 
-    # Eliminar archivo
+    # Carpeta actual (vacía = raíz del usuario)
+    current_path = request.values.get("path", "")
+
+    # Eliminar archivo o carpeta
     success, error = cloud_service.delete_file(
         user.username,
-        filename
+        filename,
+        current_path
     )
 
     if not success:
         flash(error, "danger")
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     flash(
-        "Archivo eliminado correctamente.",
+        "Elemento eliminado correctamente.",
         "success"
     )
 
-    return redirect(url_for("dashboard_bp.dashboard"))
+    return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
 
 @cloud_bp.route("/rename/<filename>", methods=["POST"])
@@ -166,6 +236,9 @@ def rename(filename):
         session.clear()
         return redirect(url_for("home_bp.index"))
 
+    # Carpeta actual (vacía = raíz del usuario)
+    current_path = request.values.get("path", "")
+
     # Nuevo nombre
     new_filename = request.form.get("new_filename")
 
@@ -175,23 +248,24 @@ def rename(filename):
             "danger"
         )
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     # Renombrar
     success, error = cloud_service.rename_file(
         user.username,
         filename,
-        new_filename
+        new_filename,
+        current_path
     )
 
     if not success:
         flash(error, "danger")
 
-        return redirect(url_for("dashboard_bp.dashboard"))
+        return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     flash(
-        "Archivo renombrado correctamente.",
+        "Renombrado correctamente.",
         "success"
     )
 
-    return redirect(url_for("dashboard_bp.dashboard"))
+    return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))

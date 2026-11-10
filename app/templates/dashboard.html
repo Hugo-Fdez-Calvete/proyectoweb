@@ -26,6 +26,23 @@
                     <p class="subtitle is-6">
                         Gestiona tus archivos y carpetas.
                     </p>
+
+                    <!-- RUTA ACTUAL -->
+                    <nav class="breadcrumb" aria-label="breadcrumbs">
+                        <ul>
+                            <li {% if not current_path %}class="is-active"{% endif %}>
+                                <a href="{{ url_for('dashboard_bp.dashboard') }}">
+                                    <span class="icon is-small"><i class="fas fa-home"></i></span>
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
+                            {% for crumb in breadcrumbs %}
+                                <li {% if loop.last %}class="is-active"{% endif %}>
+                                    <a href="{{ url_for('dashboard_bp.dashboard', path=crumb.path) }}">{{ crumb.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
             <div class="level-right">
@@ -33,6 +50,7 @@
 
                     <!-- BOTÓN SUBIR -->
                     <form action="{{ url_for('cloud_bp.upload') }}" method="POST" enctype="multipart/form-data" id="upload-form">
+                        <input type="hidden" name="path" value="{{ current_path }}">
                         <input type="file" name="file" id="file-input" hidden >
                         <button type="button" class="button is-primary" onclick="document.getElementById('file-input').click()">
                             <span class="icon">
@@ -45,7 +63,7 @@
                     </form>
 
                     <!-- NUEVA CARPETA -->
-                    <button class="button" type="button">
+                    <button class="button" type="button" id="new-folder-btn">
                         <span class="icon">
                             <i class="fas fa-folder-plus"></i>
                         </span>
@@ -136,7 +154,12 @@
                                                 <i class="fas fa-file"></i>
                                             {% endif %}
                                         </span>
-                                        {{ file.name }}
+                                        {% if file.is_dir() %}
+                                            {% set name_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
+                                            <a href="{{ url_for('dashboard_bp.dashboard', path=name_path) }}">{{ file.name }}</a>
+                                        {% else %}
+                                            {{ file.name }}
+                                        {% endif %}
                                     </td>
 
                                     <!-- TAMAÑO -->
@@ -157,7 +180,8 @@
                                             {% if file.is_dir() %}
 
                                                 <!-- ABRIR CARPETA -->
-                                    <a href="#" class="button is-link is-light">
+                                    {% set child_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
+                                    <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}" class="button is-link is-light">
                                                     <span class="icon">
                                                         <i class="fas fa-folder-open"></i>
                                                     </span>
@@ -169,7 +193,7 @@
                                             {% else %}
 
                                                 <!-- DESCARGAR -->
-                                    <a href="{{ url_for('cloud_bp.download', filename=file.name) }}" class="button is-info is-light">
+                                    <a href="{{ url_for('cloud_bp.download', filename=file.name, path=current_path or None) }}" class="button is-info is-light">
                                                     <span class="icon">
                                                         <i class="fas fa-download"></i>
                                                     </span>
@@ -181,8 +205,13 @@
                                             {% endif %}
 
                                             <!-- ELIMINAR -->
-                                    <form action="{{ url_for('cloud_bp.delete',filename=file.name) }}" method="POST">
-                                        <button type="submit" class="button is-danger is-light" onclick="return confirm('¿Seguro que quieres eliminar este elemento?')">
+                                    <form action="{{ url_for('cloud_bp.delete', filename=file.name, path=current_path or None) }}" method="POST">
+                                        <button type="submit" class="button is-danger is-light"
+                                            {% if file.is_dir() %}
+                                                onclick="return confirm('¿Eliminar la carpeta y TODO su contenido? Esta acción no se puede deshacer.')"
+                                            {% else %}
+                                                onclick="return confirm('¿Seguro que quieres eliminar este elemento?')"
+                                            {% endif %}>
                                                     <span class="icon">
                                                         <i class="fas fa-trash"></i>
                                                     </span>
@@ -207,7 +236,7 @@
                     </span>
 
                     <p class="title is-5 mt-4">
-                        No hay archivos
+                        {% if current_path %}Esta carpeta está vacía{% else %}No hay archivos{% endif %}
                     </p>
 
                     <p class="has-text-grey">
@@ -219,6 +248,64 @@
         </div>
     </div>
 </section>
+
+<!-- MODAL NUEVA CARPETA -->
+<div class="modal" id="folder-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <h2 class="title is-5">Nueva carpeta</h2>
+
+            <form action="{{ url_for('cloud_bp.create_folder') }}" method="POST">
+                <input type="hidden" name="path" value="{{ current_path }}">
+
+                <div class="field">
+                    <label class="label" for="folder-name">Nombre</label>
+                    <div class="control">
+                        <input class="input" type="text" name="folder_name" id="folder-name"
+                               maxlength="100" placeholder="Por ejemplo: Documentos" required>
+                    </div>
+                </div>
+
+                <div class="buttons is-right">
+                    <button type="button" class="button" id="folder-cancel">Cancelar</button>
+                    <button type="submit" class="button is-primary">
+                        <span class="icon"><i class="fas fa-folder-plus"></i></span>
+                        <span>Crear</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <button type="button" class="modal-close is-large" aria-label="Cerrar" id="folder-close"></button>
+</div>
+
+<!-- MODAL NUEVA CARPETA: abrir / cerrar -->
+<script>
+    (function () {
+        const modal = document.getElementById("folder-modal");
+        const input = document.getElementById("folder-name");
+
+        function openModal() {
+            modal.classList.add("is-active");
+            input.value = "";
+            input.focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove("is-active");
+        }
+
+        document.getElementById("new-folder-btn").addEventListener("click", openModal);
+        document.getElementById("folder-cancel").addEventListener("click", closeModal);
+        document.getElementById("folder-close").addEventListener("click", closeModal);
+        modal.querySelector(".modal-background").addEventListener("click", closeModal);
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") closeModal();
+        });
+    })();
+</script>
 
 <!-- SUBIDA AUTOMÁTICA -->
 <script>
