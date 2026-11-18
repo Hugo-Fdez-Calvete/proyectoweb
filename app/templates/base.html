@@ -27,7 +27,7 @@
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 
-<body class="is-flex is-flex-direction-column" style="min-height: 100vh;">
+<body class="is-flex is-flex-direction-column {% block body_class %}{% endblock %}" style="min-height: 100vh;">
 
     <!-- Botón circular de menú (fijo) -->
     <button class="hf-menu-btn" type="button" aria-expanded="false" aria-controls="hf-menu" aria-label="Abrir menú">
@@ -47,13 +47,15 @@
         </details>
 
         {% if session.get('user_id') %}
-        <details class="hf-acc" {% if request.endpoint in ['dashboard_bp.dashboard', 'profile_bp.profile' ] %}open{%
+        <details class="hf-acc" {% if request.endpoint in ['dashboard_bp.dashboard', 'profile_bp.profile', 'pulso_bp.pulso' ] %}open{%
             endif %}>
             <summary><i class="fa-solid fa-cloud"></i> Mi espacio <i class="fa-solid fa-chevron-down chev"></i>
             </summary>
             <ul>
                 <li><a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
                         %}class="active" {% endif %}>Mis archivos</a></li>
+                <li><a href="{{ url_for('pulso_bp.pulso') }}" {% if request.endpoint=='pulso_bp.pulso'
+                        %}class="active" {% endif %}>Pulso · música visual</a></li>
                 <li><a href="{{ url_for('profile_bp.profile') }}" {% if request.endpoint=='profile_bp.profile'
                         %}class="active" {% endif %}>Configurar perfil</a></li>
                 <li><a href="{{ url_for('home_bp.logout') }}">Cerrar sesión</a></li>
@@ -128,6 +130,7 @@
     </button>
 
     <script src="{{ url_for('static', filename='js/menu.js') }}" defer></script>
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

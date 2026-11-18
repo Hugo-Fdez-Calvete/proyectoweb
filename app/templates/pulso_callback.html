@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conectando con YouTube…</title>
+    <style>
+        body { margin: 0; display: grid; place-items: center; height: 100vh; background: #05080f; color: #e8eef9;
+               font-family: system-ui, sans-serif; text-align: center; }
+    </style>
+</head>
+<body>
+    <p id="msg">{% if result == 'ok' %}¡Listo! Ya puedes cerrar esta ventana.{% else %}No se pudo conectar con Google.{% endif %}</p>
+    <script>
+        (function () {
+            var result = {{ result|tojson }};
+            var home = {{ url_for('pulso_bp.pulso')|tojson }};
+            var told = false;
+            // avisa a la pestaña de Pulso aunque Google haya aislado esta ventana
+            try { var bc = new BroadcastChannel('pulso-google'); bc.postMessage({ result: result }); bc.close(); told = true; } catch (e) { }
+            try { localStorage.setItem('pulso-google', JSON.stringify({ result: result, t: Date.now() })); told = true; } catch (e) { }
+            try { if (window.opener && !window.opener.closed) { window.opener.postMessage({ pulso: 'google', result: result }, window.location.origin); told = true; } } catch (e) { }
+            if (told) {
+                window.close();
+                // si el navegador no deja cerrarla, lleva a Pulso
+                setTimeout(function () { window.location.replace(home + '?google=' + encodeURIComponent(result) + '#youtube'); }, 600);
+            } else {
+                window.location.replace(home + '?google=' + encodeURIComponent(result) + '#youtube');
+            }
+        })();
+    </script>
+</body>
+</html>

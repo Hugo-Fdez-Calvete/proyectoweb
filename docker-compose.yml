@@ -8,6 +8,10 @@ services:
 
     environment:
       SECRET_KEY: "${SECRET_KEY:?SECRET_KEY no configurada}"
+      # Opcional: Google para /pulso (iniciar sesión y vincular YouTube / YouTube Music)
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
+      GOOGLE_REDIRECT_URI: "${GOOGLE_REDIRECT_URI:-}"
 
     ports:
       - "127.0.0.1:5000:5000"

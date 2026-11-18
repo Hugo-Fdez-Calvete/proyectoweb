@@ -18,6 +18,16 @@ modulos = [
 "Formación, experiencia, habilidades técnicas e idiomas. "
 "Con el CV listo para descargar en PDF.")},
 {
+"titulo": "Pulso",
+"icono": "fa-solid fa-wave-square",
+"ancho": False,
+"completo": True,
+"ruta": "/pulso",
+"accion": "Encender la música",
+"texto": (
+"Música que se ve: un fondo que se enciende con cada golpe. "
+"Tu música guardada en tu nube o tu YouTube conectando Google.")},
+{
 "titulo": "Home Cloud",
 "icono": "fa-solid fa-cloud",
 "ancho": False,
@@ -50,6 +60,7 @@ arranque = [
 "cargando perfil",
 "montando home cloud",
 "activando mensajería interna",
+"afinando el visualizador",
 "listando proyectos",
 "preparando novedades",
 ]

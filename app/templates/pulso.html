@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Pulso{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pulso.css') }}">
+
+<div class="pulso" id="pulso"
+     data-google-ready="{{ '1' if google_ready else '0' }}"
+     data-login-url="{{ url_for('pulso_bp.google_login') }}"
+     data-logout-url="{{ url_for('pulso_bp.google_logout') }}"
+     data-api="{{ url_for('pulso_bp.pulso') }}/api/">
+
+    <!-- Fondo: shader WebGL + capa de chispas -->
+    <canvas class="pl-gl" aria-hidden="true"></canvas>
+    <canvas class="pl-fx" aria-hidden="true"></canvas>
+    <div class="pl-grain" aria-hidden="true"></div>
+
+    <!-- ===================== INTRO ===================== -->
+    <section class="pl-intro" id="pl-intro">
+        <p class="pl-kicker"><span class="pl-dot"></span> Música visual en tiempo real</p>
+        <h1 class="pl-title">Pulso<span>.</span></h1>
+        <p class="pl-lead">
+            Un fondo vivo que escucha la música y se enciende con cada golpe.
+            Haz clic para lanzar ondas.
+        </p>
+        <div class="pl-intro-actions">
+            <button class="pl-start" id="pl-start" type="button">
+                <i class="fa-solid fa-play"></i> Empezar
+            </button>
+            <a class="pl-gbtn pl-glogin" href="{{ url_for('pulso_bp.google_login') }}" data-google-login>
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <span>Iniciar sesión con Google</span>
+            </a>
+            <button type="button" class="pl-linked" id="pl-intro-linked" hidden>
+                <img alt="" referrerpolicy="no-referrer"><span></span>
+            </button>
+        </div>
+        <p class="pl-sub-hint">Hola, {{ user.username }}. Escucha la música de tu nube o conecta Google para traer tu YouTube y YouTube Music.</p>
+        <p class="pl-hint">
+            <kbd>Espacio</kbd> reproducir / pausa · <kbd>H</kbd> ocultar la interfaz · <kbd>V</kbd> visualizador · <kbd>T</kbd> ampliar vídeo · <kbd>F</kbd> pantalla completa
+        </p>
+    </section>
+
+    <!-- ===================== DOCK (reproductor) ===================== -->
+    <div class="pl-dock" id="pl-dock" hidden>
+        <div class="pl-now">
+            <div class="pl-cover" id="pl-cover"><i class="fa-solid fa-wave-square"></i></div>
+            <div class="pl-meta">
+                <strong id="pl-title">—</strong>
+                <span id="pl-sub">—</span>
+            </div>
+        </div>
+
+        <div class="pl-center">
+            <div class="pl-ctrls">
+                <button type="button" id="pl-prev" aria-label="Anterior"><i class="fa-solid fa-backward-step"></i></button>
+                <button type="button" id="pl-play" class="pl-play" aria-label="Reproducir"><i class="fa-solid fa-play"></i></button>
+                <button type="button" id="pl-next" aria-label="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+            </div>
+            <div class="pl-progress">
+                <span id="pl-time">0:00</span>
+                <input type="range" id="pl-seek" min="0" max="1000" value="0" aria-label="Posición">
+                <span id="pl-dur">0:00</span>
+            </div>
+        </div>
+
+        <div class="pl-right">
+            <label class="pl-vol" title="Volumen">
+                <i class="fa-solid fa-volume-high"></i>
+                <input type="range" id="pl-vol" min="0" max="100" value="80" aria-label="Volumen">
+            </label>
+            <button type="button" class="pl-chip" id="pl-react"><i class="fa-solid fa-satellite-dish"></i><span>—</span></button>
+            <button type="button" class="pl-icon-btn pl-viz-btn" id="pl-viz" aria-pressed="true" title="Visualizador activado (V)" aria-label="Activar o desactivar el visualizador">
+                <i class="fa-solid fa-wave-square"></i>
+            </button>
+            <a class="pl-gmini" id="pl-gmini" href="{{ url_for('pulso_bp.google_login') }}" data-google-login title="Iniciar sesión con Google">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Iniciar sesión</span>
+            </a>
+            <button type="button" class="pl-avatar" id="pl-avatar" hidden title="Tu YouTube">
+                <img alt="" referrerpolicy="no-referrer">
+            </button>
+            <button type="button" class="pl-lib-btn" id="pl-lib-btn" aria-expanded="false" aria-controls="pl-lib">
+                <i class="fa-solid fa-layer-group"></i> <span>Biblioteca</span>
+            </button>
+            <button type="button" class="pl-icon-btn" id="pl-hide" aria-label="Ocultar interfaz (H)" title="Ocultar interfaz (H)">
+                <i class="fa-solid fa-eye-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================== BIBLIOTECA ===================== -->
+    <aside class="pl-lib" id="pl-lib" hidden aria-label="Biblioteca">
+        <div class="pl-tabs" role="tablist">
+            <button type="button" role="tab" data-tab="mine" aria-selected="true"><i class="fa-solid fa-music"></i> Mi música</button>
+            <button type="button" role="tab" data-tab="yt" aria-selected="false"><i class="fa-brands fa-youtube"></i> YouTube</button>
+            <button type="button" role="tab" data-tab="demo" aria-selected="false"><i class="fa-solid fa-wand-magic-sparkles"></i> Demo</button>
+        </div>
+
+        <!-- Mi música (nube del usuario) -->
+        <div class="pl-pane" data-pane="mine">
+            <div class="pl-usage" id="pl-usage">
+                <div class="pl-usage-top"><span><i class="fa-solid fa-cloud"></i> Tu nube</span><b id="pl-usage-text">—</b></div>
+                <div class="pl-usage-bar"><i id="pl-usage-fill"></i></div>
+            </div>
+            <ul class="pl-list" id="pl-list-mine"></ul>
+            <label class="pl-drop" id="pl-drop">
+                <input type="file" id="pl-file" accept="audio/*,.mp3,.m4a,.ogg,.opus,.wav,.flac,.aac,.webm" multiple hidden>
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span id="pl-drop-text">Sube canciones a tu nube<small>o arrástralas aquí · se guardan en la carpeta «Musica» y ocupan espacio de tu cuota</small></span>
+            </label>
+        </div>
+
+        <!-- YouTube / YouTube Music -->
+        <div class="pl-pane" data-pane="yt" hidden>
+            <div class="pl-yt-noconf" id="pl-yt-noconf" hidden>
+                <i class="fa-solid fa-circle-info"></i>
+                <p>El inicio de sesión con Google todavía no está configurado en el servidor
+                    (faltan <code>GOOGLE_CLIENT_ID</code> y <code>GOOGLE_CLIENT_SECRET</code>).
+                    Mientras tanto puedes reproducir pegando un enlace de YouTube.</p>
+            </div>
+
+            <div class="pl-yt-out" id="pl-yt-out" hidden>
+                <p>Inicia sesión y tu YouTube y YouTube Music se enlazan solos: busca canciones y escucha tus listas.
+                    La próxima vez que entres ya estarás conectado.</p>
+                <a class="pl-gbtn pl-glogin" href="{{ url_for('pulso_bp.google_login') }}" data-google-login>
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                    <span>Iniciar sesión con Google</span>
+                </a>
+            </div>
+
+            <div class="pl-yt-in" id="pl-yt-in" hidden>
+                <div class="pl-user">
+                    <img id="pl-yt-avatar" alt="" referrerpolicy="no-referrer">
+                    <span><b id="pl-yt-name">Tu cuenta</b><small id="pl-yt-channel"></small></span>
+                    <button type="button" class="pl-link" id="pl-glogout">Cerrar sesión</button>
+                </div>
+                <div class="pl-chips" role="group" aria-label="Secciones de YouTube">
+                    <button type="button" data-yt="search" aria-pressed="true"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    <button type="button" data-yt="playlists" aria-pressed="false"><i class="fa-solid fa-list"></i> Listas</button>
+                </div>
+                <form class="pl-field" id="pl-yt-search" role="search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" name="q" placeholder="Buscar canciones" autocomplete="off" aria-label="Buscar canciones">
+                </form>
+            </div>
+
+            <p class="pl-crumb" id="pl-yt-crumb" hidden></p>
+            <ul class="pl-list" id="pl-list-yt"></ul>
+
+            <div class="pl-ytprefs">
+                <span class="pl-ytprefs-label">Reproducir YouTube como</span>
+                <div class="pl-seg" role="radiogroup" aria-label="Modo de YouTube" data-ytmode-group>
+                    <button type="button" role="radio" data-ytmode="audio" aria-checked="true"><i class="fa-solid fa-music"></i> Solo canción</button>
+                    <button type="button" role="radio" data-ytmode="video" aria-checked="false"><i class="fa-solid fa-film"></i> Con vídeo</button>
+                </div>
+                <label class="pl-check">
+                    <input type="checkbox" id="pl-autosync" checked>
+                    <span>Activar el audio real al reproducir (el fondo reacciona a la canción de verdad)</span>
+                </label>
+            </div>
+
+            <form class="pl-field" id="pl-yt-url">
+                <i class="fa-solid fa-link"></i>
+                <input type="url" name="url" placeholder="Pega un enlace de YouTube o YouTube Music" autocomplete="off" aria-label="Enlace de YouTube">
+                <button type="submit" aria-label="Reproducir enlace"><i class="fa-solid fa-play"></i></button>
+            </form>
+
+            <div class="pl-sync">
+                <button type="button" id="pl-sync"><i class="fa-solid fa-satellite-dish"></i> <span>Activar el audio real</span></button>
+                <p>YouTube no deja que otras webs lean su sonido. Al pulsar, el navegador te pedirá compartir
+                    <b>esta pestaña</b>: marca <b>«Compartir también el audio de la pestaña»</b>.
+                    Sin eso no hay visualizador con YouTube. Funciona en Chrome y Edge de escritorio.</p>
+            </div>
+        </div>
+
+        <!-- Demo -->
+        <div class="pl-pane" data-pane="demo" hidden>
+            <p class="pl-note">Pistas generadas en tiempo real por tu navegador con Web Audio. No usan ningún archivo.</p>
+            <ul class="pl-list" id="pl-list-demo"></ul>
+        </div>
+    </aside>
+
+    <!-- Reproductor de YouTube (la API exige que se vea, mín. 200×200) -->
+    <div class="pl-yt-box" id="pl-yt-box" data-mode="audio" hidden>
+        <div class="pl-yt-head">
+            <div class="pl-seg pl-seg-sm" role="radiogroup" aria-label="Modo de YouTube" data-ytmode-group>
+                <button type="button" role="radio" data-ytmode="audio" aria-checked="true" title="Solo canción"><i class="fa-solid fa-music"></i> <span>Canción</span></button>
+                <button type="button" role="radio" data-ytmode="video" aria-checked="false" title="Con vídeo"><i class="fa-solid fa-film"></i> <span>Vídeo</span></button>
+            </div>
+            <button type="button" class="pl-yt-expand" id="pl-yt-expand" aria-pressed="false" title="Ampliar el vídeo (T)" aria-label="Ampliar el vídeo">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+        <div class="pl-yt-frame"><div id="pl-yt-frame"></div></div>
+    </div>
+
+    <div class="pl-toast" id="pl-toast" role="status" aria-live="polite"></div>
+
+    <!-- modo sin interfaz: aviso y flecha para volver -->
+    <div class="pl-zen-hint" id="pl-zen-hint" aria-hidden="true">Pulsa <kbd>H</kbd> para volver a mostrar los controles</div>
+    <button type="button" class="pl-zen-up" id="pl-zen-up" aria-label="Mostrar los controles" title="Mostrar los controles (H)">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pulso/visual.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pulso/audio.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pulso/youtube.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pulso/app.js') }}"></script>
+{% endblock %}

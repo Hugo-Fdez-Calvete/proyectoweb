@@ -144,3 +144,49 @@ El objetivo del proyecto es aplicar los conocimientos adquiridos durante el cicl
 # Autor
 
 ![Banner](./README_img/banner.png)
+# Pulso · música visual (`/pulso`)
+
+Sección con un fondo animado (WebGL) que reacciona a la música, al estilo de los visuales de Arkestra. El anillo del visualizador está fijo en el centro y se puede quitar (botón del reproductor o tecla `V`); el fondo sigue animándose solo.
+
+**YouTube: Canción / Vídeo** (como YouTube Music). En modo *Canción* se reproduce la pista oficial de audio (canal «Artista - Topic», portada fija) y el reproductor se queda en 200×200 px; en modo *Vídeo*, el videoclip. Las normas de YouTube no permiten separar el audio del vídeo ni ocultar el reproductor, así que no existe un modo 100 % solo audio. Buscar la otra versión de una canción cuesta 100 unidades de cuota y se guarda en memoria para todos.
+
+- **Solo con sesión iniciada**: `/pulso` y toda su API exigen haber iniciado sesión en la web; si no, redirige a `/login`.
+- **Mi música (en la nube de cada usuario)**: las canciones se suben a la carpeta `Musica` de su Home Cloud y ocupan espacio de su cuota (`storage_gb`); si no queda espacio, la subida se rechaza. En la lista aparecen todos los archivos de audio de su nube, también los subidos desde «Mis archivos», y se pueden borrar desde Pulso.
+- **Sonido**: «Empezar» reproduce la primera canción de su nube; si no tiene ninguna, abre la biblioteca. La demo nunca suena sola.
+- **Demo**: tres pistas generadas en el navegador. Solo se reproducen pulsándolas en la pestaña *Demo*, y esa pestaña desaparece al conectar Google.
+- **Visualizador solo con audio real**: el anillo y las chispas solo aparecen cuando la página está escuchando el audio de verdad (su música, la demo, o YouTube con «Audio real» activado). No hay ritmo inventado: con YouTube sin «Audio real», el fondo queda en reposo.
+- **YouTube y YouTube Music**: botón **Iniciar sesión con Google** en la portada de Pulso, en el reproductor y en la biblioteca. Al conectarse, cada usuario tiene dos apartados:
+  - **Buscar** canciones (y pegar cualquier enlace de YouTube / YouTube Music).
+  - **Listas**: sus listas de reproducción, incluidas las creadas en YouTube Music.
+
+### Vínculo automático con el YouTube de cada usuario
+
+El inicio de sesión lo hace el servidor (OAuth 2.0 con `access_type=offline`): Google entrega un *refresh token* que se guarda en la tabla `google_links` de `users.db`, y el navegador recibe una cookie aleatoria (`pulso_google`, 180 días, `HttpOnly`). En la base de datos solo se guarda el hash de esa cookie.
+
+- En cada visita la página encuentra el vínculo y renueva el token sola: el usuario sigue conectado sin volver a iniciar sesión.
+- La cuenta de Google queda unida al usuario de la web y le sigue en cualquier dispositivo; en un navegador compartido, cada usuario ve solo su propio YouTube.
+- «Cerrar sesión» revoca el permiso en Google y borra el vínculo.
+- La tabla `google_links` se crea sola al arrancar la app (no hace falta volver a ejecutar `crear-tablas`).
+
+Lo que **no** da la API oficial de YouTube: los álbumes guardados en la biblioteca de YouTube Music ni la página de inicio/recomendaciones de YouTube.
+
+### Por qué YouTube necesita «Audio real»
+
+El navegador no deja leer el sonido de un iframe de otro dominio (youtube.com). El botón *Audio real* usa la captura de pestaña: se elige **esta pestaña** y se marca **«Compartir también el audio de la pestaña»**. Funciona en Chrome y Edge de escritorio; en el resto, con YouTube no hay visualizador.
+
+Si las subidas grandes fallan con error 413, sube el límite en Nginx (`client_max_body_size 200M;` en el `server` de la web).
+
+### Configurar Google
+
+1. En [Google Cloud Console](https://console.cloud.google.com/) crea un proyecto.
+2. *APIs y servicios › Biblioteca* → activa **YouTube Data API v3**.
+3. *Pantalla de consentimiento de OAuth* (o *Google Auth Platform*) → tipo **Externo**. En *Permisos* añade `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile` y `.../auth/youtube.readonly`. Mientras la app esté en **Prueba**, solo pueden entrar las cuentas que añadas como *usuarios de prueba* (hasta 100). Para que entre cualquiera hay que pasar la verificación de Google (`youtube.readonly` es un permiso sensible).
+4. *Credenciales › Crear credenciales › ID de cliente de OAuth* → **Aplicación web**:
+   - *Orígenes de JavaScript autorizados*: `https://hugofernandezcalvete.es`
+   - *URI de redireccionamiento autorizados*: `https://hugofernandezcalvete.es/pulso/google/callback` (y `http://localhost:5000/pulso/google/callback` para probar en local)
+5. Añade al stack de Portainer (*Environment variables*):
+   - `GOOGLE_CLIENT_ID` = el ID de cliente
+   - `GOOGLE_CLIENT_SECRET` = el secreto de cliente (no lo subas a GitHub)
+   - `GOOGLE_REDIRECT_URI` = `https://hugofernandezcalvete.es/pulso/google/callback`
+
+Cuota: 10 000 unidades al día para toda la web. Leer listas cuesta 1 unidad; cada búsqueda, 100.

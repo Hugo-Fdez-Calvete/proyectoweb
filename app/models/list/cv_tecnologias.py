@@ -4,6 +4,7 @@ orbita_externa = [
 ("JavaScript", "fa-brands fa-js"),
 ("Java", "fa-brands fa-java"),
 ("Python", "fa-brands fa-python"),
+("Flask", "fa-solid fa-flask"),
 ("Spring Boot", "fa-solid fa-leaf")]
 orbita_interna = [
 ("SQL", "fa-solid fa-database"),
@@ -26,6 +27,7 @@ stack = [
 "tecnologias": [
 ("Java", "fa-brands fa-java"),
 ("Python", "fa-brands fa-python"),
+("Flask", "fa-solid fa-flask"),
 ("Spring Boot", "fa-solid fa-leaf"),
 ("Spring Framework", "fa-solid fa-seedling")]},
 

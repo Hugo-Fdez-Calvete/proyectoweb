@@ -2,6 +2,8 @@
 
 {% block title %}Hugo Fernández | Currículum{% endblock %}
 
+{% block body_class %}tema-info{% endblock %}
+
 {% block content %}
 
 
@@ -9,8 +11,23 @@
 
 <div class="cv">
 
+    <!-- Ambientación propia de esta página: atardecer cálido con brasas -->
+    <div class="cv-amb" aria-hidden="true">
+        <div class="amb-blob b1"></div>
+        <div class="amb-blob b2"></div>
+        <div class="amb-blob b3"></div>
+        <canvas class="amb-embers"></canvas>
+        <div class="amb-grain"></div>
+    </div>
+
+    <!-- Pista horizontal: el scroll vertical la desplaza de izquierda a derecha
+         (en móvil y pantallas bajas la página vuelve a ser vertical) -->
+    <div class="cv-h" id="cv-h">
+    <div class="cv-h-sticky">
+    <div class="cv-track" id="cv-track">
+
     <!-- ===================== HERO ===================== -->
-    <header class="cv-hero">
+    <header class="cv-hero panel" id="inicio">
         <div class="cv-wrap hero-grid">
             <div>
                 <p class="hm-badge"><span class="hm-dot"></span> Programador Junior</p>
@@ -34,34 +51,39 @@
             </div>
 
             <div data-in style="--i:3">
-                <div class="orbit" role="img"
-                    aria-label="Tecnologías que utilizo girando alrededor de las iniciales HF">
-                    <div class="orbit-core"><b>HF</b></div>
+                {% set todas = (orbita_externa + orbita_interna) | map('first') | join(', ') %}
+                <div class="orbit" role="img" aria-label="Tecnologías que uso: {{ todas }}">
+                    <canvas class="orbit-back" aria-hidden="true"></canvas>
+                    <div class="orbit-core" aria-hidden="true"><canvas class="orbit-planet"></canvas></div>
+                    <canvas class="orbit-front" aria-hidden="true"></canvas>
 
-                    {% set paso_ext = 360 // (orbita_externa | length) %}
-                    <div class="ring ring-out" aria-hidden="true">
+                    {% set paso_ext = 360 / (orbita_externa | length) %}
+                    <ul class="ring ring-out" aria-hidden="true" data-speed="0.14" data-rx="0.44" data-ry="0.19" data-tilt="-8">
                         {% for nombre, icono in orbita_externa %}
-                        <div class="orb" style="--a: {{ loop.index0 * paso_ext }}deg"><span><i
-                                    class="{{ icono }}"></i>{{ nombre }}</span></div>
+                        <li class="orb" style="--a: {{ loop.index0 * paso_ext }}deg">
+                            <span class="orb-ico"><i class="{{ icono }}"></i></span>
+                            <span class="orb-name">{{ nombre }}</span>
+                        </li>
                         {% endfor %}
-                    </div>
+                    </ul>
 
-                    {% set paso_int = 360 // (orbita_interna | length) %}
-                    <div class="ring ring-in" aria-hidden="true">
+                    {% set paso_int = 360 / (orbita_interna | length) %}
+                    <ul class="ring ring-in" aria-hidden="true" data-speed="-0.22" data-rx="0.27" data-ry="0.125" data-tilt="11">
                         {% for nombre, icono in orbita_interna %}
-                        <div class="orb" style="--a: {{ loop.index0 * paso_int + 45 }}deg"><span><i
-                                    class="{{ icono }}"></i>{{ nombre }}</span></div>
+                        <li class="orb" style="--a: {{ loop.index0 * paso_int + 45 }}deg">
+                            <span class="orb-ico"><i class="{{ icono }}"></i></span>
+                            <span class="orb-name">{{ nombre }}</span>
+                        </li>
                         {% endfor %}
-                    </div>
+                    </ul>
                 </div>
             </div>
         </div>
+        <p class="cv-swipe" aria-hidden="true">Desliza <i class="fa-solid fa-arrow-right-long"></i></p>
     </header>
 
-    <div class="cv-wrap">
-
         <!-- ===================== PERFIL ===================== -->
-        <section class="sec" id="perfil">
+        <section class="sec panel" id="perfil"><div class="cv-wrap">
             <div class="sec-h">
                 <h2>Perfil</h2>
             </div>
@@ -83,10 +105,10 @@
                     </ul>
                 </div>
             </div>
-        </section>
+        </div></section>
 
         <!-- ===================== STACK ===================== -->
-        <section class="sec" id="stack">
+        <section class="sec panel" id="stack"><div class="cv-wrap">
             <div class="sec-h">
                 <h2>Habilidades técnicas</h2>
             </div>
@@ -113,10 +135,10 @@
                 </div>
                 {% endfor %}
             </div>
-        </section>
+        </div></section>
 
         <!-- ===================== TRAYECTORIA ===================== -->
-        <section class="sec" id="trayectoria">
+        <section class="sec panel" id="trayectoria"><div class="cv-wrap">
             <div class="sec-h">
                 <h2>Formación y experiencia</h2>
             </div>
@@ -134,10 +156,10 @@
                 </article>
                 {% endfor %}
             </div>
-        </section>
+        </div></section>
 
         <!-- ===================== IDIOMAS + ÁRBITRO ===================== -->
-        <section class="sec" id="mas">
+        <section class="sec panel" id="mas"><div class="cv-wrap">
             <div class="sec-h">
                 <h2>Idiomas y más allá del código</h2>
             </div>
@@ -173,10 +195,10 @@
                     </ul>
                 </div>
             </div>
-        </section>
+        </div></section>
 
         <!-- ===================== CONTACTO ===================== -->
-        <section class="sec cv-end" id="contacto">
+        <section class="sec panel cv-end" id="contacto"><div class="cv-wrap">
             <div class="sec-h">
                 <h2>Contacto</h2>
             </div>
@@ -224,9 +246,23 @@
                     <i class="fa-solid fa-file-arrow-down"></i> Descargar CV en PDF
                 </a>
             </div>
-        </section>
+        </div></section>
+
     </div>
-    
+    </div>
+    </div>
+
+    <!-- Barra de secciones (solo en modo horizontal) -->
+    <nav class="cv-dots" aria-label="Secciones de la página">
+        <span class="cv-dots-bar" aria-hidden="true"><i></i></span>
+        <a href="#inicio">Inicio</a>
+        <a href="#perfil">Perfil</a>
+        <a href="#stack">Stack</a>
+        <a href="#trayectoria">Trayectoria</a>
+        <a href="#mas">Idiomas</a>
+        <a href="#contacto">Contacto</a>
+    </nav>
+
     <div class="toast" role="status" aria-live="polite"></div>
 </div>
 

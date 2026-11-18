@@ -9,12 +9,14 @@
 
 <div class="home">
 
-    <div class="hm-bg" aria-hidden="true"></div>
+    <!-- Fondo: nebulosa (WebGL) + estrellas y puntos que siguen al ratón -->
+    <div class="hm-space" aria-hidden="true">
+        <canvas class="hm-neb"></canvas>
+        <canvas class="hm-dots"></canvas>
+    </div>
 
     <!-- ===================== HERO ===================== -->
     <header class="hm-hero" id="inicio">
-        <canvas class="hm-canvas" aria-hidden="true"></canvas>
-        <div class="hm-scan" aria-hidden="true"></div>
 
         <div class="hm-wrap hm-hero-grid">
             <div>
@@ -26,10 +28,10 @@
                     <span class="w" aria-hidden="true"><span style="--i:2">que</span></span>
                     <span class="w" aria-hidden="true"><span style="--i:3">construyo,</span></span>
                     <br>
-                    <span class="w" aria-hidden="true"><span style="--i:4">en</span></span>
-                    <span class="w" aria-hidden="true"><span style="--i:5">un</span></span>
-                    <span class="w" aria-hidden="true"><span style="--i:6">solo</span></span>
-                    <span class="w" aria-hidden="true"><span style="--i:7">lugar.</span></span>
+                    <span class="w" aria-hidden="true"><span class="g" style="--i:4">en</span></span>
+                    <span class="w" aria-hidden="true"><span class="g" style="--i:5">un</span></span>
+                    <span class="w" aria-hidden="true"><span class="g" style="--i:6">solo</span></span>
+                    <span class="w" aria-hidden="true"><span class="g" style="--i:7">lugar.</span></span>
                 </h1>
 
                 <p class="hm-lead">
@@ -70,6 +72,16 @@
     </header>
 
     <!-- ===================== MÓDULOS ===================== -->
+    <!-- Banda de texto: se mueve sola, acelera con el scroll y se puede arrastrar -->
+    {% set banda = ['Desarrollo web', 'Home Cloud', 'Pulso'] + (tecnologias or []) %}
+    <div class="hm-marquee" data-cursor="Arrastra" aria-hidden="true">
+        <div class="hm-mq-track">
+            <div class="hm-mq-group">
+                {% for t in banda %}<span class="hm-mq-item{{ ' is-o' if loop.index is even }}">{{ t }}</span><span class="hm-mq-star">✦</span>{% endfor %}
+            </div>
+        </div>
+    </div>
+
     <section class="hm-sec" id="modulos">
         <div class="hm-wrap">
             <div class="hm-sec-h">
@@ -80,7 +92,7 @@
             <div class="hm-bento">
                 {% for m in modulos %}
                 {% set tag = 'a' if m.ruta else 'div' %}
-                <{{ tag }} class="hm-card{{ ' wide' if m.ancho }}" style="--i:{{ loop.index0 }}" {% if m.ruta %}href="{{ m.ruta }}"{% endif %}>
+                <{{ tag }} class="hm-card{{ ' wide' if m.ancho }}{{ ' full' if m.completo }}" style="--i:{{ loop.index0 }}" {% if m.ruta %}href="{{ m.ruta }}"{% endif %}>
                     <span class="hm-ico"><i class="{{ m.icono }}"></i></span>
                     {% if m.ruta %}<i class="hm-open fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>{% endif %}
                     <div class="hm-body">
@@ -90,6 +102,9 @@
                     {% if m.ancho %}
                     <div class="hm-mock" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
                     {% endif %}
+                    {% if m.completo %}
+                    <div class="hm-eq" aria-hidden="true">{% for _ in range(28) %}<i style="--k:{{ loop.index0 }}"></i>{% endfor %}</div>
+                    {% endif %}
                     <span class="hm-act">{{ m.accion }}</span>
                 </{{ tag }}>
                 {% endfor %}
@@ -98,6 +113,24 @@
     </section>
 
     <!-- ===================== CIERRE ===================== -->
+    <!-- Zona con física: las tecnologías caen, chocan y se pueden lanzar -->
+    <section class="hm-sec hm-play" id="stack">
+        <div class="hm-wrap">
+            <div class="hm-sec-h">
+                <h2>Mi stack, en estado libre</h2>
+                <p>Coge las tecnologías con el ratón y lánzalas: tienen gravedad, rebotan y chocan entre sí.</p>
+            </div>
+            <div class="hm-play-box" data-cursor="Lanza">
+                <canvas class="hm-play-cv" aria-hidden="true"></canvas>
+                <button class="hm-play-reset" type="button"><i class="fa-solid fa-rotate-right"></i> Otra vez</button>
+                <ul class="hm-sr" aria-label="Tecnologías que uso">
+                    {% for t in (tecnologias or []) %}<li>{{ t }}</li>{% endfor %}
+                </ul>
+                <script type="application/json" id="hm-play-data">{{ (tecnologias or []) | tojson }}</script>
+            </div>
+        </div>
+    </section>
+
     <section class="hm-sec hm-end" id="contacto">
         <div class="hm-wrap">
             <div class="hm-end-box">
@@ -116,6 +149,12 @@
             </div>
         </div>
     </section>
+
+    <!-- Cursor propio (solo con ratón): un punto y un anillo que lleva una etiqueta -->
+    <div class="hm-cursor" aria-hidden="true">
+        <span class="hm-cursor-ring"><b class="hm-cursor-label"></b></span>
+        <span class="hm-cursor-dot"></span>
+    </div>
 </div>
 
 <script src="{{url_for('static', filename='js/index.js')}}"></script>

@@ -16,7 +16,11 @@ cv_bp = Blueprint("cv_bp",__name__)
 
 @home_bp.route("/")
 def index():
-    return render_template("index.html", modulos=modulos, arranque=arranque)
+    # tecnologías para la banda de texto y la zona con física de la portada
+    tecnologias = list(dict.fromkeys(
+        nombre for cat in stack for nombre, _ in cat["tecnologias"]))
+    return render_template("index.html", modulos=modulos, arranque=arranque,
+                           tecnologias=tecnologias)
 
 
 @home_bp.route("/login", methods=["GET", "POST"])
