@@ -3,7 +3,7 @@ trayectoria = [
 {
 "tipo": "Formación",
 "icono": "fa-solid fa-graduation-cap",
-"titulo": "FP Dual de Grado Superior en Desarrollo de Aplicaciones Web",
+"titulo": "FP de Grado Superior en Desarrollo de Aplicaciones Web",
 "centro": "I.E.S. Fernando Wirtz",
 "detalle": "",
 "actual": True},
