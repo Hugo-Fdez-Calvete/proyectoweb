@@ -8,6 +8,54 @@
 
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/cv.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cv_intro.css') }}">
+
+
+
+<!-- ===================== EASTER EGG: LA BOMBA =====================
+     No se ve al cargar. Se activa haciendo girar muy rápido las órbitas
+     de tecnologías (cv.js llama a hfIntro.start()). Al acabar, el planeta
+     del carrusel pasa a ser el hongo de la explosión.
+     Inspirada en la pieza de Major Lazer de Because Recollection.
+     1. Mi foto en blanco y negro con paralaje y unas gafas de sol encima;
+        solo los cristales tienen color: reflejan la escena que viene después.
+     2. Mantén pulsada la H: suena «Sciophobia» (Jo Wandrini), la cámara entra
+        en la lente y crece una bola de fuego. Si sueltas, todo se rebobina.
+     3. En el drop de la canción explota (vídeo renderizado, con respaldo en canvas).
+     4. Onda expansiva a blanco; nombre y texto en el centro que vuelan a su sitio.
+     Los tiempos van a compás: data-bpm y data-drop (segundo del drop en el mp3).
+-->
+<div class="cv-intro" id="cv-intro" role="dialog" aria-modal="true" aria-label="Animación de presentación"
+     data-photo="{{ url_for('static', filename='intro/hugo_bn.jpg') }}"
+     data-mask="{{ url_for('static', filename='intro/hugo_mask.png') }}"
+     data-bg="{{ url_for('static', filename='intro/hugo_fondo.jpg') }}"
+     data-song="{{ url_for('static', filename='intro/intro_sciophobia.mp3') }}"
+     data-video-h="{{ url_for('static', filename='intro/explosion_h.mp4') }}"
+     data-video-v="{{ url_for('static', filename='intro/explosion_v.mp4') }}"
+     data-bpm="154" data-drop="6.2338">
+    <div class="ci-world">
+        <canvas class="ci-scene" aria-hidden="true"></canvas>
+        <video class="ci-video" muted playsinline preload="auto" aria-hidden="true"></video>
+        <canvas class="ci-photo" aria-hidden="true"></canvas>
+        <canvas class="ci-glass" aria-hidden="true"></canvas>
+
+        <div class="ci-grain" aria-hidden="true"></div>
+        <div class="ci-flash" aria-hidden="true"></div>
+        <div class="ci-bg" aria-hidden="true"></div>
+    </div>
+
+    <p class="ci-hint">
+        <span class="ci-desk">Mantén pulsada la <kbd class="ci-key">H</kbd> para detonar la bomba.</span>
+        <span class="ci-touch">Mantén el dedo en la pantalla para detonar la bomba.</span>
+    </p>
+
+    <div class="ci-ui">
+        <button class="ci-sound" type="button" aria-pressed="true" aria-label="Silenciar sonido">
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+        </button>
+        <button class="ci-skip" type="button">Saltar animación <i class="fa-solid fa-forward" aria-hidden="true"></i></button>
+    </div>
+</div>
 
 <div class="cv">
 
@@ -30,7 +78,7 @@
     <header class="cv-hero panel" id="inicio">
         <div class="cv-wrap hero-grid">
             <div>
-                <p class="hm-badge"><span class="hm-dot"></span> Programador Junior</p>
+                <p class="hm-badge"><span class="hm-badge-k">Currículum</span><span class="hm-badge-sep" aria-hidden="true"></span><span>Programador Junior</span></p>
 
                 <h1 class="cv-name" data-in style="--i:1"><span>Hugo</span><span>Fernández</span></h1>
 
@@ -267,5 +315,6 @@
 </div>
 
 <script src="{{url_for('static', filename='js/cv.js')}}"></script>
+<script src="{{url_for('static', filename='js/cv_intro.js')}}"></script>
 
 {% endblock %}

@@ -13,6 +13,7 @@
 {% macro action_form(endpoint, user_id, label, css, confirm=None) %}
     <form method="post" action="{{ url_for(endpoint, user_id=user_id) }}" style="display:inline"
           {% if confirm %}onsubmit="return confirm('{{ confirm }}');"{% endif %}>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="button is-small {{ css }}" type="submit">{{ label }}</button>
     </form>
 {% endmacro %}

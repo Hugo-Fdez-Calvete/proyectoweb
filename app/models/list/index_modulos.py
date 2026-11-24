@@ -64,3 +64,9 @@ arranque = [
 "listando proyectos",
 "preparando novedades",
 ]
+# proyectos que se enseñan en la tarjeta «Proyectos web» de la portada
+destacados = [
+{"nombre": "Home Cloud", "icono": "fa-solid fa-cloud", "tecnologias": "Flask · SQLite"},
+{"nombre": "Pulso", "icono": "fa-solid fa-wave-square", "tecnologias": "Web Audio · WebGL"},
+{"nombre": "Pixel Art", "icono": "fa-solid fa-palette", "tecnologias": "Canvas · Tiempo real"},
+]

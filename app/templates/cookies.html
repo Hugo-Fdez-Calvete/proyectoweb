@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Política de cookies{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cookies.css') }}">
+
+<article class="ck">
+    <header class="ck-head">
+        <p class="ck-kicker"><i class="fa-solid fa-cookie-bite"></i> Transparencia</p>
+        <h1>Política de cookies</h1>
+        <p class="ck-lead">Qué guarda esta web en tu navegador, para qué y cómo puedes cambiarlo.
+            Última actualización: noviembre de 2026.</p>
+    </header>
+
+    <section class="ck-card">
+        <h2>En resumen</h2>
+        <ul class="ck-points">
+            <li><b>Sin publicidad ni analítica.</b> Esta web no usa cookies de seguimiento propias.</li>
+            <li><b>Las cookies propias son técnicas</b>: sirven para mantener la sesión iniciada y recordar
+                tus preferencias. No necesitan tu permiso.</li>
+            <li><b>Solo YouTube</b>, dentro de Pulso, puede guardar cookies de terceros, y únicamente si lo aceptas
+                antes de reproducir algo de YouTube.</li>
+        </ul>
+    </section>
+
+    <section class="ck-card">
+        <h2>¿Qué son las cookies?</h2>
+        <p>Son pequeños archivos o datos que una web guarda en tu navegador para recordar información entre
+            visitas o entre páginas. Aquí también se incluye el almacenamiento local del navegador
+            (<code>localStorage</code>), que funciona de forma parecida.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Cookies propias (técnicas)</h2>
+        <div class="ck-table-wrap">
+            <table class="ck-table">
+                <thead>
+                    <tr><th>Nombre</th><th>Para qué sirve</th><th>Tipo</th><th>Duración</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>session</code></td><td>Mantener tu sesión iniciada en la web y proteger los formularios.</td><td>Cookie técnica</td><td>Hasta cerrar el navegador</td></tr>
+                    <tr><td><code>pulso_google</code></td><td>Recordar que has conectado tu cuenta de Google en Pulso, para no pedirte que inicies sesión cada vez. Solo existe si conectas Google.</td><td>Cookie técnica</td><td>180 días o hasta que cierres la sesión de Google en Pulso</td></tr>
+                    <tr><td><code>hf-theme</code></td><td>Recordar si prefieres el modo claro o el oscuro.</td><td>Almacenamiento local · preferencia</td><td>Hasta que lo borres</td></tr>
+                    <tr><td><code>pl-*</code></td><td>Preferencias de Pulso (volumen, visualizador, modo canción o vídeo), tu decisión sobre las cookies de YouTube y la última canción que escuchabas, para continuar donde lo dejaste.</td><td>Almacenamiento local · preferencia</td><td>Hasta que lo borres</td></tr>
+                    <tr><td><code>cvIntroSound</code></td><td>Recordar si has silenciado el sonido de la animación oculta del currículum.</td><td>Almacenamiento local · preferencia</td><td>Hasta que lo borres</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="ck-small">Estas cookies son necesarias para que funcione lo que tú pides (iniciar sesión, conectar Google,
+            guardar tus preferencias), por eso no requieren consentimiento según el artículo 22.2 de la LSSI.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Cookies de terceros: YouTube (Google)</h2>
+        <p>En <b>Pulso</b> puedes reproducir canciones de YouTube. Para eso se carga el reproductor oficial de YouTube,
+            desde el dominio <code>youtube-nocookie.com</code>, que guarda menos datos. Aun así, Google puede guardar cookies
+            y datos en tu navegador para que el reproductor funcione, medir su uso y, según su política, personalizar anuncios.</p>
+        <p>Por eso <b>el reproductor no se carga hasta que lo aceptas</b> en el aviso que aparece la primera vez que
+            reproduces algo de YouTube. Si lo rechazas, puedes seguir usando toda la web y escuchar tu música de la nube.</p>
+        <p>Más información: <a href="https://policies.google.com/technologies/cookies?hl=es" target="_blank" rel="noopener">cómo usa Google las cookies</a>
+            y <a href="https://policies.google.com/privacy?hl=es" target="_blank" rel="noopener">política de privacidad de Google</a>.</p>
+        <p>El inicio de sesión con Google se hace en la propia web de Google (<code>accounts.google.com</code>), con sus cookies y sus condiciones.</p>
+
+        <div class="ck-consent" id="ck-consent">
+            <p class="ck-state"><i class="fa-brands fa-youtube"></i> Cookies de YouTube en este navegador:
+                <b id="ck-state">—</b></p>
+            <button type="button" class="ck-btn" id="ck-revoke" hidden>Retirar el permiso</button>
+        </div>
+    </section>
+
+    <section class="ck-card">
+        <h2>Cómo borrar o bloquear las cookies</h2>
+        <p>Puedes borrar las cookies y los datos guardados de esta web, o bloquearlos, desde los ajustes de tu navegador.
+            Si borras las cookies técnicas tendrás que volver a iniciar sesión y tus preferencias volverán a las de por defecto.</p>
+        <ul class="ck-links">
+            <li><a href="https://support.google.com/chrome/answer/95647?hl=es" target="_blank" rel="noopener">Chrome</a></li>
+            <li><a href="https://support.mozilla.org/es/kb/Borrar%20cookies" target="_blank" rel="noopener">Firefox</a></li>
+            <li><a href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener">Edge</a></li>
+            <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener">Safari</a></li>
+        </ul>
+    </section>
+
+    <section class="ck-card">
+        <h2>Responsable</h2>
+        <p>Esta web es un proyecto personal de Hugo Fernández Calvete. Si tienes cualquier duda sobre las cookies,
+            puedes escribirme desde el apartado de contacto de la página de <a href="{{ url_for('cv_bp.curriculum') }}">información</a>.</p>
+    </section>
+</article>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        var KEY = 'pl-yt-consent';
+        var state = document.getElementById('ck-state'), btn = document.getElementById('ck-revoke');
+        function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+        function paint() {
+            var ok = get() === 'yes';
+            state.textContent = ok ? 'aceptadas' : 'no aceptadas';
+            state.className = ok ? 'is-yes' : 'is-no';
+            btn.hidden = !ok;
+        }
+        btn.addEventListener('click', function () {
+            try { localStorage.setItem(KEY, 'no'); } catch (e) { }
+            paint();
+            state.textContent = 'permiso retirado. Las cookies que YouTube ya guardó se borran desde los ajustes del navegador.';
+        });
+        window.addEventListener('storage', function (e) { if (e.key === KEY) paint(); });
+        paint();
+    })();
+</script>
+{% endblock %}

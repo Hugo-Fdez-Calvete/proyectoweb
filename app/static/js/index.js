@@ -5,7 +5,7 @@
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* ---------------- Tema claro / oscuro ---------------- */
-    var acc = [34, 211, 238], sec = [99, 102, 241], light = false;
+    var acc = [255, 122, 46], sec = [224, 68, 43], light = false;
 
     function rgbVar(s, name, def) {
         var v = s.getPropertyValue(name).trim().split(/[\s,]+/).map(Number);
@@ -52,8 +52,8 @@
     /* ============================================================
        FONDO ESPACIAL
        1) Nebulosa en WebGL (misma familia que el visualizador de Pulso)
-       2) Estrellas lejanas + puntos de colores que siguen al ratón,
-          cada uno con su tamaño y su velocidad (sin líneas)
+       2) Estrellas lejanas + puntos en distintos tonos de blanco que siguen
+          al ratón, cada uno con su tamaño y su velocidad (sin líneas)
        ============================================================ */
     var space = root.querySelector('.hm-space');
     var nebCv = space.querySelector('.hm-neb');
@@ -80,7 +80,7 @@
             'float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);',
             ' return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}',
             'float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);',
-            ' for(int i=0;i<5;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}',
+            ' for(int i=0;i<4;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}',
             'void main(){',
             ' float mn=min(uRes.x,uRes.y);',
             ' vec2 p=(gl_FragCoord.xy-.5*uRes)/mn;',
@@ -118,12 +118,12 @@
         gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
         var U = {};
         ['uRes', 'uTime', 'uScroll', 'uLight', 'uBase', 'uBaseL', 'uAcc', 'uSec'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
-        var scale = 0.55;
+        var scale = 0.45;                                   // la nebulosa es difusa: a menos resolución no se nota
 
         return {
             colors: function () {
-                gl.uniform3f(U.uBase, 4 / 255, 6 / 255, 14 / 255);
-                gl.uniform3f(U.uBaseL, 238 / 255, 243 / 255, 251 / 255);
+                gl.uniform3f(U.uBase, 12 / 255, 8 / 255, 6 / 255);
+                gl.uniform3f(U.uBaseL, 251 / 255, 241 / 255, 238 / 255);
                 gl.uniform3f(U.uAcc, acc[0] / 255, acc[1] / 255, acc[2] / 255);
                 gl.uniform3f(U.uSec, sec[0] / 255, sec[1] / 255, sec[2] / 255);
                 gl.uniform1f(U.uLight, light ? 1 : 0);
@@ -143,6 +143,9 @@
     })();
 
     /* ---------- 2) Estrellas y puntos ---------- */
+    // todas las partículas son tonos de blanco (puro, marfil, hueso, perla, crema, nieve);
+    // en modo claro llevan un halo cálido muy suave para que se distingan del fondo
+    var WHITES = [[255, 255, 255], [246, 244, 240], [255, 247, 236], [236, 230, 222], [250, 240, 232], [240, 238, 236]];
     function sprite(rgb, r) {
         // punto con halo, prerrenderizado (mucho más barato que shadowBlur)
         var key = rgb.join(',') + '|' + r + '|' + (light ? 1 : 0);
@@ -152,8 +155,13 @@
         var g = c.getContext('2d'), gr = g.createRadialGradient(s, s, 0, s, s, s);
         var col = 'rgba(' + rgb.join(',') + ',';
         gr.addColorStop(0, col + '1)');
-        gr.addColorStop(r / s * 0.9, col + (light ? '.9)' : '.95)'));
-        gr.addColorStop(r / s * 2.2, col + (light ? '.12)' : '.22)'));
+        gr.addColorStop(r / s * 0.9, col + '.95)');
+        if (light) {                                   // borde y halo cálidos: el blanco se ve sobre el fondo claro
+            gr.addColorStop(Math.min(0.99, r / s * 1.35), 'rgba(150,105,80,.4)');
+            gr.addColorStop(Math.min(0.995, r / s * 2.6), 'rgba(150,105,80,.08)');
+        } else {
+            gr.addColorStop(r / s * 2.2, col + '.22)');
+        }
         gr.addColorStop(1, col + '0)');
         g.fillStyle = gr; g.fillRect(0, 0, s * 2, s * 2);
         return (sprites[key] = c);
@@ -162,7 +170,7 @@
     function seed() {
         var area = W * H;
         stars = [];
-        var ns = Math.round(Math.min(420, area / 4200));
+        var ns = Math.round(Math.min(160, area / 9000));          // estrellas: menos, para ir más fluido
         for (var i = 0; i < ns; i++) {
             stars.push({
                 x: Math.random() * W, y: Math.random() * H,
@@ -174,7 +182,7 @@
             });
         }
         dots = [];
-        var nd = Math.round(Math.min(150, area / 11000));
+        var nd = Math.round(Math.min(55, area / 24000));          // puntos que siguen al ratón
         for (var j = 0; j < nd; j++) {
             var z = Math.pow(Math.random(), 1.6);                    // la mayoría pequeños y lejanos
             var sp = (0.12 + z * 0.6) * (0.6 + Math.random() * 0.8);
@@ -186,7 +194,7 @@
                 vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,      // velocidades distintas
                 bx: Math.cos(ang) * sp, by: Math.sin(ang) * sp,
                 follow: 0.25 + Math.random() * 1.1,                  // qué ganas tiene de seguir al ratón
-                c: Math.random() < 0.28 ? 1 : 0,
+                c: (Math.random() * WHITES.length) | 0,             // su tono de blanco
                 ph: Math.random() * 6.28
             });
         }
@@ -206,7 +214,7 @@
         var k = dt * 60, i, p, dx, dy, d, R, f;
 
         // estrellas lejanas (parallax muy suave con el scroll)
-        dctx.fillStyle = light ? 'rgba(40,60,110,1)' : 'rgba(225,235,255,1)';
+        dctx.fillStyle = light ? 'rgba(150,110,90,1)' : 'rgba(250,246,242,1)';   // estrellas: en claro, gris cálido
         for (i = 0; i < stars.length; i++) {
             p = stars[i];
             var sy = ((p.y - scrollY * p.z) % H + H) % H;
@@ -247,7 +255,7 @@
             }
             var y = p.y - scrollY * (0.08 + p.z * 0.35);
             y = ((y % H) + H) % H;
-            var img = sprite(p.c ? sec : acc, Math.round(p.r * 2) / 2);
+            var img = sprite(WHITES[p.c], Math.round(p.r * 2) / 2);
             var s = img.width / 2;
             dctx.globalAlpha = (0.55 + 0.45 * p.z) * (0.8 + 0.2 * Math.sin(time * 1.3 + p.ph));
             dctx.drawImage(img, p.x - s, y - s);
@@ -349,14 +357,17 @@
         var dot = cursor.querySelector('.hm-cursor-dot');
         var ring = cursor.querySelector('.hm-cursor-ring');
         var label = cursor.querySelector('.hm-cursor-label');
-        var cx = -100, cy = -100, rx = -100, ry = -100;
+        var cx = -100, cy = -100;
 
         cards.forEach(function (c) { if (c.tagName === 'A') c.setAttribute('data-cursor', 'Abrir'); });
 
+        // el punto y el anillo van pegados al puntero, sin retardo
         window.addEventListener('pointermove', function (e) {
             if (e.pointerType !== 'mouse') return;
             cx = e.clientX; cy = e.clientY;
-            dot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+            var t = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+            dot.style.transform = t;
+            ring.style.transform = t;
         }, { passive: true });
 
         // al hacer clic o mantener pulsado se quitan el círculo y la etiqueta y queda
@@ -407,13 +418,6 @@
             if (pressedOn === root && !held && !actionTarget(e.target)) { pressedOn = null; setPressed(false); }
         }, { passive: true });
 
-        (function loop() {
-            requestAnimationFrame(loop);
-            // el anillo va un poco por detrás; pulsado, se pega al puntero
-            var k = held ? 0.6 : 0.2;
-            rx += (cx - rx) * k; ry += (cy - ry) * k;
-            ring.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)';
-        })();
     })();
 
     /* ---------- 2. Botones magnéticos ---------- */
@@ -640,7 +644,7 @@
                 g.font = font(b.sz);
                 g.textAlign = 'center';
                 g.textBaseline = 'middle';
-                g.fillStyle = light ? '#0a1222' : '#ffffff';
+                g.fillStyle = light ? '#1e140e' : '#ffffff';
                 g.fillText(b.label, 0, 1);
                 g.restore();
             }

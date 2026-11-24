@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Política de privacidad{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cookies.css') }}">
+
+<article class="ck">
+    <header class="ck-head">
+        <p class="ck-kicker"><i class="fa-solid fa-user-shield"></i> Tus datos</p>
+        <h1>Política de privacidad</h1>
+        <p class="ck-lead">Qué datos guarda esta web, para qué y qué puedes hacer con ellos.
+            Última actualización: noviembre de 2026.</p>
+    </header>
+
+    <section class="ck-card">
+        <h2>En resumen</h2>
+        <ul class="ck-points">
+            <li><b>Solo se guarda lo necesario</b> para que funcionen tu cuenta y las herramientas de la web.</li>
+            <li><b>No se venden ni se ceden datos</b> a nadie, y no hay publicidad ni analítica.</li>
+            <li><b>Puedes pedir en cualquier momento</b> ver, corregir o borrar tus datos.</li>
+        </ul>
+    </section>
+
+    <section class="ck-card">
+        <h2>Responsable</h2>
+        <p>Hugo Fernández Calvete ·
+            <a href="mailto:hugofernandezcalvete@gmail.com">hugofernandezcalvete@gmail.com</a></p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Qué datos se guardan y para qué</h2>
+        <div class="ck-table-wrap">
+            <table class="ck-table">
+                <thead>
+                    <tr><th>Datos</th><th>Para qué</th><th>Base legal</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Nombre de usuario, correo, teléfono y contraseña (cifrada)</td>
+                        <td>Crear tu cuenta e iniciar sesión</td><td>Tu consentimiento al registrarte</td></tr>
+                    <tr><td>Archivos que subes a Home Cloud</td>
+                        <td>Guardarlos y compartirlos cuando tú lo pidas</td><td>Ejecución del servicio que usas</td></tr>
+                    <tr><td>Conexión con Google (Pulso)</td>
+                        <td>Mostrar tus listas de YouTube, solo si conectas tu cuenta</td><td>Tu consentimiento</td></tr>
+                    <tr><td>Píxeles pintados y un código cifrado derivado de tu IP (Pixel Art)</td>
+                        <td>Mostrar el lienzo y limitar cuántos píxeles pinta cada persona (la IP no se guarda)</td>
+                        <td>Interés legítimo: evitar abusos</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="ck-card">
+        <h2>Cuánto tiempo se guardan</h2>
+        <p>Los datos de tu cuenta y tus archivos se guardan mientras tengas la cuenta. Si la
+            borras o pides que se borre, se eliminan. Los dibujos de Pixel Art forman parte de un lienzo
+            compartido y se quedan en él.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Dónde están</h2>
+        <p>En un servidor propio del titular, en España. La web pasa por Cloudflare para protegerse de ataques;
+            Cloudflare solo trata los datos técnicos de la conexión. Si conectas Google en Pulso, se aplica
+            también la política de privacidad de Google.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Tus derechos</h2>
+        <p>Puedes pedir acceder a tus datos, corregirlos, borrarlos, limitar su uso, oponerte o llevártelos,
+            escribiendo a <a href="mailto:hugofernandezcalvete@gmail.com">hugofernandezcalvete@gmail.com</a>.
+            Si crees que no se han respetado tus derechos, puedes reclamar ante la
+            <a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de Protección de Datos</a>.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Más información</h2>
+        <ul class="ck-links">
+            <li><a href="{{ url_for('home_bp.aviso_legal') }}">Aviso legal</a></li>
+            <li><a href="{{ url_for('home_bp.cookies') }}">Política de cookies</a></li>
+        </ul>
+    </section>
+</article>
+{% endblock %}

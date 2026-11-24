@@ -2,36 +2,36 @@
    AUTH · login y register (mismos tokens que home / CV)
    ============================================================ */
 .auth {
-    --au-bg: #060a13;
-    --au-panel: rgba(13, 20, 36, .72);
-    --au-solid: #0d1424;
-    --au-field: rgba(6, 10, 19, .6);
-    --au-line: rgba(120, 160, 220, .18);
-    --au-text: #e8eef9;
-    --au-muted: #93a3bf;
-    --au-acc-rgb: 34 211 238;
-    --au-sec-rgb: 99 102 241;
+    --au-bg: #110b08;
+    --au-panel: rgba(33, 22, 16, .72);
+    --au-solid: #211610;
+    --au-field: rgba(17, 11, 8, .6);
+    --au-line: rgba(220, 145, 120, .18);
+    --au-text: #f9ece8;
+    --au-muted: #baa098;
+    --au-acc-rgb: 238 128 34;
+    --au-sec-rgb: 241 110 99;
     --au-acc: rgb(var(--au-acc-rgb));
-    --au-acc-text: #22d3ee;
-    --au-btn-bg: #22d3ee;
-    --au-btn-fg: #04121a;
+    --au-acc-text: #ee8022;
+    --au-btn-bg: #ee8022;
+    --au-btn-fg: #170d07;
     --au-shadow: 0 20px 50px -25px rgba(0, 0, 0, .8);
 }
 
 :root[data-theme="light"] .auth {
-    --au-bg: #f2f6fc;
+    --au-bg: #fcf5f2;
     --au-panel: rgba(255, 255, 255, .85);
     --au-solid: #ffffff;
-    --au-field: rgba(242, 246, 252, .9);
-    --au-line: rgba(20, 50, 100, .16);
-    --au-text: #0a1222;
-    --au-muted: #4f5f7a;
-    --au-acc-rgb: 8 145 178;
-    --au-sec-rgb: 67 56 202;
-    --au-acc-text: #0e7490;
-    --au-btn-bg: #0e7490;
+    --au-field: rgba(252, 245, 242, .9);
+    --au-line: rgba(88, 53, 32, .16);
+    --au-text: #1e140e;
+    --au-muted: #755c54;
+    --au-acc-rgb: 178 82 8;
+    --au-sec-rgb: 202 61 56;
+    --au-acc-text: #90450e;
+    --au-btn-bg: #90450e;
     --au-btn-fg: #ffffff;
-    --au-shadow: 0 20px 50px -28px rgba(20, 50, 100, .35);
+    --au-shadow: 0 20px 50px -28px rgba(88, 53, 32, .35);
 }
 
 /* ---------- Fondo y estructura ---------- */
@@ -66,18 +66,36 @@
     pointer-events: none;
 }
 .auth::before {
+    /* luces suaves que se desplazan muy despacio */
+    inset: -20%;
     background:
-        radial-gradient(55% 45% at 85% 8%, rgb(var(--au-sec-rgb) / .2), transparent 70%),
-        radial-gradient(45% 40% at 8% 80%, rgb(var(--au-acc-rgb) / .14), transparent 70%);
+        radial-gradient(38% 34% at 22% 30%, rgb(var(--au-acc-rgb) / .16), transparent 70%),
+        radial-gradient(34% 30% at 78% 68%, rgb(var(--au-sec-rgb) / .14), transparent 70%),
+        radial-gradient(30% 26% at 60% 18%, rgb(var(--au-acc-rgb) / .08), transparent 70%);
+    filter: blur(20px);
+    animation: auDrift 26s ease-in-out infinite alternate;
 }
 .auth::after {
-    background-image:
-        linear-gradient(var(--au-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--au-line) 1px, transparent 1px);
-    background-size: 56px 56px;
-    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 72%);
-    mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 72%);
+    /* grano fino de película + viñeta: sin cuadrícula */
+    background:
+        radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / .35) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .5;
+    mix-blend-mode: overlay;
 }
+:root[data-theme="light"] .auth::after {
+    background:
+        radial-gradient(120% 90% at 50% 40%, transparent 60%, rgb(90 50 30 / .08) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .35;
+    mix-blend-mode: multiply;
+}
+@keyframes auDrift {
+    0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    50% { transform: translate3d(3%, -2%, 0) rotate(4deg); }
+    100% { transform: translate3d(-3%, 3%, 0) rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) { .auth::before { animation: none; } }
 
 .auth :focus-visible {
     outline: 2px solid var(--au-acc);
@@ -297,3 +315,6 @@
     .auth *::before,
     .auth *::after { transition: none !important; }
 }
+/* aviso legal bajo el botón de registro */
+.auth .auth-legal { margin: 1rem 0 0; color: var(--au-muted); font-size: .82rem; text-align: center; }
+.auth .auth-legal a { color: var(--au-acc-text); text-decoration: underline; text-underline-offset: 3px; }

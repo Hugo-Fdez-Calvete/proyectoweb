@@ -102,6 +102,15 @@ Exclusión mediante .gitignore de archivos que no deben almacenarse en el reposi
 
 Los archivos y configuraciones sensibles no deben subirse al repositorio público.
 
+## Medidas de seguridad
+
+- **Servidor de producción**: el contenedor arranca con **Gunicorn** (2 procesos × 4 hilos) y no con el servidor de desarrollo de Flask. Para depurar en local sigue valiendo `python -m app.main`.
+- **Cookie de sesión** solo por HTTPS (`Secure`), invisible para JavaScript (`HttpOnly`) y `SameSite=Lax`. Para probar en local por http desde otro equipo de la red: `COOKIE_SECURE=0`.
+- **CSRF** en todos los formularios y peticiones que cambian algo (subir, borrar, renombrar, admin, perfil, Pulso). Los formularios llevan un campo oculto `csrf_token` y `static/js/csrf.js` añade la cabecera `X-CSRFToken` a `fetch` y `XMLHttpRequest`.
+- **Sesión nueva al iniciar sesión** (evita la fijación de sesión).
+- **Cabeceras**: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`.
+- **Nginx**: en `deploy/nginx-seguridad.conf` están HSTS, el bloqueo de archivos ocultos y rutas de bots, y la IP real si usas Cloudflare.
+
 # Dependencias
 
 Las dependencias necesarias para ejecutar el proyecto se encuentran en:
@@ -158,6 +167,10 @@ Sección con un fondo animado (WebGL) que reacciona a la música, al estilo de l
 - **YouTube y YouTube Music**: botón **Iniciar sesión con Google** en la portada de Pulso, en el reproductor y en la biblioteca. Al conectarse, cada usuario tiene dos apartados:
   - **Buscar** canciones (y pegar cualquier enlace de YouTube / YouTube Music).
   - **Listas**: sus listas de reproducción, incluidas las creadas en YouTube Music.
+
+- **Continuar donde lo dejaste**: Pulso guarda en el navegador (por usuario) la cola, la canción y el segundo en que ibas. Al volver, la portada de Pulso muestra «Continuar donde lo dejaste».
+- **La música sigue por toda la web**: si sales de Pulso con algo sonando (menú, barra de navegación, pie…), la otra página se abre encima en un marco a pantalla completa y Pulso sigue sonando debajo. La dirección y el botón atrás funcionan como siempre. Aparece un mini reproductor abajo a la derecha (anterior, pausa, siguiente, volver a Pulso y cerrar). Con YouTube, su reproductor se queda a la vista encima del mini reproductor, como exigen sus normas. «Cerrar» para la música y deja la página que estabas viendo. Si la música está en pausa, se navega normal. Para que funcione, las páginas se sirven con `X-Frame-Options: SAMEORIGIN` (si Nginx pone `DENY`, cámbialo a `SAMEORIGIN`).
+- **Cookies de YouTube**: el reproductor de YouTube (desde `youtube-nocookie.com`) no se carga hasta que el usuario acepta sus cookies en un aviso con «Aceptar» y «Rechazar». El permiso se puede retirar en la pestaña YouTube o en `/cookies` (política de cookies, enlazada en el pie de todas las páginas).
 
 ### Vínculo automático con el YouTube de cada usuario
 

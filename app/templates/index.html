@@ -20,7 +20,7 @@
 
         <div class="hm-wrap hm-hero-grid">
             <div>
-                <p class="hm-badge"><span class="hm-dot"></span> Web personal de Hugo Fernández</p>
+                <p class="hm-badge"><span class="hm-badge-k">Web personal</span><span class="hm-badge-sep" aria-hidden="true"></span><span>Hugo Fernández</span></p>
 
                 <h1 class="hm-title" aria-label="Todo lo que construyo, en un solo lugar.">
                     <span class="w" aria-hidden="true"><span style="--i:0">Todo</span></span>
@@ -52,7 +52,7 @@
             <div class="hm-term" aria-hidden="true">
                 <div class="hm-term-head">
                     <span>estado del sistema</span>
-                    <span><i class="hm-dot"></i> en línea</span>
+                    <span class="hm-status">en línea</span>
                 </div>
                 <div class="hm-term-body">
                     {% for linea in arranque %}
@@ -100,7 +100,17 @@
                         <p>{{ m.texto }}</p>
                     </div>
                     {% if m.ancho %}
-                    <div class="hm-mock" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+                    <!-- proyectos destacados (lista real, nada que «se esté cargando») -->
+                    <div class="hm-proj" aria-hidden="true">
+                        <p class="hm-proj-h">Destacados</p>
+                        {% for p in destacados %}
+                        <div class="hm-proj-row" style="--j:{{ loop.index0 }}">
+                            <span class="hm-proj-ico"><i class="{{ p.icono }}"></i></span>
+                            <span class="hm-proj-name">{{ p.nombre }}</span>
+                            <span class="hm-proj-tag">{{ p.tecnologias }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                     {% endif %}
                     {% if m.completo %}
                     <div class="hm-eq" aria-hidden="true">{% for _ in range(28) %}<i style="--k:{{ loop.index0 }}"></i>{% endfor %}</div>

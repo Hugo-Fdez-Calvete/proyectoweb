@@ -78,7 +78,7 @@
 
     /* ---------- Reproducción ---------- */
     var mixTimer = 0;
-    function playItem(queue, i) {
+    function playItem(queue, i, startAt, listIndex) {
         var it = queue && queue[i];
         if (!it) return;
         if (!started) start(true);
@@ -95,22 +95,35 @@
                 if (err && err.name === 'NotAllowedError') toast('El navegador ha bloqueado el sonido: pulsa ▶', 5000);
                 // los fallos de carga los explica el evento «error» del <audio>
             });
+            if (startAt > 1) seekFileTo(startAt);
         } else if (it.type === 'synth') {
             audio.playSynth(it.index);
         } else {
             ytBox.hidden = false;
-            maybeAutoSync();
-            if (it.type === 'yt') playYtVersion(it, 0);
-            else yt.playList(it.list).catch(function () { toast('No se pudo cargar el reproductor de YouTube'); });
-            // si un mix no arranca, suena al menos la canción de la que sale
-            if (it.seed) {
-                mixTimer = setTimeout(function () {
-                    if (cur.item === it && !isPlaying()) yt.playVideo(it.seed);
-                }, 5000);
-            }
+            // el reproductor de YouTube solo se carga si se aceptan sus cookies
+            withYtConsent(function () {
+                if (cur.item !== it) return;
+                maybeAutoSync();
+                if (it.type === 'yt') playYtVersion(it, startAt || 0);
+                else yt.playList(it.list, listIndex || 0, startAt || 0).catch(function () { toast('No se pudo cargar el reproductor de YouTube'); });
+                // si un mix no arranca, suena al menos la canción de la que sale
+                if (it.seed) {
+                    mixTimer = setTimeout(function () {
+                        if (cur.item === it && !isPlaying()) yt.playVideo(it.seed);
+                    }, 5000);
+                }
+            }, function () {
+                if (cur.item === it) { ytBox.hidden = true; refresh(); }
+            });
         }
         updateNow();
         markActive();
+    }
+
+    function seekFileTo(t) {
+        var el = audio.el;
+        function go() { if (el.duration && t < el.duration - 1) el.currentTime = t; }
+        if (el.readyState >= 1) go(); else el.addEventListener('loadedmetadata', go, { once: true });
     }
 
     /* Como en YouTube Music: «Canción» carga la pista oficial de audio (canal «- Topic»,
@@ -159,6 +172,8 @@
             if (audio.el.paused) audio.el.play().catch(function () { }); else audio.el.pause();
         } else if (it.type === 'synth') {
             if (audio.synthPlaying) audio.stopSynth(); else audio.playSynth(it.index);
+        } else if (!yt.ready) {
+            playItem(cur.queue, cur.index);
         } else {
             if (isPlaying()) yt.pause(); else yt.resume();
         }
@@ -322,6 +337,7 @@
         chip.title = mode === 'off'
             ? 'YouTube no deja leer su audio: pulsa para que el visualizador lo escuche'
             : label;
+        updateMini();
     }
     setInterval(refresh, 250);
 
@@ -881,6 +897,299 @@
     });
     window.addEventListener('pagehide', function () { audio.stopCapture(); });
 
+    /* ============================================================
+       COOKIES DE YOUTUBE
+       El reproductor de YouTube (Google) puede guardar cookies, así que no se
+       carga hasta que el usuario lo acepta. Su música de la nube no lo necesita.
+       ============================================================ */
+    var consentBox = $('pl-consent'), consentYes = $('pl-consent-yes'), consentNo = $('pl-consent-no');
+    var consentDone = null;
+    function ytAllowed() { return pref('yt-consent', '') === 'yes'; }
+    function withYtConsent(go, no) {
+        if (ytAllowed()) { go(); return; }
+        if (consentDone) consentDone(false);            // solo una pregunta a la vez
+        consentDone = function (ok) {
+            consentDone = null;
+            consentBox.hidden = true;
+            if (ok) { setPref('yt-consent', 'yes'); showCookieNote(); go(); }
+            else { toast('Sin aceptar las cookies de YouTube no se puede reproducir YouTube. Tu música de la nube sí funciona.', 6000); if (no) no(); }
+        };
+        consentBox.hidden = false;
+        consentYes.focus();
+    }
+    consentYes.addEventListener('click', function () { if (consentDone) consentDone(true); });
+    consentNo.addEventListener('click', function () { if (consentDone) consentDone(false); });
+    consentBox.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && consentDone) { e.stopPropagation(); consentDone(false); }
+    });
+
+    /* aviso en la pestaña de YouTube, con la opción de retirar el permiso */
+    var cookieNote = $('pl-cookie-note');
+    function showCookieNote() {
+        var ok = ytAllowed();
+        cookieNote.querySelector('[data-yes]').hidden = !ok;
+        cookieNote.querySelector('[data-no]').hidden = ok;
+    }
+    function revokeYt() {
+        if (isYt(cur.item)) { yt.pause(); ytBox.hidden = true; }
+        yt.destroy();
+        showCookieNote();
+        refresh();
+        toast('Permiso retirado: YouTube ya no se cargará. Las cookies que ya guardó se borran desde los ajustes del navegador.', 7000);
+    }
+    $('pl-cookie-revoke').addEventListener('click', function () { setPref('yt-consent', 'no'); revokeYt(); });
+    showCookieNote();
+    // también si se retira desde la página de política de cookies
+    window.addEventListener('storage', function (e) {
+        if (e.key !== 'pl-yt-consent') return;
+        if (e.newValue !== 'yes' && yt.ready) revokeYt(); else showCookieNote();
+    });
+
+    /* ============================================================
+       RECORDAR LO QUE SE ESTABA ESCUCHANDO
+       Se guarda en este navegador, por usuario: la cola, la canción y el segundo.
+       Al volver a Pulso aparece «Continuar donde lo dejaste».
+       ============================================================ */
+    var UID = root.getAttribute('data-user') || '0';
+    var LAST = 'pl-last-' + UID, LASTQ = 'pl-lastq-' + UID;
+    var SLIM = ['type', 'title', 'sub', 'thumb', 'url', 'path', 'id', 'list', 'seed', 'topic', 'link'];
+    function slim(it) {
+        var o = {};
+        SLIM.forEach(function (k) { if (it[k] !== undefined) o[k] = it[k]; });
+        ['_song', '_video'].forEach(function (k) {
+            var v = it[k];
+            if (v !== undefined) o[k] = v ? { id: v.id, title: v.title, sub: v.sub, thumb: v.thumb, topic: !!v.topic } : null;
+        });
+        return o;
+    }
+    function curTime() {
+        var it = cur.item;
+        if (!it) return 0;
+        if (it.type === 'file') return audio.el.currentTime || 0;
+        if (isYt(it)) return yt.time;
+        return 0;
+    }
+    var savedQueue = null, savedFrom = 0;
+    function saveLast() {
+        var it = cur.item;
+        if (!it || it.type === 'synth' || !cur.queue) return;   // la demo no se recuerda
+        try {
+            if (savedQueue !== cur.queue) {
+                var q = cur.queue, from = 0;
+                if (q.length > 200) { from = Math.max(0, Math.min(cur.index - 100, q.length - 200)); q = q.slice(from, from + 200); }
+                localStorage.setItem(LASTQ, JSON.stringify({ items: q.map(slim) }));
+                savedQueue = cur.queue; savedFrom = from;
+            }
+            localStorage.setItem(LAST, JSON.stringify({
+                index: cur.index - savedFrom,
+                time: Math.floor(curTime()),
+                listIndex: it.type === 'ytlist' ? yt.listIndex : 0,
+                title: $('pl-title').textContent,
+                sub: it.sub || '',
+                thumb: (cur.playing && cur.playing.thumb) || it.thumb || '',
+                t: Date.now()
+            }));
+        } catch (e) { }
+    }
+    setInterval(function () { if (cur.item && (isPlaying() || away)) saveLast(); }, 2000);
+    audio.on('pause', saveLast);
+    window.addEventListener('pagehide', saveLast);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) saveLast(); });
+
+    function readLast() {
+        try {
+            var m = JSON.parse(localStorage.getItem(LAST) || 'null');
+            var q = JSON.parse(localStorage.getItem(LASTQ) || 'null');
+            if (!m || !q || !q.items || !q.items[m.index]) return null;
+            return { meta: m, items: q.items };
+        } catch (e) { return null; }
+    }
+
+    var resume = null, contBtn = $('pl-continue');
+    function offerResume() {
+        var last = readLast();
+        if (!last) return;
+        var it = last.items[last.meta.index];
+        var p = Promise.resolve(last.items);
+        if (it.type === 'file') {
+            // sus canciones pueden haber cambiado: se busca la canción en su nube de ahora
+            p = mineReady.then(function () {
+                for (var i = 0; i < mine.length; i++) if (mine[i].path === it.path) { last.meta.index = i; return mine; }
+                return null;
+            });
+        }
+        p.then(function (queue) {
+            if (!queue || started) return;
+            resume = { queue: queue, index: last.meta.index, time: last.meta.time || 0, listIndex: last.meta.listIndex || 0 };
+            $('pl-continue-title').textContent = last.meta.title || it.title;
+            $('pl-continue-sub').textContent = (last.meta.sub || it.sub || '') + (resume.time > 1 ? ' · desde ' + fmt(resume.time) : '');
+            var cv = $('pl-continue-cover');
+            cv.textContent = '';
+            var thumb = last.meta.thumb || it.thumb;
+            if (thumb) { var img = new Image(); img.src = thumb; img.alt = ''; cv.appendChild(img); }
+            else cv.innerHTML = '<i class="fa-solid fa-music"></i>';
+            contBtn.hidden = false;
+        });
+    }
+    contBtn.addEventListener('click', function () {
+        if (!resume) return;
+        start(true);
+        playItem(resume.queue, resume.index, resume.time, resume.listIndex);
+        resume = null;
+    });
+    offerResume();
+
+    /* ============================================================
+       LA MÚSICA SIGUE EN EL RESTO DE LA WEB
+       Si al salir de Pulso hay algo sonando, la otra página se abre encima
+       (en un marco a pantalla completa) y Pulso sigue sonando debajo, con un
+       mini reproductor. La barra de direcciones y el botón atrás funcionan.
+       ============================================================ */
+    var away = null, pulsoTitle = document.title, pulsoUrl = location.pathname;
+    var mini = $('pl-mini'), miniPlay = $('pl-mini-play');
+    var PULSO_RE = /^\/pulso(\/|$)/, OUT_RE = /^\/(logout|login)(\/|$)/;
+
+    function frameUrl() {
+        try { return away.frame.contentWindow.location.href; } catch (e) { return away && away.url; }
+    }
+
+    function goAway(url, push) {
+        if (!away) {
+            zen(false); setTheater(false); openLib(false);
+            var f = document.createElement('iframe');
+            f.className = 'pl-away-frame';
+            f.title = 'Página';
+            away = { frame: f, url: url };
+            f.addEventListener('load', onAwayLoad);
+            root.insertBefore(f, root.firstChild);
+            root.classList.add('pl-away');
+            document.documentElement.classList.add('pl-away-on');
+            visual.setPaused(true);
+            mini.hidden = false;
+            f.src = url;
+        } else {
+            away.frame.contentWindow.location.replace(url);
+        }
+        away.url = url;
+        if (push) history.pushState({ plAway: url }, '', url);
+        updateMini(true);
+    }
+
+    function comeBack(push) {
+        if (!away) return;
+        away.frame.remove();
+        away = null;
+        root.classList.remove('pl-away');
+        document.documentElement.classList.remove('pl-away-on');
+        visual.setPaused(false);
+        mini.hidden = true;
+        document.title = pulsoTitle;
+        if (push) history.pushState(null, '', pulsoUrl);
+        visual.refreshColors();
+        syncRing();
+    }
+
+    /* salir de verdad (cerrar sesión, sesión caducada…): se para la música */
+    function breakOut(url) { saveLast(); location.href = url; }
+
+    function onAwayLoad() {
+        if (!away) return;
+        var w = away.frame.contentWindow, loc, d;
+        try { loc = w.location; d = away.frame.contentDocument; void loc.pathname; }
+        catch (e) { breakOut(away.url); return; }              // el servidor no deja abrirla en un marco
+        if (!d || loc.href === 'about:blank') return;
+        if (PULSO_RE.test(loc.pathname) && !/^\/pulso\/(api|google)\//.test(loc.pathname)) { comeBack(true); return; }
+        if (OUT_RE.test(loc.pathname)) { breakOut(loc.href); return; }
+        away.url = loc.href;
+        try { history.replaceState({ plAway: loc.href }, '', loc.href); } catch (e) { }
+        document.title = d.title || pulsoTitle;
+        d.addEventListener('click', onFrameClick);
+    }
+
+    /* enlaces dentro de la página abierta encima */
+    function onFrameClick(e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target.closest && e.target.closest('a[href]');
+        if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+        var u = new URL(a.href, a.ownerDocument.location.href);
+        if (u.origin !== location.origin) {             // webs externas: en otra pestaña, la música sigue
+            e.preventDefault();
+            window.open(u.href, '_blank', 'noopener');
+        } else if (PULSO_RE.test(u.pathname) && !/^\/pulso\/(api|google)\//.test(u.pathname)) {
+            e.preventDefault();
+            comeBack(true);
+        } else if (OUT_RE.test(u.pathname)) {
+            e.preventDefault();
+            breakOut(u.href);
+        }
+    }
+
+    /* enlaces de la propia página de Pulso (menú, navbar, pie) */
+    document.addEventListener('click', function (e) {
+        if (away || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target.closest && e.target.closest('a[href]');
+        if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+        var u = new URL(a.href, location.href);
+        if (u.origin !== location.origin || PULSO_RE.test(u.pathname) || OUT_RE.test(u.pathname)) return;
+        if (u.pathname === location.pathname && u.hash) return;
+        if (!cur.item || !isPlaying()) return;          // en pausa: se navega normal (y se recuerda)
+        e.preventDefault();
+        goAway(u.href, true);
+    });
+
+    window.addEventListener('popstate', function (e) {
+        var st = e.state;
+        if (st && st.plAway) { if (!away) goAway(st.plAway, false); }
+        else if (away) comeBack(false);
+    });
+
+    /* mini reproductor */
+    var miniKey = '';
+    function updateMini(force) {
+        if (!away) return;
+        var playing = isPlaying();
+        var title = $('pl-title').textContent, sub = $('pl-sub').textContent;
+        var img = $('pl-cover').querySelector('img');
+        var key = title + '|' + sub + '|' + (img ? img.src : '') + '|' + playing;
+        if (force || key !== miniKey) {
+            miniKey = key;
+            $('pl-mini-title').textContent = title;
+            $('pl-mini-sub').textContent = sub;
+            var cv = $('pl-mini-cover');
+            cv.textContent = '';
+            if (img) { var im = new Image(); im.src = img.src; im.alt = ''; cv.appendChild(im); }
+            else cv.innerHTML = '<i class="fa-solid fa-music"></i>';
+            miniPlay.innerHTML = playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            miniPlay.setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
+            miniPlay.title = playing ? 'Pausar' : 'Reproducir';
+            mini.classList.toggle('is-playing', playing);
+        }
+        var t = curTime(), d = 0, it = cur.item;
+        if (it && it.type === 'file') d = audio.el.duration || 0;
+        else if (isYt(it)) d = yt.duration;
+        $('pl-mini-prog').style.width = (d ? Math.min(100, t / d * 100) : 0) + '%';
+    }
+    if (window.ResizeObserver) {
+        new ResizeObserver(function () {
+            if (mini.offsetHeight) root.style.setProperty('--mini-h', mini.offsetHeight + 'px');
+        }).observe(mini);
+    }
+    miniPlay.addEventListener('click', toggle);
+    $('pl-mini-prev').addEventListener('click', function () { step(-1); });
+    $('pl-mini-next').addEventListener('click', function () { step(1); });
+    $('pl-mini-open').addEventListener('click', function () { comeBack(true); });
+    $('pl-mini-close').addEventListener('click', function () {
+        // se para la música y la página que estabas viendo se queda sola
+        var url = frameUrl();
+        if (cur.item) {
+            if (cur.item.type === 'file') audio.pauseFile();
+            else if (cur.item.type === 'synth') audio.stopSynth();
+            else yt.pause();
+        }
+        saveLast();
+        location.replace(url);
+    });
+
     /* ---------- Ratón: ondas al hacer clic ---------- */
     root.addEventListener('pointerdown', function (e) {
         if (e.button > 0) return;
@@ -943,6 +1252,10 @@
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
         var k = e.key.toLowerCase();
+        if (away) {                                      // con otra página encima solo vale Espacio
+            if (e.code === 'Space' && !(e.target.closest && e.target.closest('button, a'))) { e.preventDefault(); toggle(); }
+            return;
+        }
         if (e.code === 'Space') {
             if (e.target.closest && e.target.closest('button, a')) return;
             e.preventDefault();

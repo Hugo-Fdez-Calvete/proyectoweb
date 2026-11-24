@@ -186,8 +186,8 @@
             ['base', 'base-light', 'acc', 'sec', 'hot'].forEach(function (k) {
                 colors[k] = hexToRgb(cs.getPropertyValue('--pl-gl-' + k)) || [0, 0, 0];
             });
-            colors.accCss = cs.getPropertyValue('--pl-acc').trim() || '#22d3ee';
-            colors.hotCss = cs.getPropertyValue('--pl-hot').trim() || '#a78bfa';
+            colors.accCss = cs.getPropertyValue('--pl-acc').trim() || '#ee8022';
+            colors.hotCss = cs.getPropertyValue('--pl-hot').trim() || '#fa8b90';
             if (gl) {
                 gl.uniform3fv(U.uBase, colors.base);
                 gl.uniform3fv(U.uBaseLight, colors['base-light']);
@@ -291,8 +291,10 @@
 
         /* ---------- Bucle ---------- */
         var spec = new Uint8Array(128);
+        var paused = false;
         function frame(now) {
             requestAnimationFrame(frame);
+            if (paused) { last = now; return; }     // Pulso está tapado por otra página
             var dt = Math.min(0.05, (now - last) / 1000);
             last = now;
             time = (now - t0) / 1000;
@@ -379,6 +381,7 @@
             refreshColors: readColors,
             setFigure: setFigure,
             setRingMinPx: function (px) { ringMinPx = px || 0; },
+            setPaused: function (on) { paused = !!on; },
             get figure() { return figure; }
         };
     };

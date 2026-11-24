@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Aviso legal{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cookies.css') }}">
+
+<article class="ck">
+    <header class="ck-head">
+        <p class="ck-kicker"><i class="fa-solid fa-scale-balanced"></i> Información legal</p>
+        <h1>Aviso legal</h1>
+        <p class="ck-lead">Quién está detrás de esta web y en qué condiciones puedes usarla.
+            Última actualización: noviembre de 2026.</p>
+    </header>
+
+    <section class="ck-card">
+        <h2>Titular de la web</h2>
+        <ul class="ck-points">
+            <li><b>Titular:</b> Hugo Fernández Calvete.</li>
+            <li><b>Dominio:</b> hugofernandezcalvete.es</li>
+            <li><b>Contacto:</b> <a href="mailto:hugofernandezcalvete@gmail.com">hugofernandezcalvete@gmail.com</a></li>
+            <li><b>Naturaleza:</b> web personal sin ánimo de lucro: portfolio, proyectos y herramientas propias.
+                No se venden productos ni servicios.</li>
+        </ul>
+    </section>
+
+    <section class="ck-card">
+        <h2>Condiciones de uso</h2>
+        <p>Al usar esta web aceptas utilizarla de forma lícita y respetuosa. En concreto, no está permitido:</p>
+        <ul class="ck-points">
+            <li>Publicar o subir contenido ilegal, ofensivo o que vulnere derechos de terceros (por ejemplo, en
+                Pixel Art o en Home Cloud).</li>
+            <li>Intentar acceder a cuentas o datos ajenos, o alterar el funcionamiento de la web.</li>
+            <li>Usar programas automáticos para saturar la web o sus herramientas.</li>
+        </ul>
+        <p>El titular puede retirar contenidos o suspender cuentas que incumplan estas condiciones.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Propiedad intelectual</h2>
+        <p>El diseño, el código y los textos de esta web son obra de su titular, salvo que se indique lo
+            contrario. Las marcas, logotipos y contenidos de terceros (como YouTube o las tecnologías que
+            aparecen en el currículum) pertenecen a sus respectivos propietarios.</p>
+        <p>Lo que cada usuario crea o sube (dibujos en Pixel Art, archivos en Home Cloud) sigue
+            siendo suyo y es responsabilidad suya.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Responsabilidad</h2>
+        <p>Esta es una web personal en desarrollo continuo. Se intenta que todo funcione bien, pero no se
+            garantiza que esté siempre disponible ni libre de errores. El titular no se hace responsable del
+            contenido que publiquen los usuarios ni de las webs externas a las que se enlace.</p>
+    </section>
+
+    <section class="ck-card">
+        <h2>Más información</h2>
+        <ul class="ck-links">
+            <li><a href="{{ url_for('home_bp.privacidad') }}">Política de privacidad</a></li>
+            <li><a href="{{ url_for('home_bp.cookies') }}">Política de cookies</a></li>
+        </ul>
+    </section>
+</article>
+{% endblock %}

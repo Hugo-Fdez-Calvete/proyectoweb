@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Pixel Art{% endblock %}
+
+{% block body_class %}tema-pixel{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pixel_art.css') }}">
+
+<div class="px" id="px" data-api="{{ url_for('pixel_bp.pixel_art') }}api/" data-w="{{ w }}" data-h="{{ h }}">
+
+    <header class="px-head">
+        <div>
+            <h1 class="px-title">Pixel Art</h1>
+            <p class="px-lead">Un lienzo compartido de {{ w }}×{{ h }}: lo que pintes lo ve todo el mundo al momento.</p>
+        </div>
+        <p class="px-stats" aria-live="polite">
+            <span class="px-live" id="px-live"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> En directo</span>
+            <span><strong id="px-count">0</strong> píxeles pintados</span>
+            <span class="px-ink" id="px-ink" hidden title="Tinta: los píxeles que puedes pintar ahora. Se recarga sola.">
+                <i class="fa-solid fa-droplet" aria-hidden="true"></i>
+                <span class="px-ink-bar" aria-hidden="true"><i id="px-ink-fill"></i></span>
+                <strong id="px-ink-n">0</strong>
+                <span class="sr">píxeles de tinta disponibles</span>
+            </span>
+            <span class="px-coord" id="px-coord" aria-hidden="true">—</span>
+        </p>
+    </header>
+
+    <div class="px-stage" id="px-stage">
+        <canvas class="px-canvas" id="px-canvas" tabindex="0" role="img"
+            aria-label="Lienzo de pixel art. Usa las flechas para moverte por las casillas y Enter para pintar."></canvas>
+        <div class="px-loading" id="px-loading"><span></span> Cargando el lienzo…</div>
+        <p class="px-hint" id="px-hint">
+            <span class="px-hint-desk">Acerca con la rueda para pintar con precisión · clic para pintar · clic derecho o espacio + arrastrar para moverte</span>
+            <span class="px-hint-touch">Pellizca para acercar · toca para pintar · dos dedos para moverte</span>
+        </p>
+    </div>
+
+    <div class="px-bar" role="toolbar" aria-label="Herramientas de dibujo">
+        <div class="px-group px-tools">
+            <button type="button" class="px-btn is-on" data-tool="brush" aria-pressed="true" title="Pincel (B)">
+                <i class="fa-solid fa-paintbrush" aria-hidden="true"></i><span class="sr">Pincel</span>
+            </button>
+            <button type="button" class="px-btn" data-tool="eraser" aria-pressed="false" title="Goma (E)">
+                <i class="fa-solid fa-eraser" aria-hidden="true"></i><span class="sr">Goma</span>
+            </button>
+            <button type="button" class="px-btn" data-tool="picker" aria-pressed="false" title="Cuentagotas (I)">
+                <i class="fa-solid fa-eye-dropper" aria-hidden="true"></i><span class="sr">Cuentagotas</span>
+            </button>
+            <button type="button" class="px-btn" data-tool="move" aria-pressed="false" title="Mover (M)">
+                <i class="fa-solid fa-hand" aria-hidden="true"></i><span class="sr">Mover</span>
+            </button>
+        </div>
+
+        <div class="px-group px-colors">
+            <label class="px-current" title="Elegir otro color">
+                <span class="px-current-sw" id="px-current"></span>
+                <input type="color" id="px-custom" value="#000000" aria-label="Elegir otro color">
+            </label>
+            <div class="px-palette" id="px-palette" role="radiogroup" aria-label="Paleta de colores"></div>
+        </div>
+
+        <div class="px-group">
+            <button type="button" class="px-btn" id="px-zoom-out" title="Alejar (−)"><i class="fa-solid fa-minus" aria-hidden="true"></i><span class="sr">Alejar</span></button>
+            <button type="button" class="px-btn" id="px-fit" title="Ver todo (0)"><i class="fa-solid fa-expand" aria-hidden="true"></i><span class="sr">Ver todo el lienzo</span></button>
+            <button type="button" class="px-btn" id="px-zoom-in" title="Acercar (+)"><i class="fa-solid fa-plus" aria-hidden="true"></i><span class="sr">Acercar</span></button>
+            <button type="button" class="px-btn" id="px-grid" aria-pressed="true" title="Cuadrícula (G)"><i class="fa-solid fa-border-all" aria-hidden="true"></i><span class="sr">Mostrar cuadrícula</span></button>
+            <button type="button" class="px-btn" id="px-undo" title="Deshacer (Ctrl+Z)" disabled><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span class="sr">Deshacer</span></button>
+            <button type="button" class="px-btn" id="px-download" title="Descargar PNG"><i class="fa-solid fa-download" aria-hidden="true"></i><span class="sr">Descargar imagen</span></button>
+        </div>
+    </div>
+
+    <div class="px-toast" id="px-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/pixel_art.js') }}"></script>
+
+{% endblock %}

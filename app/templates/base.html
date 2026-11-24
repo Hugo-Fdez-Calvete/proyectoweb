@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Hugo Fernández{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
     <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
 
     <!-- Bulma -->
@@ -35,7 +38,7 @@
     </button>
 
     <div class="hf-menu-panel" id="hf-menu">
-        <details class="hf-acc" {% if request.endpoint in ['home_bp.index', 'cv_bp.curriculum' ] %}open{% endif %}>
+        <details class="hf-acc" {% if request.endpoint in ['home_bp.index', 'cv_bp.curriculum', 'pixel_bp.pixel_art' ] %}open{% endif %}>
             <summary><i class="fa-solid fa-compass"></i> Explorar <i class="fa-solid fa-chevron-down chev"></i>
             </summary>
             <ul>
@@ -43,6 +46,8 @@
                         endif %}>Inicio</a></li>
                 <li><a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum'
                         %}class="active" {% endif %}>Currículum</a></li>
+                <li><a href="{{ url_for('pixel_bp.pixel_art') }}" {% if request.endpoint=='pixel_bp.pixel_art'
+                        %}class="active" {% endif %}>Pixel Art</a></li>
             </ul>
         </details>
 
@@ -98,6 +103,10 @@
             <strong>HFC</strong>
         </a>
 
+        <a href="{{ url_for('pixel_bp.pixel_art') }}" {% if request.endpoint=='pixel_bp.pixel_art' %} class="active" {% endif %}>
+            Pixel Art
+        </a>
+
         {% if session.get("is_admin") %}
         <a href="{{ url_for('admin_bp.admin') }}" {% if request.endpoint=='admin_bp.admin' %} class="active" {% endif
             %}>Administración</a>
@@ -118,8 +127,47 @@
     </main>
     <script>window.hfTheme && hfTheme.paint();</script>
 
-    <footer class="footer-portada has-text-centered">
-        <p> Proyecto Personal&copy; 2026</p>
+    <footer class="footer-portada">
+        <div class="ft-wrap">
+            <div class="ft-brand">
+                <a class="ft-logo" href="{{ url_for('home_bp.index') }}">HFC</a>
+                <p>Web personal de Hugo Fernández: proyectos, currículum y herramientas propias.</p>
+                <div class="ft-social" aria-label="Redes sociales">
+                    <a href="https://github.com/Hugo-Fdez-Calvete" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+                        <i class="fa-brands fa-github" aria-hidden="true"></i></a>
+                    <a href="https://www.linkedin.com/in/hugofernandezcalvete" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+                    <a href="mailto:hugofernandezcalvete@gmail.com" aria-label="Correo electrónico" title="Correo electrónico">
+                        <i class="fa-regular fa-envelope" aria-hidden="true"></i></a>
+                </div>
+            </div>
+
+            <nav class="ft-col" aria-label="Secciones">
+                <h2>Explorar</h2>
+                <a href="{{ url_for('home_bp.index') }}">Inicio</a>
+                <a href="{{ url_for('cv_bp.curriculum') }}">Currículum</a>
+                <a href="{{ url_for('pixel_bp.pixel_art') }}">Pixel Art</a>
+                <a href="{{ url_for('pulso_bp.pulso') }}">Pulso</a>
+            </nav>
+
+            <nav class="ft-col" aria-label="Información legal">
+                <h2>Legal</h2>
+                <a href="{{ url_for('home_bp.aviso_legal') }}">Aviso legal</a>
+                <a href="{{ url_for('home_bp.privacidad') }}">Política de privacidad</a>
+                <a href="{{ url_for('home_bp.cookies') }}">Política de cookies</a>
+            </nav>
+
+            <div class="ft-col">
+                <h2>Contacto</h2>
+                <a href="mailto:hugofernandezcalvete@gmail.com">hugofernandezcalvete@gmail.com</a>
+                <a href="{{ url_for('cv_bp.curriculum') }}#contacto">Más formas de contacto</a>
+                <a href="{{ url_for('static', filename='docs/Curriculum_Hugo_Fdez.pdf') }}" download>Descargar CV</a>
+            </div>
+        </div>
+        <div class="ft-bottom">
+            <span>&copy; 2026 Hugo Fernández Calvete</span>
+            <span>Diseñada y programada por mí</span>
+        </div>
     </footer>
 
     <!-- Modo claro/oscuro (fijo, ahora a la izquierda) -->

@@ -10,7 +10,8 @@
      data-google-ready="{{ '1' if google_ready else '0' }}"
      data-login-url="{{ url_for('pulso_bp.google_login') }}"
      data-logout-url="{{ url_for('pulso_bp.google_logout') }}"
-     data-api="{{ url_for('pulso_bp.pulso') }}/api/">
+     data-api="{{ url_for('pulso_bp.pulso') }}/api/"
+     data-user="{{ user.id }}">
 
     <!-- Fondo: shader WebGL + capa de chispas -->
     <canvas class="pl-gl" aria-hidden="true"></canvas>
@@ -25,6 +26,16 @@
             Un fondo vivo que escucha la música y se enciende con cada golpe.
             Haz clic para lanzar ondas.
         </p>
+        <!-- lo último que se escuchaba (se rellena desde app.js) -->
+        <button type="button" class="pl-continue" id="pl-continue" hidden>
+            <span class="pl-continue-cover" id="pl-continue-cover"></span>
+            <span class="pl-continue-txt">
+                <small>Continuar donde lo dejaste</small>
+                <strong id="pl-continue-title"></strong>
+                <em id="pl-continue-sub"></em>
+            </span>
+            <span class="pl-continue-play"><i class="fa-solid fa-play"></i></span>
+        </button>
         <div class="pl-intro-actions">
             <button class="pl-start" id="pl-start" type="button">
                 <i class="fa-solid fa-play"></i> Empezar
@@ -161,6 +172,13 @@
                 </label>
             </div>
 
+            <p class="pl-cookie-note" id="pl-cookie-note">
+                <span data-yes hidden><i class="fa-solid fa-cookie-bite"></i> Has aceptado las cookies de YouTube ·
+                    <button type="button" class="pl-link" id="pl-cookie-revoke">Retirar</button></span>
+                <span data-no><i class="fa-solid fa-cookie-bite"></i> Antes de reproducir YouTube te pediremos permiso para sus cookies.</span>
+                <a href="{{ url_for('home_bp.cookies') }}" target="_blank" rel="noopener">Política de cookies</a>
+            </p>
+
             <form class="pl-field" id="pl-yt-url">
                 <i class="fa-solid fa-link"></i>
                 <input type="url" name="url" placeholder="Pega un enlace de YouTube o YouTube Music" autocomplete="off" aria-label="Enlace de YouTube">
@@ -197,6 +215,39 @@
     </div>
 
     <div class="pl-toast" id="pl-toast" role="status" aria-live="polite"></div>
+
+    <!-- Permiso para las cookies de YouTube (antes de cargar su reproductor) -->
+    <div class="pl-consent" id="pl-consent" hidden>
+        <div class="pl-consent-card" role="dialog" aria-modal="true" aria-labelledby="pl-consent-t" aria-describedby="pl-consent-d">
+            <h2 id="pl-consent-t"><i class="fa-brands fa-youtube"></i> Cookies de YouTube</h2>
+            <p id="pl-consent-d">Para reproducir YouTube se carga el reproductor oficial de YouTube (Google).
+                Al usarlo, Google puede guardar cookies y datos en tu navegador para que funcione, medir su uso
+                y, según su política, personalizar anuncios. Tu música de la nube no las necesita.</p>
+            <p class="pl-consent-more"><a href="{{ url_for('home_bp.cookies') }}" target="_blank" rel="noopener">Política de cookies</a>
+                · Puedes retirar el permiso cuando quieras en la pestaña YouTube.</p>
+            <div class="pl-consent-btns">
+                <button type="button" id="pl-consent-no">Rechazar</button>
+                <button type="button" id="pl-consent-yes">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini reproductor: aparece cuando abres otra página mientras suena la música -->
+    <div class="pl-mini" id="pl-mini" role="region" aria-label="Reproductor de Pulso" hidden>
+        <div class="pl-mini-cover" id="pl-mini-cover"></div>
+        <div class="pl-mini-meta">
+            <strong id="pl-mini-title">—</strong>
+            <span id="pl-mini-sub">—</span>
+        </div>
+        <div class="pl-mini-ctrls">
+            <button type="button" id="pl-mini-prev" aria-label="Anterior" title="Anterior"><i class="fa-solid fa-backward-step"></i></button>
+            <button type="button" id="pl-mini-play" class="pl-mini-main" aria-label="Pausar" title="Pausar"><i class="fa-solid fa-pause"></i></button>
+            <button type="button" id="pl-mini-next" aria-label="Siguiente" title="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+            <button type="button" id="pl-mini-open" aria-label="Volver a Pulso" title="Volver a Pulso"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
+            <button type="button" id="pl-mini-close" aria-label="Cerrar el reproductor" title="Cerrar el reproductor (para la música)"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <span class="pl-mini-bar"><i id="pl-mini-prog"></i></span>
+    </div>
 
     <!-- modo sin interfaz: aviso y flecha para volver -->
     <div class="pl-zen-hint" id="pl-zen-hint" aria-hidden="true">Pulsa <kbd>H</kbd> para volver a mostrar los controles</div>

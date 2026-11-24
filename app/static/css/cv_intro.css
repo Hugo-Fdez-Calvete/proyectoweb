@@ -1,0 +1,233 @@
+/* =========================================================
+   INTRO «BOMBA» DE LA PÁGINA DE INFO
+   Inspirada en la pieza de Major Lazer de Because Recollection:
+   se mantiene pulsada la H, la cámara entra en el reflejo de unas
+   gafas de sol, sube una bola de fuego, explota en un hongo de
+   estilo cómic y aparece el nombre. Después se muestra el resto
+   de la página. Hay un botón para saltarla (o Esc).
+   ========================================================= */
+
+/* Sin JS o con «reducir movimiento» la intro no existe */
+.cv-intro { display: none; }
+html.cv-intro-on .cv-intro,
+.cv-intro.is-reveal,
+.cv-intro.is-out { display: block; }        /* al salir sigue visible mientras se desvanece */
+
+/* Mientras dura la intro: sin scroll y el resto de paneles ocultos
+   (el scroll se libera un poco antes, cuando todo está en blanco, para
+   que el nombre aterrice ya en su sitio definitivo) */
+html.cv-intro-lock,
+html.cv-intro-lock body { overflow: hidden !important; }
+html.cv-intro-on .cv [data-in] { animation-play-state: paused; }
+html.cv-intro-on .cv .panel:not(.cv-hero),
+html.cv-intro-on .cv .cv-dots,
+html.cv-intro-on .cv .cv-swipe,
+html.cv-intro-on .footer-portada { visibility: hidden; opacity: 0; }
+
+.cv-intro {
+    --ink: #0d0b0e;
+    --red: #e23b2e;
+    --yel: #ffc928;
+    --hold: 0;            /* progreso hasta la detonación (0 → 1), lo pone cv_intro.js */
+    --ui: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    overflow: hidden;
+    background: #9a9a9a;
+    color: #fff;
+    overscroll-behavior: contain;
+    font-family: var(--ui);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    outline: none;
+}
+
+.ci-world { position: absolute; inset: 0; }
+.ci-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ---------- Capas: escena (color), vídeo, foto (B/N) y gafas ---------- */
+.ci-video,
+.ci-photo,
+.ci-glass {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+.ci-video { object-fit: cover; opacity: 0; background: #fff; }
+.ci-video.is-on { opacity: 1; }
+
+/* grano de papel / pantalla, como en el original */
+.ci-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .16;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.ci-flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* fondo de la página: el blanco de la explosión se apaga hacia él */
+.ci-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---------- Nombre y texto: copias que vuelan a su sitio ----------
+   Llevan la clase .cv, así usan exactamente la misma fuente, tamaño y
+   degradado que en la página. */
+.cv.ci-fly {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    min-height: 0;
+    overflow: visible;
+    clip-path: none;
+    background: none;
+    pointer-events: none;
+    transition: none;
+}
+.cv.ci-fly > * { position: absolute; margin: 0 !important; }
+.cv .ci-landed { animation: none !important; opacity: 1 !important; transform: none !important; }
+.cv .ci-fly-src { visibility: hidden !important; }
+
+/* ---------- Indicación «mantén pulsada la H» ---------- */
+.ci-hint {
+    position: absolute;
+    left: 50%;
+    top: 13%;
+    z-index: 6;
+    margin: 0;
+    padding: .55em 1.2em;
+    border-radius: 999px;
+    background: rgba(13, 11, 14, .55);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    font-size: clamp(.92rem, 1.5vw, 1.08rem);
+    font-weight: 600;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    transition: opacity .4s ease, transform .4s ease;
+    pointer-events: none;
+}
+.ci-key {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 2.1em;
+    height: 2.1em;
+    margin: 0 .35em;
+    border-radius: 50%;
+    background: conic-gradient(#fff calc(var(--hold) * 360deg), rgba(255, 255, 255, .25) 0);
+    color: #fff;
+    font: 800 1em/1 var(--ui);
+    vertical-align: middle;
+}
+.ci-key::before {                 /* tecla dentro del anillo de progreso */
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--ink);
+}
+.ci-key { isolation: isolate; }
+.ci-key::before { z-index: -1; }
+.cv-intro:not(.is-holding):not(.is-boom) .ci-key { animation: ciKey 1.4s ease-in-out infinite; }
+@keyframes ciKey { 50% { box-shadow: 0 0 0 7px rgba(255, 255, 255, .22); } }
+
+.ci-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+    .ci-desk { display: none; }
+    .ci-touch { display: inline; }
+    .ci-hint { white-space: normal; width: max-content; max-width: 86vw; text-align: center; }
+}
+.cv-intro.is-boom .ci-hint { opacity: 0; transform: translate(-50%, -12px); }
+
+/* ---------- Botones: sonido y saltar ---------- */
+.ci-ui {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 26px;
+    z-index: 7;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 28px;
+    pointer-events: none;
+}
+.ci-ui button {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6em;
+    border: 2px solid rgba(255, 255, 255, .9);
+    border-radius: 999px;
+    background: rgba(13, 11, 14, .45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font: 700 .92rem/1 var(--ui);
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .15s ease;
+}
+.ci-ui button:hover { background: #fff; color: var(--ink); }
+.ci-ui button:active { transform: scale(.96); }
+.ci-ui button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.ci-skip { padding: .78em 1.25em; margin-left: auto; }
+.ci-sound { width: 2.75rem; height: 2.75rem; padding: 0; }
+/* sobre el blanco del final los botones pasan a tinta */
+.cv-intro.is-white { background: transparent; }
+.cv-intro.is-white .ci-ui,
+.cv-intro.is-white .ci-hint { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+
+/* ---------- Salida ---------- */
+.cv-intro.is-out { pointer-events: none; animation: ciOut .85s cubic-bezier(.5, 0, .7, .4) forwards; }
+.cv-intro.is-out.is-fast { animation-duration: .4s; }
+@keyframes ciOut { to { opacity: 0; transform: scale(1.1); filter: blur(8px); } }
+
+@media (max-width: 600px) {
+    .ci-ui { bottom: 18px; padding: 0 16px; }
+    .ci-hint { top: 10%; }
+}
+
+/* =========================================================
+   Después de la explosión: el resto de la página aparece
+   ========================================================= */
+.cv.cv-revealed .panel:not(.cv-hero) > .cv-wrap {
+    animation: ciPanelIn .9s cubic-bezier(.2, .8, .2, 1) both;
+}
+.cv.cv-revealed .panel:nth-child(2) > .cv-wrap { animation-delay: .25s; }
+.cv.cv-revealed .panel:nth-child(3) > .cv-wrap { animation-delay: .35s; }
+.cv.cv-revealed .panel:nth-child(4) > .cv-wrap { animation-delay: .45s; }
+.cv.cv-revealed .panel:nth-child(5) > .cv-wrap { animation-delay: .55s; }
+.cv.cv-revealed .panel:nth-child(6) > .cv-wrap { animation-delay: .65s; }
+.cv.cv-revealed.is-h .cv-dots { animation: ciDotsIn .7s cubic-bezier(.2, 1.4, .4, 1) .7s both; }
+.cv.cv-revealed .cv-swipe { animation: ciFade .6s ease 1.1s both; }
+
+@keyframes ciPanelIn { from { opacity: 0; transform: translateX(80px); filter: blur(6px); } }
+@keyframes ciDotsIn { from { opacity: 0; transform: translate(-50%, 30px); } }
+@keyframes ciFade { from { opacity: 0; } }
+
+/* arranca sola: no hace falta el aviso de «mantén pulsada la H» */
+.cv-intro.is-auto .ci-hint { display: none; }

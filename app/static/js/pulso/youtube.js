@@ -119,8 +119,10 @@
             if (playerReady) return playerReady;
             playerReady = loadPlayerAPI().then(function () {
                 return new Promise(function (res) {
+                    // youtube-nocookie.com: el reproductor guarda menos cookies
                     player = new YT.Player('pl-yt-frame', {
                         width: '100%', height: '100%',
+                        host: 'https://www.youtube-nocookie.com',
                         playerVars: { playsinline: 1, rel: 0, modestbranding: 1, origin: location.origin },
                         events: {
                             onReady: function () {
@@ -156,12 +158,25 @@
                     p.loadVideoById({ videoId: id, startSeconds: start || 0 });
                 });
             },
-            playList: function (list) {
+            playList: function (list, index, start) {
                 mode = 'list';
                 return ensurePlayer().then(function (p) {
-                    p.loadPlaylist({ list: list, listType: 'playlist', index: 0 });
+                    p.loadPlaylist({ list: list, listType: 'playlist', index: index || 0, startSeconds: start || 0 });
                 });
             },
+            /* quita el reproductor (al retirar el permiso de cookies de YouTube) */
+            destroy: function () {
+                if (player && player.destroy) { try { player.destroy(); } catch (e) { } }
+                player = null; playerReady = null;
+                var holder = document.querySelector('.pl-yt-frame');
+                if (holder && !document.getElementById('pl-yt-frame')) {
+                    holder.textContent = '';
+                    var d = document.createElement('div'); d.id = 'pl-yt-frame';
+                    holder.appendChild(d);
+                }
+            },
+            get ready() { return !!player; },
+            get listIndex() { return player && player.getPlaylistIndex ? player.getPlaylistIndex() : 0; },
             get mode() { return mode; },
             pause: function () { if (player && player.pauseVideo) player.pauseVideo(); },
             resume: function () { if (player && player.playVideo) player.playVideo(); },
