@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Logo HFC">
+  <circle cx="100" cy="100" r="96" fill="none" stroke="#90450E" stroke-width="2.5"/>
+  <g transform="translate(100 100) scale(0.74) translate(-100 -100)" fill="none" stroke-width="7" stroke-linecap="butt">
+    <path d="M33.5 70V130M66.5 70V130M33.5 100H66.5" stroke="#1E140E"/>
+    <path d="M83.5 70V130M80 73.5H108M83.5 100H102" stroke="#1E140E"/>
+    <path d="M166.74 81.26A26.5 26.5 0 1 0 166.74 118.74" stroke="#90450E"/>
+  </g>
+</svg>

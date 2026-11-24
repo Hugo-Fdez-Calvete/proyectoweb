@@ -33,7 +33,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_FILE_DIR"] = "./.flask_session"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "SECRET_KEY"
+app.secret_key = os.environ.get("SECRET_KEY")
 
 # Cookie de sesión: solo por HTTPS, invisible para JavaScript y sin viajar en
 # peticiones que vengan de otras webs. Para probar en local por http (no

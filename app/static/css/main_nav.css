@@ -101,7 +101,16 @@ html {
     outline-offset: -2px;
 }
 
-/* ---------- Marca (HFC) ---------- */
+/* ---------- Logo HFC (versión clara u oscura según el modo de la web) ---------- */
+.hf-logo { display: inline-grid; line-height: 0; }
+.hf-logo > img { grid-area: 1 / 1; display: block; width: 100%; height: 100%; }
+.hf-logo-oscuro { visibility: hidden; }
+:root[data-theme="dark"] .hf-logo-claro { visibility: hidden; }
+:root[data-theme="dark"] .hf-logo-oscuro { visibility: visible; }
+.footer-portada .ft-logo { display: inline-block; }
+.footer-portada .ft-logo .hf-logo { width: 56px; height: 56px; }
+
+/* ---------- Marca (HFC, texto antiguo) ---------- */
 .wrapper > a strong {
     font-weight: 700;
     letter-spacing: .08em;
@@ -198,14 +207,7 @@ html {
     margin: 0 auto;
 }
 .ft-brand p { max-width: 34ch; margin: .6rem 0 1.1rem; }
-.footer-portada .ft-logo {
-    font: 700 1.5rem/1 'Chakra Petch', sans-serif;
-    letter-spacing: .04em;
-    background: linear-gradient(110deg, #ee8022, #d93a2b);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
+
 .ft-social { display: flex; gap: .55rem; }
 .footer-portada .ft-social a {
     display: grid;

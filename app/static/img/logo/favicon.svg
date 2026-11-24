@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Favicon: versión clara del logo HFC (trazos algo más gruesos para que se lea a 16-32 px) -->
+  <circle cx="100" cy="100" r="94" fill="none" stroke="#90450E" stroke-width="8"/>
+  <g transform="translate(100 100) scale(0.74) translate(-100 -100)" fill="none" stroke-width="11" stroke-linecap="butt">
+    <path stroke="#1E140E" d="M33.5 70V130M66.5 70V130M33.5 100H66.5"/>
+    <path stroke="#1E140E" d="M83.5 70V130M80 73.5H108M83.5 100H102"/>
+    <path stroke="#90450E" d="M166.74 81.26A26.5 26.5 0 1 0 166.74 118.74"/>
+  </g>
+</svg>

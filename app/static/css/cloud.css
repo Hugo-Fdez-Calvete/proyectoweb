@@ -1,0 +1,288 @@
+/* ============================================================
+   LA NUBE · Mis archivos (dashboard.html)
+   Misma gama que home / CV / auth: rojos, naranjas y marrones.
+   Solo cambia el aspecto; la funcionalidad es la de siempre.
+   ============================================================ */
+.nube {
+    --nb-bg: #110b08;
+    --nb-panel: rgba(33, 22, 16, .72);
+    --nb-solid: #1a110c;
+    --nb-field: rgba(17, 11, 8, .6);
+    --nb-line: rgba(220, 145, 120, .16);
+    --nb-text: #f9ece8;
+    --nb-muted: #baa098;
+    --nb-acc-rgb: 238 128 34;
+    --nb-sec-rgb: 241 110 99;
+    --nb-acc: rgb(var(--nb-acc-rgb));
+    --nb-acc-text: #ee8022;
+    --nb-btn-bg: #ee8022;
+    --nb-btn-fg: #170d07;
+    --nb-danger: #f16e63;
+    --nb-shadow: 0 20px 50px -25px rgba(0, 0, 0, .8);
+    --nb-overlay: rgba(8, 5, 4, .78);
+}
+
+:root[data-theme="light"] .nube {
+    --nb-bg: #fcf5f2;
+    --nb-panel: rgba(255, 255, 255, .85);
+    --nb-solid: #ffffff;
+    --nb-field: rgba(252, 245, 242, .9);
+    --nb-line: rgba(88, 53, 32, .14);
+    --nb-text: #1e140e;
+    --nb-muted: #755c54;
+    --nb-acc-rgb: 178 82 8;
+    --nb-sec-rgb: 202 61 56;
+    --nb-acc-text: #90450e;
+    --nb-btn-bg: #90450e;
+    --nb-btn-fg: #ffffff;
+    --nb-danger: #b8322c;
+    --nb-shadow: 0 20px 50px -28px rgba(88, 53, 32, .35);
+    --nb-overlay: rgba(30, 20, 14, .45);
+}
+
+/* Fondo de toda la página (también detrás del <main>) */
+body.nube-body { background-color: #110b08; }
+:root[data-theme="light"] body.nube-body { background-color: #fcf5f2; }
+
+/* ---------- Estructura ---------- */
+.nube-main {
+    position: relative;
+    isolation: isolate;
+    min-height: 100%;
+    background:
+        radial-gradient(60rem 30rem at 85% -10%, rgb(var(--nb-acc-rgb) / .10), transparent 70%),
+        radial-gradient(45rem 28rem at -10% 40%, rgb(var(--nb-sec-rgb) / .07), transparent 70%),
+        var(--nb-bg);
+    color: var(--nb-text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    transition: background-color .5s ease, color .5s ease;
+}
+
+/* ---------- Cabecera ---------- */
+.nube .title,
+.nube .label { color: var(--nb-text); }
+
+.nube .title.is-3 {
+    font-family: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: .01em;
+    margin-bottom: .35rem;
+}
+.nube .title.is-3::after {
+    content: "";
+    display: block;
+    width: 2.75rem;
+    height: 3px;
+    margin-top: .55rem;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--nb-acc), rgb(var(--nb-sec-rgb)));
+}
+
+.nube .subtitle,
+.nube .has-text-grey { color: var(--nb-muted) !important; }
+
+/* Ruta (breadcrumb) */
+.nube .breadcrumb { margin-top: .9rem; font-size: .95rem; }
+.nube .breadcrumb a { color: var(--nb-acc-text); padding: 0 .55em; }
+.nube .breadcrumb li:first-child a { padding-left: 0; }
+.nube .breadcrumb a:hover { color: var(--nb-text); }
+.nube .breadcrumb li + li::before { color: var(--nb-muted); opacity: .6; }
+.nube .breadcrumb li.is-active a { color: var(--nb-text); font-weight: 600; }
+
+/* ---------- Botones ---------- */
+.nube .button {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 700;
+    border-radius: 10px;
+    border: 1px solid var(--nb-line);
+    background-color: var(--nb-panel);
+    color: var(--nb-text);
+    box-shadow: none;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
+}
+.nube .button:hover {
+    border-color: rgb(var(--nb-acc-rgb) / .55);
+    color: var(--nb-text);
+    transform: translateY(-1px);
+}
+.nube .button:focus-visible {
+    outline: 2px solid var(--nb-acc);
+    outline-offset: 2px;
+}
+.nube .button:active { transform: none; }
+
+/* Principal: Subir archivo / Crear */
+.nube .button.is-primary {
+    background-color: var(--nb-btn-bg);
+    border-color: transparent;
+    color: var(--nb-btn-fg);
+    box-shadow: 0 10px 24px -14px rgb(var(--nb-acc-rgb) / .9);
+}
+.nube .button.is-primary:hover {
+    background-color: var(--nb-btn-bg);
+    color: var(--nb-btn-fg);
+    filter: brightness(1.08);
+}
+
+/* Acciones de la tabla: Abrir / Descargar (naranja suave) */
+.nube .button.is-link.is-light,
+.nube .button.is-info.is-light {
+    background-color: rgb(var(--nb-acc-rgb) / .12);
+    border-color: rgb(var(--nb-acc-rgb) / .28);
+    color: var(--nb-acc-text);
+}
+.nube .button.is-link.is-light:hover,
+.nube .button.is-info.is-light:hover {
+    background-color: rgb(var(--nb-acc-rgb) / .2);
+    border-color: rgb(var(--nb-acc-rgb) / .5);
+    color: var(--nb-acc-text);
+}
+
+/* Eliminar (rojo) */
+.nube .button.is-danger.is-light {
+    background-color: rgb(var(--nb-sec-rgb) / .1);
+    border-color: rgb(var(--nb-sec-rgb) / .28);
+    color: var(--nb-danger);
+}
+.nube .button.is-danger.is-light:hover {
+    background-color: rgb(var(--nb-sec-rgb) / .18);
+    border-color: rgb(var(--nb-sec-rgb) / .55);
+    color: var(--nb-danger);
+}
+
+/* ---------- Avisos (flash) ---------- */
+.nube .notification {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--nb-line);
+    border-left: 4px solid var(--nb-acc);
+    background-color: var(--nb-panel);
+    color: var(--nb-text);
+    font-weight: 600;
+    box-shadow: var(--nb-shadow);
+    backdrop-filter: blur(8px);
+}
+.nube .notification.is-success { border-left-color: var(--nb-acc); background-color: rgb(var(--nb-acc-rgb) / .1); }
+.nube .notification.is-danger,
+.nube .notification.is-error { border-left-color: var(--nb-danger); background-color: rgb(var(--nb-sec-rgb) / .1); }
+.nube .notification.is-warning { border-left-color: #e0a43a; background-color: rgb(224 164 58 / .1); }
+
+/* ---------- Tarjetas ---------- */
+.nube .box {
+    background-color: var(--nb-panel);
+    color: var(--nb-text);
+    border: 1px solid var(--nb-line);
+    border-radius: 16px;
+    box-shadow: var(--nb-shadow);
+    backdrop-filter: blur(10px);
+}
+
+/* Almacenamiento */
+.nube .heading {
+    color: var(--nb-muted);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    margin-bottom: .35rem;
+}
+.nube .title.is-5 {
+    font-family: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+}
+
+.nube .progress {
+    --bulma-progress-bar-background-color: rgb(var(--nb-acc-rgb) / .12);
+    --bulma-progress-value-background-color: var(--nb-acc);
+    height: .6rem;
+    border-radius: 999px;
+    background-color: rgb(var(--nb-acc-rgb) / .12);
+}
+.nube .progress::-webkit-progress-bar { background-color: rgb(var(--nb-acc-rgb) / .12); }
+.nube .progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--nb-acc), rgb(var(--nb-sec-rgb)));
+}
+.nube .progress::-moz-progress-bar {
+    background: linear-gradient(90deg, var(--nb-acc), rgb(var(--nb-sec-rgb)));
+}
+
+/* ---------- Tabla de archivos ---------- */
+.nube .table {
+    --bulma-table-color: var(--nb-text);
+    --bulma-table-background-color: transparent;
+    --bulma-table-cell-border-color: var(--nb-line);
+    --bulma-table-cell-heading-color: var(--nb-muted);
+    --bulma-table-head-cell-color: var(--nb-muted);
+    --bulma-table-row-hover-background-color: rgb(var(--nb-acc-rgb) / .06);
+    background-color: transparent;
+    color: var(--nb-text);
+}
+.nube .table th,
+.nube .table td {
+    border-color: var(--nb-line);
+    color: var(--nb-text);
+    vertical-align: middle;
+}
+.nube .table thead th {
+    color: var(--nb-muted);
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    border-bottom-width: 1px;
+}
+.nube .table.is-hoverable tbody tr:not(.is-selected):hover {
+    background-color: rgb(var(--nb-acc-rgb) / .06);
+}
+.nube .table tbody tr:last-child td { border-bottom: 0; }
+
+.nube .table td a { color: var(--nb-text); font-weight: 600; text-decoration: none; }
+.nube .table td a:hover { color: var(--nb-acc-text); }
+.nube .table .fa-folder { color: var(--nb-acc-text); }
+.nube .table .fa-file { color: var(--nb-muted); }
+.nube .table .buttons { flex-wrap: nowrap; }
+
+/* Carpeta vacía */
+.nube .box > .has-text-centered .icon { color: rgb(var(--nb-acc-rgb) / .55) !important; }
+
+/* ---------- Modal «Nueva carpeta» ---------- */
+.nube .modal-background { background-color: var(--nb-overlay); backdrop-filter: blur(4px); }
+.nube .modal .box { background-color: var(--nb-solid); backdrop-filter: none; }
+.nube .modal .title.is-5 { font-family: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif; }
+
+.nube .input {
+    background-color: var(--nb-field);
+    border: 1px solid var(--nb-line);
+    border-radius: 10px;
+    color: var(--nb-text);
+    box-shadow: none;
+}
+.nube .input::placeholder { color: var(--nb-muted); opacity: .75; }
+.nube .input:hover { border-color: rgb(var(--nb-acc-rgb) / .4); }
+.nube .input:focus,
+.nube .input:focus-visible {
+    border-color: var(--nb-acc);
+    box-shadow: 0 0 0 3px rgb(var(--nb-acc-rgb) / .18);
+    outline: none;
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 768px) {
+    .nube .level-right { margin-top: 1rem; }
+    .nube .level-right > div[style] { width: 100% !important; }
+    /* En móvil las acciones quedan solo con icono para que quepa la fila entera */
+    .nube .table .buttons { flex-wrap: nowrap; gap: .35rem; }
+    .nube .table .buttons .button { padding-inline: .6em; }
+    .nube .table .buttons .button > span:not(.icon) { display: none; }
+    .nube .table .buttons .button > .icon { margin: 0 !important; }
+    .nube .table th, .nube .table td { padding-inline: .45em; }
+    .nube .table td:nth-child(2) { white-space: nowrap; font-size: .85rem; }
+    .nube .table td:first-child { overflow-wrap: anywhere; }
+    .nube .box { padding: 1rem .75rem; }
+    .nube .table .icon.mr-2 { margin-right: .25rem !important; }
+}
+
+/* La sección ocupa todo el alto disponible entre el menú y el pie */
+body.nube-body > main { display: flex; flex-direction: column; }
+body.nube-body .nube { flex: 1 0 auto; display: flex; flex-direction: column; }
+body.nube-body .nube-main { flex: 1 0 auto; }

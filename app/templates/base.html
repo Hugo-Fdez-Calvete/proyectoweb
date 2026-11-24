@@ -7,7 +7,9 @@
     <title>{% block title %}Hugo Fernández{% endblock %}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
-    <link rel="icon" type="image/png" href="{{url_for('static', filename='img/cloud.png')}}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/logo/favicon-32.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo/apple-touch-icon.png') }}">
 
     <!-- Bulma -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
@@ -130,7 +132,12 @@
     <footer class="footer-portada">
         <div class="ft-wrap">
             <div class="ft-brand">
-                <a class="ft-logo" href="{{ url_for('home_bp.index') }}">HFC</a>
+                <a class="ft-logo" href="{{ url_for('home_bp.index') }}" aria-label="HFC · Inicio">
+                    <span class="hf-logo" aria-hidden="true">
+                        <img class="hf-logo-claro" src="{{ url_for('static', filename='img/logo/hfc-logo-claro.svg') }}" alt="" width="56" height="56">
+                        <img class="hf-logo-oscuro" src="{{ url_for('static', filename='img/logo/hfc-logo-oscuro.svg') }}" alt="" width="56" height="56">
+                    </span>
+                </a>
                 <p>Web personal de Hugo Fernández: proyectos, currículum y herramientas propias.</p>
                 <div class="ft-social" aria-label="Redes sociales">
                     <a href="https://github.com/Hugo-Fdez-Calvete" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">

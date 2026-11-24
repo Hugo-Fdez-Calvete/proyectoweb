@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block title %}Hugo Fernández | Mis archivos{% endblock %}
+{% block body_class %}nube-body{% endblock %}
 
-<section class="section">
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+
+<div class="nube">
+<section class="section nube-main">
     <div class="container mt-6">
 
         <!-- MENSAJES -->
@@ -182,7 +187,7 @@
 
                                                 <!-- ABRIR CARPETA -->
                                     {% set child_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
-                                    <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}" class="button is-link is-light">
+                                    <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}" class="button is-link is-light" title="Abrir" aria-label="Abrir {{ file.name }}">
                                                     <span class="icon">
                                                         <i class="fas fa-folder-open"></i>
                                                     </span>
@@ -194,7 +199,7 @@
                                             {% else %}
 
                                                 <!-- DESCARGAR -->
-                                    <a href="{{ url_for('cloud_bp.download', filename=file.name, path=current_path or None) }}" class="button is-info is-light">
+                                    <a href="{{ url_for('cloud_bp.download', filename=file.name, path=current_path or None) }}" class="button is-info is-light" title="Descargar" aria-label="Descargar {{ file.name }}">
                                                     <span class="icon">
                                                         <i class="fas fa-download"></i>
                                                     </span>
@@ -208,7 +213,7 @@
                                             <!-- ELIMINAR -->
                                     <form action="{{ url_for('cloud_bp.delete', filename=file.name, path=current_path or None) }}" method="POST">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="button is-danger is-light"
+                                        <button type="submit" class="button is-danger is-light" title="Eliminar" aria-label="Eliminar {{ file.name }}"
                                             {% if file.is_dir() %}
                                                 onclick="return confirm('¿Eliminar la carpeta y TODO su contenido? Esta acción no se puede deshacer.')"
                                             {% else %}
@@ -281,6 +286,7 @@
         </div>
     </div>
     <button type="button" class="modal-close is-large" aria-label="Cerrar" id="folder-close"></button>
+</div>
 </div>
 
 <!-- MODAL NUEVA CARPETA: abrir / cerrar -->
