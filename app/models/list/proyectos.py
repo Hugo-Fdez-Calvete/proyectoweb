@@ -189,7 +189,7 @@ proyectos = [
         "puntos": [
             "Órbitas de tecnologías dibujadas con WebGL.",
             "Formación, experiencia, idiomas y contacto.",
-            "Easter egg: Investiga y descúbrelo",
+            "Easter egg: Investiga y descúbrelo.",
         ],
         "tecnologias": ["WebGL", "Web Audio", "CSS"],
         "media": [
