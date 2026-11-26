@@ -2,108 +2,290 @@
 
 {% block title %}HomeCloud · Mi perfil{% endblock %}
 
-{% block content %}
-<section class="section mt-6">
-    <div class="container" style="max-width: 720px;">
+{% block body_class %}nube-body{% endblock %}
 
-        <h1 class="title">Configuración del perfil</h1>
-        <p class="subtitle">Gestiona tus datos de acceso.</p>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+<div class="nube">
+<section class="section nube-main">
+    <div class="container mt-6 nb-settings-wrap">
+
+        <h1 class="title is-3">Configuración</h1>
+        <p class="subtitle is-6 mb-5">Tus datos, tu correo y avisos, tus invitaciones, tus carpetas públicas y tu cuenta.</p>
 
         {% for category, message in get_flashed_messages(with_categories=true) %}
-            <div class="notification is-{{ category }} is-light">{{ message }}</div>
+            <div class="notification is-{{ category }}">{{ message }}</div>
         {% endfor %}
 
         {% for e in profile_form.csrf_token.errors + password_form.csrf_token.errors %}
-            <div class="notification is-danger is-light">La sesión del formulario ha caducado. Recarga la página e inténtalo de nuevo.</div>
+            <div class="notification is-danger">La sesión del formulario ha caducado. Recarga la página e inténtalo de nuevo.</div>
         {% endfor %}
 
-        <!-- DATOS -->
-        <form method="post" action="{{ url_for('profile_bp.update_data') }}" class="box">
-            {{ profile_form.csrf_token(id="csrf_datos") }}
-            <h2 class="title is-4">Datos personales</h2>
+        <div class="nb-settings">
+            <!-- ÍNDICE -->
+            <nav class="nb-settings-nav" aria-label="Apartados de la configuración">
+                <a href="#datos"><i class="fa-solid fa-user" aria-hidden="true"></i>Datos personales</a>
+                <a href="#seguridad"><i class="fa-solid fa-key" aria-hidden="true"></i>Contraseña</a>
+                <a href="#correo"><i class="fa-solid fa-envelope" aria-hidden="true"></i>Correo y avisos</a>
+                <a href="#invitaciones"><i class="fa-solid fa-people-roof" aria-hidden="true"></i>Invitaciones
+                    {% if invites %}<span class="nb-badge is-tab">{{ invites|length }}</span>{% endif %}</a>
+                <a href="#publicas"><i class="fa-solid fa-globe" aria-hidden="true"></i>Carpetas públicas</a>
+                <a href="#eliminar" class="is-danger"><i class="fa-solid fa-user-xmark" aria-hidden="true"></i>Eliminar cuenta</a>
+            </nav>
 
-            <div class="field">
-                <label class="label" for="username">Nombre de usuario</label>
-                <div class="control">
-                    {{ profile_form.username(class_="input" ~ (" is-danger" if profile_form.username.errors else ""),
-                                             data_original=user.username,
-                                             autocomplete="username") }}
+            <div class="nb-settings-main">
+
+            <!-- DATOS -->
+            <form method="post" action="{{ url_for('profile_bp.update_data') }}" class="box" id="datos">
+                {{ profile_form.csrf_token(id="csrf_datos") }}
+                <h2 class="title is-4">Datos personales</h2>
+
+                <div class="field">
+                    <label class="label" for="username">Nombre de usuario</label>
+                    <div class="control">
+                        {{ profile_form.username(class_="input" ~ (" is-danger" if profile_form.username.errors else ""),
+                                                 data_original=user.username,
+                                                 autocomplete="username") }}
+                    </div>
+                    <p class="help" id="username-help"></p>
+                    {% for e in profile_form.username.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
-                <p class="help" id="username-help"></p>
-                {% for e in profile_form.username.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
-            </div>
 
-            <div class="field">
-                <label class="label" for="email">Correo electrónico</label>
-                <div class="control">
-                    {{ profile_form.email(class_="input" ~ (" is-danger" if profile_form.email.errors else ""),
-                                          type="email", autocomplete="email") }}
+                <div class="field">
+                    <label class="label" for="phone">Teléfono</label>
+                    <div class="control">
+                        {{ profile_form.phone(class_="input" ~ (" is-danger" if profile_form.phone.errors else ""),
+                                              type="tel", autocomplete="tel") }}
+                    </div>
+                    {% for e in profile_form.phone.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
-                {% for e in profile_form.email.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
-            </div>
 
-            <div class="field">
-                <label class="label" for="phone">Teléfono</label>
-                <div class="control">
-                    {{ profile_form.phone(class_="input" ~ (" is-danger" if profile_form.phone.errors else ""),
-                                          type="tel", autocomplete="tel") }}
+                <p class="nb-note mb-4"><i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    Tu correo se gestiona en <a href="#correo">Correo y avisos</a>.</p>
+
+                {{ profile_form.guardar(class_="button is-primary", id="save-data") }}
+            </form>
+
+            <!-- CONTRASEÑA -->
+            <form method="post" action="{{ url_for('profile_bp.update_password') }}" class="box" id="seguridad">
+                {{ password_form.csrf_token(id="csrf_password") }}
+                <h2 class="title is-4">Cambiar contraseña</h2>
+
+                <div class="field">
+                    <label class="label" for="current_password">Contraseña actual</label>
+                    <div class="control">
+                        {{ password_form.current_password(class_="input" ~ (" is-danger" if password_form.current_password.errors else ""),
+                                                          autocomplete="current-password") }}
+                    </div>
+                    {% for e in password_form.current_password.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
-                {% for e in profile_form.phone.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
-            </div>
 
-            {{ profile_form.guardar(class_="button is-link", id="save-data") }}
-        </form>
-
-        <!-- CONTRASEÑA -->
-        <form method="post" action="{{ url_for('profile_bp.update_password') }}" class="box">
-            {{ password_form.csrf_token(id="csrf_password") }}
-            <h2 class="title is-4">Cambiar contraseña</h2>
-
-            <div class="field">
-                <label class="label" for="current_password">Contraseña actual</label>
-                <div class="control">
-                    {{ password_form.current_password(class_="input" ~ (" is-danger" if password_form.current_password.errors else ""),
-                                                      autocomplete="current-password") }}
-                </div>
-                {% for e in password_form.current_password.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="field">
-                <label class="label" for="new_password">Nueva contraseña</label>
-                <div class="control">
-                    {{ password_form.new_password(class_="input" ~ (" is-danger" if password_form.new_password.errors else ""),
-                                                  autocomplete="new-password") }}
-                </div>
-                <p class="help">Mínimo 8 caracteres.</p>
-                {% for e in password_form.new_password.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
-            </div>
-
-            <div class="field">
-                <label class="label" for="confirm_password">Repite la nueva contraseña</label>
-                <div class="control">
-                    {{ password_form.confirm_password(class_="input" ~ (" is-danger" if password_form.confirm_password.errors else ""),
+                <div class="field">
+                    <label class="label" for="new_password">Nueva contraseña</label>
+                    <div class="control">
+                        {{ password_form.new_password(class_="input" ~ (" is-danger" if password_form.new_password.errors else ""),
                                                       autocomplete="new-password") }}
+                    </div>
+                    <p class="help">Mínimo 8 caracteres.</p>
+                    {% for e in password_form.new_password.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
                 </div>
-                {% for e in password_form.confirm_password.errors %}
-                    <p class="help is-danger">{{ e }}</p>
-                {% endfor %}
+
+                <div class="field">
+                    <label class="label" for="confirm_password">Repite la nueva contraseña</label>
+                    <div class="control">
+                        {{ password_form.confirm_password(class_="input" ~ (" is-danger" if password_form.confirm_password.errors else ""),
+                                                          autocomplete="new-password") }}
+                    </div>
+                    {% for e in password_form.confirm_password.errors %}
+                        <p class="help is-danger">{{ e }}</p>
+                    {% endfor %}
+                </div>
+
+                {{ password_form.cambiar(class_="button is-primary") }}
+            </form>
+
+            <!-- CORREO Y AVISOS -->
+            <div class="box" id="correo">
+                <h2 class="title is-4">Correo y avisos</h2>
+
+                <div class="nb-mail-state {% if notify_verified %}is-ok{% elif user.email %}is-pending{% endif %}">
+                    {% if not user.email %}
+                        <i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i>
+                        <span>No tienes ningún correo vinculado. Añade uno para recibir avisos{% if not mail_ready %} (el envío aún no está configurado en el servidor){% endif %}.</span>
+                    {% elif notify_verified %}
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                        <span><strong>{{ user.email }}</strong> está confirmado: los avisos que elijas llegarán ahí.</span>
+                    {% else %}
+                        <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+                        <span><strong>{{ user.email }}</strong> está sin confirmar: pulsa el enlace que te enviamos para empezar a recibir avisos.</span>
+                    {% endif %}
+                </div>
+
+                <form method="post" action="{{ url_for('profile_bp.change_email') }}" class="mt-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label class="label" for="email">{{ 'Cambiar correo' if user.email else 'Vincular un correo' }}</label>
+                    <div class="nb-inline">
+                        <input class="input" id="email" name="email" type="email" autocomplete="email" maxlength="120"
+                               value="{{ user.email or '' }}" placeholder="tu@correo.com" required>
+                        <button class="button is-primary" type="submit">
+                            <span class="icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></span>
+                            <span>Guardar y enviar confirmación</span>
+                        </button>
+                    </div>
+                    <p class="help">Te llegará un enlace para confirmar que el correo es tuyo (caduca en 2 días).</p>
+                </form>
+
+                {% if user.email %}
+                <div class="buttons mt-4">
+                    {% if not notify_verified %}
+                    <form method="post" action="{{ url_for('profile_bp.send_verification') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="button is-small" type="submit" {% if not mail_ready %}disabled{% endif %}>
+                            <span class="icon"><i class="fas fa-rotate" aria-hidden="true"></i></span><span>Reenviar enlace</span>
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('profile_bp.unlink_email') }}"
+                          onsubmit="return confirm('Se quitará {{ user.email|e }} de tu cuenta: no recibirás avisos y no podrás iniciar sesión con el correo. ¿Continuar?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="button is-small is-danger is-light" type="submit">
+                            <span class="icon"><i class="fas fa-link-slash" aria-hidden="true"></i></span><span>Desvincular correo</span>
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <hr class="nb-sep">
+
+                <form method="post" action="{{ url_for('profile_bp.update_notifications') }}" id="avisos">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <p class="label">Quiero recibir un correo cuando…</p>
+                    {% if not notify_verified %}<p class="help mb-3">Puedes elegirlos ya; empezarán a llegar cuando confirmes tu correo.</p>{% endif %}
+                    <div class="nb-prefs">
+                        {% for key, label, help in notify_preferences %}
+                        <label class="nb-pref">
+                            <span class="nb-switch">
+                                <input type="checkbox" name="{{ key }}" value="1" {% if notify[key] %}checked{% endif %}>
+                                <span aria-hidden="true"></span>
+                            </span>
+                            <span>
+                                <span class="nb-pref-label">{{ label }}</span>
+                                {% if help %}<span class="nb-pref-help">{{ help }}</span>{% endif %}
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <button class="button is-primary mt-4" type="submit">Guardar avisos</button>
+                </form>
             </div>
 
-            {{ password_form.cambiar(class_="button is-link") }}
-        </form>
+            <!-- INVITACIONES -->
+            <div class="box" id="invitaciones">
+                <h2 class="title is-4">Invitaciones a grupos</h2>
+                {% if invites %}
+                <div class="nb-invites">
+                    {% for inv in invites %}
+                    <div class="nb-invite">
+                        <span class="nb-avatar" aria-hidden="true">{{ inv.group.name[:1]|upper }}</span>
+                        <div class="nb-invite-text">
+                            <strong>{{ inv.group.name }}</strong>
+                            <span>{{ inv.inviter.username if inv.inviter else 'Alguien' }} te invitó el {{ inv.created_at.strftime('%d/%m/%Y') }}</span>
+                        </div>
+                        <div class="buttons">
+                            <form action="{{ url_for('groups_bp.accept_invite', invite_id=inv.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="button is-primary is-small" type="submit"><span class="icon"><i class="fas fa-check" aria-hidden="true"></i></span><span>Aceptar</span></button>
+                            </form>
+                            <form action="{{ url_for('groups_bp.decline_invite', invite_id=inv.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="next" value="perfil">
+                                <button class="button is-danger is-light is-small" type="submit"><span class="icon"><i class="fas fa-xmark" aria-hidden="true"></i></span><span>Rechazar</span></button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="has-text-grey">No tienes invitaciones pendientes. Tus grupos están en <a href="{{ url_for('groups_bp.groups') }}">Grupos</a>.</p>
+                {% endif %}
+            </div>
+
+            <!-- CARPETAS PÚBLICAS -->
+            <div class="box" id="publicas">
+                <h2 class="title is-4">Carpetas públicas</h2>
+                <p class="mb-4">Carpetas de tu nube que cualquiera puede ver y descargar sin cuenta.</p>
+                {% if publics %}
+                <div class="table-container">
+                    <table class="table is-fullwidth">
+                        <thead><tr><th>Carpeta</th><th>Listado</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                        {% for p in publics %}
+                            <tr>
+                                <td><span class="icon mr-2"><i class="fas fa-globe" aria-hidden="true"></i></span>{{ p.path }}</td>
+                                <td>{{ 'Sí' if p.listed else 'Solo enlace' }}</td>
+                                <td>
+                                    <div class="buttons are-small">
+                                        <a class="button is-link is-light" href="{{ url_for('public_bp.folder', token=p.token) }}" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-up-right-from-square" aria-hidden="true"></i></span><span>Abrir</span></a>
+                                        <a class="button is-link is-light" href="{{ url_for('shares_bp.manage', path=p.path) }}#publica"><span class="icon"><i class="fas fa-sliders" aria-hidden="true"></i></span><span>Ajustes</span></a>
+                                        <form action="{{ url_for('public_bp.unpublish', public_id=p.id) }}" method="POST">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="next" value="perfil">
+                                            <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-eye-slash" aria-hidden="true"></i></span><span>Dejar de publicar</span></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="has-text-grey">No tienes carpetas públicas. Para publicar una, ve a <a href="{{ url_for('dashboard_bp.dashboard') }}">Mis archivos</a> y pulsa <strong>Compartir</strong> en la carpeta.</p>
+                {% endif %}
+            </div>
+
+            <!-- ELIMINAR CUENTA -->
+            <form class="box nb-danger-zone" id="eliminar" method="post" action="{{ url_for('profile_bp.delete_account') }}"
+                  onsubmit="return confirm('Esto borra tu cuenta y TODOS tus datos para siempre. ¿Seguro?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <h2 class="title is-4">Eliminar mi cuenta</h2>
+                <p>Se borrará <strong>para siempre</strong> y no se puede deshacer:</p>
+                <ul class="nb-list">
+                    <li>Tu cuenta y tus datos personales.</li>
+                    <li>Todos los archivos de tu nube, también los que compartes y tus carpetas públicas.</li>
+                    <li>Los grupos que has creado, con sus archivos, chats y mensajes.</li>
+                    <li>Tu sitio en los grupos de otras personas y tus invitaciones.</li>
+                    <li>Tus avisos por correo, tu vínculo con Google en Pulso y tu tinta de Pixel Art.</li>
+                </ul>
+                <p class="help mb-4">Tus mensajes en grupos de otras personas se quedan como «Usuario eliminado» para no romper sus conversaciones. Los píxeles que pintaste siguen en el lienzo común.</p>
+
+                <div class="field">
+                    <label class="label" for="del-password">Tu contraseña</label>
+                    <input class="input" id="del-password" name="password" type="password" autocomplete="current-password" required>
+                </div>
+                <div class="field">
+                    <label class="label" for="del-confirm">Escribe <strong>ELIMINAR</strong> para confirmar</label>
+                    <input class="input" id="del-confirm" name="confirm" autocomplete="off" required pattern="[Ee][Ll][Ii][Mm][Ii][Nn][Aa][Rr]">
+                </div>
+                <button class="button is-danger" type="submit">
+                    <span class="icon"><i class="fas fa-user-xmark" aria-hidden="true"></i></span><span>Eliminar mi cuenta y mis datos</span>
+                </button>
+            </form>
+
+            </div>
+        </div>
 
     </div>
 </section>
+</div>
 
 <script>
     // Comprobación en vivo de la disponibilidad del nombre de usuario

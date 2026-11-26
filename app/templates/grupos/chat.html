@@ -1,0 +1,75 @@
+{% extends "grupos/_layout.html" %}
+
+{% block group_content %}
+<div class="nb-chat-layout">
+    <aside class="nb-chat-list box" aria-label="Chats del grupo">
+        <p class="heading">Chats</p>
+        <ul>
+            {% for item in chats %}
+            <li>
+                <a href="{{ url_for('groups_bp.chat_page', group_id=group.id, chat_id=item.chat.id) }}"
+                   {% if item.chat.id == chat.id %}class="is-active" aria-current="page"{% endif %}
+                   data-chat-link="{{ item.chat.id }}">
+                    <i class="fa-solid fa-hashtag" aria-hidden="true"></i>
+                    <span class="nb-chat-name">{{ item.chat.name }}</span>
+                    {% if item.unread and item.chat.id != chat.id %}<span class="nb-badge">{{ item.unread if item.unread < 100 else '99+' }}</span>{% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if perms.can_create_chats %}
+        <form class="nb-new-chat" action="{{ url_for('groups_bp.create_chat', group_id=group.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input class="input is-small" name="name" maxlength="60" placeholder="Nuevo chat…" aria-label="Nombre del chat nuevo" required>
+            <button class="button is-small is-primary" type="submit" aria-label="Crear chat" title="Crear chat"><i class="fas fa-plus" aria-hidden="true"></i></button>
+        </form>
+        {% endif %}
+    </aside>
+
+    <section class="nb-chat box" aria-label="Chat {{ chat.name }}">
+        <header class="nb-chat-head">
+            <div>
+                <h2 class="nb-chat-title"><i class="fa-solid fa-hashtag" aria-hidden="true"></i>{{ chat.name }}</h2>
+                <p class="nb-chat-status">
+                    <span class="nb-dot" id="chat-dot" aria-hidden="true"></span>
+                    <span id="chat-status">Conectando…</span>
+                </p>
+            </div>
+            {% if access.manage or chat.created_by == user.id %}
+            <form action="{{ url_for('groups_bp.delete_chat', group_id=group.id, chat_id=chat.id) }}" method="POST"
+                  onsubmit="return confirm('¿Borrar el chat «{{ chat.name|e }}» y todos sus mensajes?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-small is-danger is-light" type="submit" title="Borrar chat">
+                    <span class="icon"><i class="fas fa-trash" aria-hidden="true"></i></span><span>Borrar chat</span>
+                </button>
+            </form>
+            {% endif %}
+        </header>
+
+        <div class="nb-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+            <button class="button is-small nb-more" id="chat-more" type="button" hidden>Cargar mensajes anteriores</button>
+            <p class="nb-empty" id="chat-empty" {% if messages %}hidden{% endif %}>Aún no hay mensajes. ¡Escribe el primero!</p>
+        </div>
+
+        {% if perms.can_chat %}
+        <form class="nb-composer" id="chat-form" autocomplete="off">
+            <textarea class="textarea" id="chat-input" rows="1" maxlength="2000"
+                      placeholder="Escribe un mensaje…" title="Enter para enviar · Mayús+Enter para saltar de línea"
+                      aria-label="Mensaje (Enter para enviar, Mayús+Enter para saltar de línea)"></textarea>
+            <button class="button is-primary" type="submit" aria-label="Enviar" title="Enviar">
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            </button>
+        </form>
+        {% else %}
+        <p class="nb-note nb-readonly"><i class="fa-solid fa-lock" aria-hidden="true"></i>Puedes leer este chat, pero no escribir en él.</p>
+        {% endif %}
+    </section>
+</div>
+
+<script type="application/json" id="chat-config">{{ chat_config|tojson }}</script>
+<script type="application/json" id="chat-initial">{{ messages|tojson }}</script>
+{% endblock %}
+
+{% block nube_scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+{% endblock %}

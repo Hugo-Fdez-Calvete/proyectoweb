@@ -158,3 +158,18 @@
 @media print {
     .hf-menu-btn, .hf-menu-panel { display: none !important; }
 }
+/* Número de invitaciones pendientes en «Grupos y chats» */
+.hf-menu-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    padding: 0 .3rem;
+    margin-left: .35rem;
+    border-radius: 999px;
+    background: #f16e63;
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 800;
+    vertical-align: middle;
+}

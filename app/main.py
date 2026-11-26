@@ -11,29 +11,44 @@ from app.routes.cloud_routes import cloud_bp
 from app.routes.profile_routes import profile_bp
 from app.routes.music_routes import pulso_bp
 from app.routes.pixel_routes import pixel_bp
+from app.routes.groups_routes import groups_bp, ws_bp
+from app.routes.shares_routes import shares_bp
+from app.routes.public_routes import public_bp
+from app.routes.health_routes import health_bp
+from app import observability
 
 from app.models.db.users_db import User
 from app.models.db.google_link_db import GoogleLink
 from app.models.db.pixel_db import Pixel, PixelChange, PixelQuota
+from app.models.db.groups_db import ALL_TABLES as GROUP_TABLES
 from app.models.db.db import db
 
 app = Flask(__name__)
 
-# Configuración de Flask-Session
+# Rutas de datos. Todo va dentro de app/data (volumen flask_data), así la base
+# de datos y las sesiones sobreviven a un «Pull and redeploy».
+# Se pueden cambiar con variables de entorno (los tests las usan).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "data", "users.db")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+DB_PATH = os.environ.get("DATABASE_PATH") or os.path.join(DATA_DIR, "users.db")
+# Sesiones fuera del contenedor (antes estaban en ./.flask_session y se perdían al redesplegar)
+SESSION_DIR = os.environ.get("SESSION_FILE_DIR") or os.path.join(DATA_DIR, "sessions")
 
-# SQLite no crea carpetas: asegurar que exista (Git no sube carpetas vacías)
+# SQLite no crea carpetas: asegurar que existan (Git no sube carpetas vacías)
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+os.makedirs(SESSION_DIR, exist_ok=True)
+
+# Logs con identificador de petición (ver app/observability.py)
+observability.init_app(app)
 
 
 # Config de la app
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_FILE_DIR"] = "./.flask_session"
+app.config["SESSION_FILE_DIR"] = SESSION_DIR
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("SECRET_KEY")
+app.secret_key = "SECRET_KEY"
 
 # Cookie de sesión: solo por HTTPS, invisible para JavaScript y sin viajar en
 # peticiones que vengan de otras webs. Para probar en local por http (no
@@ -106,12 +121,17 @@ Session(app)
 
 db.init_app(app)
 
-# Crea las tablas nuevas si aún no existen (no toca las demás)
+# Crea las tablas que aún no existan (no toca las demás). Con una base de
+# datos vacía (instalación nueva o tests) también crea la de usuarios.
 with app.app_context():
+    User.__table__.create(db.engine, checkfirst=True)
     GoogleLink.__table__.create(db.engine, checkfirst=True)
     Pixel.__table__.create(db.engine, checkfirst=True)
     PixelChange.__table__.create(db.engine, checkfirst=True)
     PixelQuota.__table__.create(db.engine, checkfirst=True)
+    # Grupos, chats, carpetas compartidas y avisos por correo
+    for table in GROUP_TABLES:
+        table.__table__.create(db.engine, checkfirst=True)
     # Gunicorn crea los procesos después de esto: que no hereden conexiones abiertas
     db.engine.dispose()
 
@@ -125,6 +145,11 @@ app.register_blueprint(cloud_bp, url_prefix="/HomeCloud")
 app.register_blueprint(cv_bp)
 app.register_blueprint(pulso_bp)
 app.register_blueprint(pixel_bp)
+app.register_blueprint(groups_bp)
+app.register_blueprint(shares_bp)
+app.register_blueprint(public_bp)
+app.register_blueprint(ws_bp)
+app.register_blueprint(health_bp)
 
 # Comando para crear la db
 @app.cli.command("crear-tablas")

@@ -12,6 +12,10 @@ services:
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
       GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
       GOOGLE_REDIRECT_URI: "${GOOGLE_REDIRECT_URI:-}"
+      # Opcional: avisos por correo (Gmail con contraseña de aplicación)
+      MAIL_USERNAME: "${MAIL_USERNAME:-}"
+      MAIL_PASSWORD: "${MAIL_PASSWORD:-}"
+      MAIL_FROM_NAME: "${MAIL_FROM_NAME:-HFC · Home Cloud}"
 
     ports:
       - "127.0.0.1:5000:5000"
@@ -19,9 +23,11 @@ services:
     volumes:
       - flask_data:/app/app/data
       - flask_cloud:/app/app/cloud
+      - flask_groups:/app/app/cloud_groups
       - flask_sessions:/app/.flask_session
 
 volumes:
   flask_data:
   flask_cloud:
+  flask_groups:
   flask_sessions:

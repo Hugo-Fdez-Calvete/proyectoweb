@@ -1,0 +1,15 @@
+{# Pestañas de La Nube. La página define nube_tab con: archivos | compartido | grupos #}
+{% set _tab = nube_tab if nube_tab is defined else '' %}
+<nav class="nb-tabs" aria-label="Secciones de La Nube">
+    <a href="{{ url_for('dashboard_bp.dashboard') }}" {% if _tab == 'archivos' %}class="is-active" aria-current="page"{% endif %}>
+        <i class="fa-solid fa-folder" aria-hidden="true"></i><span>Mis archivos</span>
+    </a>
+    <a href="{{ url_for('shares_bp.shared_with_me') }}" {% if _tab == 'compartido' %}class="is-active" aria-current="page"{% endif %}>
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i><span>Compartido</span>
+    </a>
+    <a href="{{ url_for('groups_bp.groups') }}" {% if _tab == 'grupos' %}class="is-active" aria-current="page"{% endif %}>
+        <i class="fa-solid fa-people-roof" aria-hidden="true"></i><span>Grupos</span>
+        {% set _inv = pending_invites_count() if pending_invites_count is defined else 0 %}
+        {% if _inv %}<span class="nb-badge is-tab" title="{{ _inv }} {{ 'invitación pendiente' if _inv == 1 else 'invitaciones pendientes' }}">{{ _inv }}</span>{% endif %}
+    </a>
+</nav>

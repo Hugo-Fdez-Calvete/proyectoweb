@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | Proyectos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/proyectos.css') }}">
+
+<div class="pj">
+    <!-- ===================== CABECERA ===================== -->
+    <header class="pj-hero">
+        <div class="pj-wrap">
+            <p class="pj-kicker"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Proyectos personales</p>
+            <h1 class="pj-title">Todo lo que hace esta web, <span>explicado.</span></h1>
+            <p class="pj-lead">
+                Esta web la he diseñado y programado yo, y funciona en una Raspberry Pi en casa.
+                Aquí tienes cada parte, qué puede hacer y con qué está hecha, con capturas reales.
+            </p>
+
+            <nav class="pj-index" aria-label="Índice de proyectos">
+                {% for p in proyectos %}
+                <a href="#{{ p.id }}"><i class="{{ p.icono }}" aria-hidden="true"></i>{{ p.titulo }}</a>
+                {% endfor %}
+                <a href="#como-esta-hecha"><i class="fa-solid fa-server" aria-hidden="true"></i>Cómo está hecha</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===================== PROYECTOS ===================== -->
+    {% for p in proyectos %}
+    <section class="pj-item {% if loop.index is even %}is-flipped{% endif %}" id="{{ p.id }}" aria-labelledby="t-{{ p.id }}">
+        <div class="pj-wrap pj-grid">
+            <div class="pj-text">
+                <p class="pj-tag"><i class="{{ p.icono }}" aria-hidden="true"></i>{{ p.etiqueta }}</p>
+                <h2 class="pj-h2" id="t-{{ p.id }}">{{ p.titulo }}</h2>
+                <p class="pj-summary">{{ p.resumen }}</p>
+                <ul class="pj-points">
+                    {% for punto in p.puntos %}<li>{{ punto }}</li>{% endfor %}
+                </ul>
+                <ul class="pj-tech" aria-label="Tecnologías">
+                    {% for t in p.tecnologias %}<li>{{ t }}</li>{% endfor %}
+                </ul>
+                {% if p.enlace %}
+                <a class="pj-btn" href="{{ p.enlace.ruta }}">{{ p.enlace.texto }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+
+            <div class="pj-media {% if p.media|length > 1 %}is-stack{% endif %}">
+                {% for m in p.media %}
+                <figure class="pj-shot" data-label="{{ m.boton or ('Captura ' ~ loop.index) }}">
+                    <div class="pj-frame">
+                        <span class="pj-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        {% if m.tipo == 'video' %}
+                        <video class="pj-video" muted loop playsinline preload="none"
+                               poster="{{ url_for('static', filename=m.poster) }}" aria-label="{{ m.alt }}">
+                            <source src="{{ url_for('static', filename=m.src) }}" type="video/mp4">
+                        </video>
+                        <button type="button" class="pj-play" aria-label="Reproducir vídeo"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+                        {% else %}
+                        <button type="button" class="pj-zoom" aria-label="Ampliar captura: {{ m.alt }}">
+                            <img src="{{ url_for('static', filename=m.src) }}" alt="{{ m.alt }}" loading="lazy" decoding="async" width="1200" height="755">
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% if m.pie %}<figcaption>{{ m.pie }}</figcaption>{% endif %}
+                </figure>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- ===================== INFRAESTRUCTURA ===================== -->
+    <section class="pj-infra" id="como-esta-hecha" aria-labelledby="t-infra">
+        <div class="pj-wrap">
+            <p class="pj-tag"><i class="fa-solid fa-server" aria-hidden="true"></i>Por dentro</p>
+            <h2 class="pj-h2" id="t-infra">Cómo está hecha</h2>
+            <div class="pj-infra-grid">
+                {% for i in infraestructura %}
+                <article class="pj-infra-card">
+                    <i class="{{ i.icono }}" aria-hidden="true"></i>
+                    <h3>{{ i.titulo }}</h3>
+                    <p>{{ i.texto }}</p>
+                </article>
+                {% endfor %}
+            </div>
+            <p class="pj-cta">
+                ¿Quieres probar lo que necesita cuenta?
+                <a href="{{ url_for('home_bp.register') }}">Crea una</a> y, cuando un administrador la apruebe, tendrás tu nube, grupos y chats.
+            </p>
+        </div>
+    </section>
+</div>
+
+<!-- Captura ampliada -->
+<dialog class="pj-lightbox" id="pj-lightbox" aria-label="Captura ampliada">
+    <button type="button" class="pj-lightbox-close" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <img alt="">
+</dialog>
+
+<script src="{{ url_for('static', filename='js/proyectos.js') }}" defer></script>
+{% endblock %}

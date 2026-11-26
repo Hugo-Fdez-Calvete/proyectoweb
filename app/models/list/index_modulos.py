@@ -3,7 +3,7 @@ modulos = [
 "titulo": "Proyectos web",
 "icono": "fa-solid fa-laptop-code",
 "ancho": True,
-"ruta": "/",
+"ruta": "/proyectos",
 "accion": "Ver proyectos",
 "texto": (
 "Mis proyectos web personales: lo que he construido para "
@@ -34,17 +34,17 @@ modulos = [
 "ruta": "/HomeCloud/dashboard",
 "accion": "Abrir mi cloud",
 "texto": (
-"Mi nube personal. Sube, organiza y comparte archivos "
-"con un enlace.")},
+"Mi nube personal. Sube, organiza y comparte carpetas "
+"con otros usuarios.")},
 {
 "titulo": "Mensajería interna",
 "icono": "fa-regular fa-comments",
 "ancho": False,
-"ruta": "/",
-"accion": "Abrir mensajería",
+"ruta": "/HomeCloud/grupos/",
+"accion": "Abrir mis grupos",
 "texto": (
-"Un sistema de mensajes propio para hablar con otros "
-"usuarios de la web.")},
+"Grupos con chat en directo, carpetas y archivos compartidos "
+"con otros usuarios de la web.")},
 {
 "titulo": "Y mucho más",
 "icono": "fa-solid fa-flask",

@@ -1,0 +1,38 @@
+{% extends "publico/_base.html" %}
+
+{% block pub_content %}
+<h1 class="title is-3">Carpetas públicas</h1>
+<p class="subtitle is-6 mb-5">Archivos que los usuarios de la web comparten con todo el mundo. Puedes verlos y descargarlos sin cuenta.</p>
+
+{% if cards %}
+<div class="nb-cards">
+    {% for c in cards %}
+    <a class="nb-card" href="{{ url_for('public_bp.folder', token=c.public.token) }}">
+        <div class="nb-card-head">
+            <span class="nb-avatar" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+            <div>
+                <h2 class="nb-card-title">{{ c.name }}</h2>
+                <p class="nb-card-sub">De {{ c.owner.username }}</p>
+            </div>
+        </div>
+        {% if c.public.description %}<p class="nb-card-text">{{ c.public.description }}</p>{% endif %}
+        <ul class="nb-card-stats">
+            <li><i class="fa-regular fa-file" aria-hidden="true"></i>{{ c.files }}{% if c.files >= 5000 %}+{% endif %} {{ 'archivo' if c.files == 1 else 'archivos' }}</li>
+            <li><i class="fa-solid fa-hard-drive" aria-hidden="true"></i>{{ c.size|filesizeformat }}</li>
+        </ul>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="box has-text-centered py-6">
+    <span class="icon is-large has-text-grey"><i class="fa-solid fa-globe fa-3x" aria-hidden="true"></i></span>
+    <p class="title is-5 mt-4">Todavía no hay carpetas públicas</p>
+    <p class="has-text-grey">Cuando alguien publique una carpeta en el listado, aparecerá aquí.</p>
+</div>
+{% endif %}
+
+{% if session.get('user_id') %}
+<p class="nb-note mt-5"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    Para publicar una carpeta tuya, ve a <a href="{{ url_for('dashboard_bp.dashboard') }}">Mis archivos</a>, pulsa <strong>Compartir</strong> en ella y activa el enlace público.</p>
+{% endif %}
+{% endblock %}

@@ -104,12 +104,48 @@ Los archivos y configuraciones sensibles no deben subirse al repositorio públic
 
 ## Medidas de seguridad
 
-- **Servidor de producción**: el contenedor arranca con **Gunicorn** (2 procesos × 4 hilos) y no con el servidor de desarrollo de Flask. Para depurar en local sigue valiendo `python -m app.main`.
+- **Servidor de producción**: el contenedor arranca con **Gunicorn** (1 proceso × 48 hilos, por el chat en directo; ver más abajo) y no con el servidor de desarrollo de Flask. Para depurar en local sigue valiendo `python -m app.main`.
 - **Cookie de sesión** solo por HTTPS (`Secure`), invisible para JavaScript (`HttpOnly`) y `SameSite=Lax`. Para probar en local por http desde otro equipo de la red: `COOKIE_SECURE=0`.
 - **CSRF** en todos los formularios y peticiones que cambian algo (subir, borrar, renombrar, admin, perfil, Pulso). Los formularios llevan un campo oculto `csrf_token` y `static/js/csrf.js` añade la cabecera `X-CSRFToken` a `fetch` y `XMLHttpRequest`.
 - **Sesión nueva al iniciar sesión** (evita la fijación de sesión).
 - **Cabeceras**: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`.
-- **Nginx**: en `deploy/nginx-seguridad.conf` están HSTS, el bloqueo de archivos ocultos y rutas de bots, y la IP real si usas Cloudflare.
+- **Nginx**: en `deploy/nginx-seguridad.conf` están HSTS, el bloqueo de archivos ocultos y rutas de bots, el bloque `/ws/` para el chat y la IP real si usas Cloudflare.
+
+# Grupos, chat, carpetas compartidas y avisos
+
+- **Carpetas compartidas** (`/HomeCloud/compartir?path=…`, `/HomeCloud/compartido`): cualquier carpeta de tu nube se comparte con otro usuario registrado, con permiso de **ver** o de **editar**. Lo que suben los demás ocupa espacio del propietario. Al renombrar la carpeta la compartición la sigue; al borrarla, desaparece.
+- **Grupos** (`/HomeCloud/grupos/`): chats, carpetas y archivos compartidos entre varios usuarios.
+  - El espacio del grupo **se descuenta** del de su creador (si tiene 500 GB y crea un grupo de 200 GB, para su nube personal le quedan 300 GB). Solo se puede reservar lo que el creador tiene libre en ese momento.
+  - Permisos por miembro: subir, crear carpetas, borrar, escribir en los chats, crear chats y añadir miembros. Ver archivos y leer chats lo puede hacer cualquier miembro.
+  - El creador y los **administradores** de la web pueden hacerlo todo. Los administradores ven todos los grupos y comparticiones en `/HomeCloud/admin/grupos` y `/HomeCloud/admin/compartidos`.
+  - Los archivos de cada grupo están en `app/cloud_groups/<id>` (volumen `flask_groups`).
+- **Chat en directo**: WebSocket propio (RFC 6455, `app/services/websocket.py`) en `/ws/chat`, sin librerías nuevas. Cada pestaña con un chat abierto ocupa un hilo de Gunicorn, y todas las conexiones tienen que estar en el mismo proceso para que los mensajes lleguen a todos: por eso Gunicorn arranca con **1 proceso y 48 hilos**. Si el WebSocket no puede conectar (por ejemplo, Nginx sin el bloque `/ws/`), el chat sigue funcionando consultando cada 4 segundos.
+- **Invitaciones**: al añadir a alguien a un grupo se le envía una invitación; entra cuando la acepta (en *Grupos* o en su perfil). Quien la envió, el creador o un administrador pueden retirarla.
+- **Carpetas públicas** (`/publico`): una carpeta de tu nube se puede hacer pública con un enlace secreto (`/publico/<enlace>`), de solo lectura y sin necesidad de cuenta. Opcionalmente aparece en el listado público. El enlace se puede cambiar (el anterior deja de funcionar) o retirar. Las descargas llevan el nombre en `?name=` para que Nginx no las confunda con ruido de bots.
+- **Avisos por correo**: en *Configuración → Correo y avisos* cada usuario vincula, cambia o desvincula su correo, lo confirma (enlace firmado que caduca en 2 días) y elige qué avisos quiere. Como mucho un correo por chat cada 20 minutos. Se envían por SMTP en segundo plano.
+- **Eliminar cuenta**: en *Configuración → Eliminar cuenta* (con contraseña y escribiendo ELIMINAR). Se borran sus archivos, grupos creados, comparticiones, carpetas públicas, avisos, vínculo con Google y tinta de Pixel Art; sus mensajes en grupos de otros quedan como «Usuario eliminado». El último administrador no puede borrarse. Los administradores eliminan usuarios con el mismo proceso.
+
+## Configurar el correo (Gmail)
+
+1. En la cuenta de Google que enviará los correos, activa la verificación en dos pasos.
+2. Crea una **contraseña de aplicación** (Cuenta de Google → Seguridad → Contraseñas de aplicaciones).
+3. En Portainer, en las variables del stack, añade `MAIL_USERNAME` (el correo) y `MAIL_PASSWORD` (la contraseña de aplicación). Opcional: `MAIL_FROM_NAME`.
+
+Sin esas variables la web funciona igual, pero no envía correos (el perfil lo indica).
+
+# Tests, CI y estado de la app
+
+- **Tests** (`tests/`, con pytest): cada test usa una base de datos vacía y carpetas temporales, así que nunca tocan tus datos. Cubren la nube personal, grupos (espacio, invitaciones, permisos, chat), carpetas compartidas y públicas, correo, eliminar cuenta, el WebSocket y `/salud`.
+
+  ```bash
+  pip install -r requirements-dev.txt
+  pytest
+  ```
+
+- **CI** (`.github/workflows/ci.yml`): en cada push, GitHub Actions pasa los tests, construye la imagen de Docker, la arranca y comprueba `/salud`. Si algo falla, el commit sale en rojo. Despliega en Portainer cuando esté en verde.
+- **Estado** (`GET /salud`): JSON con el estado de la base de datos, las carpetas de archivos, el disco libre, el correo y las conexiones del chat. Responde 200 si todo va bien y 503 si falla algo importante. El `HEALTHCHECK` del Dockerfile lo consulta cada 30 s y Portainer marca el contenedor como *healthy* o *unhealthy*.
+- **Logs**: cada petición lleva un identificador (`X-Request-ID`) que aparece en la respuesta, en el log de accesos de Gunicorn (con la IP real y la duración en ms) y en los mensajes de la app. Las peticiones de más de 2 s se avisan como `WARNING`. Nivel con `LOG_LEVEL` (INFO por defecto).
+- **Sesiones**: se guardan en `app/data/sessions` (volumen `flask_data`), así que no se pierden al redesplegar.
 
 # Dependencias
 
@@ -125,9 +161,8 @@ pip install -r requirements.txt
 
 Algunas funcionalidades que podrían incorporarse en futuras versiones son:
 
-- Sistema de múltiples usuarios.
-- Gestión del espacio de almacenamiento.
-- Creación de carpetas.
+- Mensajes directos entre dos usuarios (fuera de los grupos).
+- Enlaces públicos de descarga con caducidad.
 - Búsqueda de archivos.
 - Previsualización de imágenes y documentos.
 - Enlaces de descarga con fecha de expiración.

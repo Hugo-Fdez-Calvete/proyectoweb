@@ -3,7 +3,8 @@
 - Las canciones nuevas se suben a la carpeta «Musica» de su nube.
 - En la lista aparecen todos los archivos de audio de su nube (también los
   que haya subido desde «Mis archivos»).
-- Ocupan espacio de su cuota (storage_gb), igual que cualquier otro archivo.
+- Ocupan espacio de su cuota personal (su espacio menos lo que reserva para
+  sus grupos), igual que cualquier otro archivo.
 """
 import os
 import re
@@ -41,9 +42,15 @@ def _pretty_title(filename):
     return name[:1].upper() + name[1:] if name else filename
 
 
+def _personal_quota_gb(user):
+    # Lo reservado para grupos no cuenta para la nube personal
+    from app.services import groups_service
+    return groups_service.personal_quota_gb(user)
+
+
 def usage(user):
     used = cloud_service.get_used_storage(user.username)
-    quota = (user.storage_gb or 0) * (1024 ** 3)
+    quota = _personal_quota_gb(user) * (1024 ** 3)
     return {"used": used, "quota": quota}
 
 
@@ -102,7 +109,7 @@ def upload(user, files):
         if not is_audio(name):
             errors.append(f"«{name}» no es un archivo de audio compatible.")
             continue
-        ok, error = cloud_service.save_file(user.username, f, user.storage_gb or 0, MUSIC_FOLDER)
+        ok, error = cloud_service.save_file(user.username, f, _personal_quota_gb(user), MUSIC_FOLDER)
         if ok:
             saved.append(name)
         else:

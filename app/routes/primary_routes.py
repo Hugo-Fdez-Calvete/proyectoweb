@@ -7,6 +7,7 @@ from app.models.list.cv_tecnologias import (orbita_externa,orbita_interna,stack,
 from app.models.list.cv_trayectoria import trayectoria
 from app.models.list.cv_perfil import (idiomas,habilidades,)
 from app.models.list.index_modulos import modulos, arranque, destacados
+from app.models.list.proyectos import proyectos as lista_proyectos, infraestructura
 
 
 
@@ -71,6 +72,12 @@ def register():
         return redirect(url_for("home_bp.login"))
 
     return render_template("register.html", form=form)
+
+@home_bp.route("/proyectos")
+def proyectos():
+    # Página pública que explica todo lo que hay en la web, con capturas y vídeos
+    return render_template("proyectos.html", proyectos=lista_proyectos, infraestructura=infraestructura)
+
 
 @home_bp.route("/cookies")
 def cookies():

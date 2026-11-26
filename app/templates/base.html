@@ -40,12 +40,16 @@
     </button>
 
     <div class="hf-menu-panel" id="hf-menu">
-        <details class="hf-acc" {% if request.endpoint in ['home_bp.index', 'cv_bp.curriculum', 'pixel_bp.pixel_art' ] %}open{% endif %}>
+        <details class="hf-acc" {% if request.endpoint in ['home_bp.index', 'home_bp.proyectos', 'cv_bp.curriculum', 'pixel_bp.pixel_art' ] or request.blueprint == 'public_bp' %}open{% endif %}>
             <summary><i class="fa-solid fa-compass"></i> Explorar <i class="fa-solid fa-chevron-down chev"></i>
             </summary>
             <ul>
                 <li><a href="{{ url_for('home_bp.index') }}" {% if request.endpoint=='home_bp.index' %}class="active" {%
                         endif %}>Inicio</a></li>
+                <li><a href="{{ url_for('home_bp.proyectos') }}" {% if request.endpoint=='home_bp.proyectos' %}class="active" {%
+                        endif %}>Proyectos</a></li>
+                <li><a href="{{ url_for('public_bp.listing') }}" {% if request.blueprint=='public_bp' %}class="active" {%
+                        endif %}>Carpetas públicas</a></li>
                 <li><a href="{{ url_for('cv_bp.curriculum') }}" {% if request.endpoint=='cv_bp.curriculum'
                         %}class="active" {% endif %}>Currículum</a></li>
                 <li><a href="{{ url_for('pixel_bp.pixel_art') }}" {% if request.endpoint=='pixel_bp.pixel_art'
@@ -54,13 +58,17 @@
         </details>
 
         {% if session.get('user_id') %}
-        <details class="hf-acc" {% if request.endpoint in ['dashboard_bp.dashboard', 'profile_bp.profile', 'pulso_bp.pulso' ] %}open{%
-            endif %}>
+        <details class="hf-acc" {% if request.endpoint in ['dashboard_bp.dashboard', 'profile_bp.profile', 'pulso_bp.pulso' ]
+            or (request.blueprint in ['groups_bp', 'shares_bp']) %}open{% endif %}>
             <summary><i class="fa-solid fa-cloud"></i> Mi espacio <i class="fa-solid fa-chevron-down chev"></i>
             </summary>
             <ul>
                 <li><a href="{{ url_for('dashboard_bp.dashboard') }}" {% if request.endpoint=='dashboard_bp.dashboard'
                         %}class="active" {% endif %}>Mis archivos</a></li>
+                <li><a href="{{ url_for('shares_bp.shared_with_me') }}" {% if request.blueprint=='shares_bp'
+                        %}class="active" {% endif %}>Compartido conmigo</a></li>
+                <li><a href="{{ url_for('groups_bp.groups') }}" {% if request.blueprint=='groups_bp'
+                        %}class="active" {% endif %}>Grupos y chats{% set _inv = pending_invites_count() if pending_invites_count is defined else 0 %}{% if _inv %} <span class="hf-menu-badge" title="Invitaciones pendientes">{{ _inv }}</span>{% endif %}</a></li>
                 <li><a href="{{ url_for('pulso_bp.pulso') }}" {% if request.endpoint=='pulso_bp.pulso'
                         %}class="active" {% endif %}>Pulso · música visual</a></li>
                 <li><a href="{{ url_for('profile_bp.profile') }}" {% if request.endpoint=='profile_bp.profile'
@@ -152,6 +160,8 @@
             <nav class="ft-col" aria-label="Secciones">
                 <h2>Explorar</h2>
                 <a href="{{ url_for('home_bp.index') }}">Inicio</a>
+                <a href="{{ url_for('home_bp.proyectos') }}">Proyectos</a>
+                <a href="{{ url_for('public_bp.listing') }}">Carpetas públicas</a>
                 <a href="{{ url_for('cv_bp.curriculum') }}">Currículum</a>
                 <a href="{{ url_for('pixel_bp.pixel_art') }}">Pixel Art</a>
                 <a href="{{ url_for('pulso_bp.pulso') }}">Pulso</a>

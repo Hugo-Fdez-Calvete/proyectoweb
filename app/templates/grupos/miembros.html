@@ -1,0 +1,106 @@
+{% extends "grupos/_layout.html" %}
+
+{% block group_content %}
+{% if perms.can_invite %}
+<form class="box nb-inline-form" action="{{ url_for('groups_bp.add_member', group_id=group.id) }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="label" for="m-user">Invitar a alguien</label>
+    <div class="nb-inline">
+        <input class="input" id="m-user" name="username" list="m-user-list" maxlength="30" required
+               placeholder="Nombre de usuario" data-suggest="{{ url_for('groups_bp.api_users', group=group.id) }}">
+        <datalist id="m-user-list"></datalist>
+        <button class="button is-primary" type="submit">
+            <span class="icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></span><span>Invitar</span>
+        </button>
+    </div>
+    <p class="help">Solo usuarios registrados y aprobados. Entran en el grupo cuando aceptan la invitación, con los permisos básicos{% if access.manage %}; luego puedes cambiarlos aquí abajo{% endif %}.</p>
+</form>
+{% endif %}
+
+{% if invites %}
+<div class="box">
+    <h2 class="title is-5">Invitaciones pendientes</h2>
+    <ul class="nb-pending">
+        {% for inv in invites %}
+        <li>
+            <span class="nb-avatar is-small" aria-hidden="true">{{ inv.user.username[:1]|upper }}</span>
+            <strong>{{ inv.user.username }}</strong>
+            <span class="has-text-grey">· invitado por {{ inv.inviter.username if inv.inviter else '—' }} el {{ inv.created_at.strftime('%d/%m/%Y') }}</span>
+            {% if access.manage or inv.invited_by == user.id %}
+            <form action="{{ url_for('groups_bp.cancel_invite', group_id=group.id, invite_id=inv.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-small is-danger is-light" type="submit"><span class="icon"><i class="fas fa-xmark" aria-hidden="true"></i></span><span>Retirar</span></button>
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="box">
+    <div class="table-container">
+        <table class="table is-fullwidth nb-perms">
+            <thead>
+                <tr>
+                    <th>Miembro</th>
+                    {% for key, label, _d in permissions %}<th class="has-text-centered" title="{{ label }}">{{ label }}</th>{% endfor %}
+                    {% if access.manage %}<th>Acciones</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for m in members %}
+                {% set is_owner = m.user_id == group.owner_id %}
+                {% set form_id = 'perm-' ~ m.user_id %}
+                <tr>
+                    <td>
+                        <span class="nb-avatar is-small" aria-hidden="true">{{ m.user.username[:1]|upper }}</span>
+                        <strong>{{ m.user.username }}</strong>
+                        {% if is_owner %}<span class="tag nb-tag">Creador</span>{% endif %}
+                        {% if m.user_id == user.id %}<span class="tag nb-tag is-muted">Tú</span>{% endif %}
+                    </td>
+                    {% for key, label, _d in permissions %}
+                    <td class="has-text-centered">
+                        {% if access.manage and not is_owner %}
+                            <label class="nb-switch" title="{{ label }}">
+                                <input type="checkbox" name="{{ key }}" value="1" form="{{ form_id }}" {% if is_owner or m[key] %}checked{% endif %}>
+                                <span aria-hidden="true"></span><span class="is-sr-only">{{ label }} para {{ m.user.username }}</span>
+                            </label>
+                        {% else %}
+                            {% if is_owner or m[key] %}<i class="fa-solid fa-check nb-yes" aria-label="Sí"></i>{% else %}<i class="fa-solid fa-minus nb-no" aria-label="No"></i>{% endif %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    {% if access.manage %}
+                    <td>
+                        {% if not is_owner %}
+                        <div class="buttons are-small">
+                            <form id="{{ form_id }}" action="{{ url_for('groups_bp.set_permissions', group_id=group.id, user_id=m.user_id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="button is-link is-light" type="submit"><span class="icon"><i class="fas fa-floppy-disk" aria-hidden="true"></i></span><span>Guardar</span></button>
+                            </form>
+                            <form action="{{ url_for('groups_bp.remove_member', group_id=group.id, user_id=m.user_id) }}" method="POST"
+                                  onsubmit="return confirm('¿Sacar a {{ m.user.username }} del grupo?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-user-minus" aria-hidden="true"></i></span><span>Quitar</span></button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="help mt-3">Todos los miembros pueden ver los archivos y leer los chats. El creador y los administradores de la web pueden hacerlo todo.</p>
+</div>
+
+{% if access.member and not access.is_owner %}
+<form class="has-text-right" action="{{ url_for('groups_bp.leave', group_id=group.id) }}" method="POST"
+      onsubmit="return confirm('¿Salir del grupo «{{ group.name|e }}»?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-right-from-bracket" aria-hidden="true"></i></span><span>Salir del grupo</span></button>
+</form>
+{% endif %}
+{% endblock %}

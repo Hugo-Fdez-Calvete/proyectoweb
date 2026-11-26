@@ -99,5 +99,8 @@ def delete_user(user_id, current_user_id, repo: AdminRepository = None):
         raise AdminError("No puedes eliminar tu propia cuenta.")
     if user.is_admin and repo.count_admins() <= 1:
         raise AdminError("No puedes eliminar al último administrador.")
+    # Se borra todo lo suyo: archivos, grupos, comparticiones, avisos… (ver account_service)
+    from app.services import account_service
+    account_service.delete_user_data(user)
     repo.delete(user)
     return user

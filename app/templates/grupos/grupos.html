@@ -1,0 +1,121 @@
+{% extends "nube/_base.html" %}
+{% set nube_tab = 'grupos' %}
+{% block nube_title %}Grupos{% endblock %}
+
+{% block nube_content %}
+<div class="level mb-5">
+    <div class="level-left">
+        <div>
+            <h1 class="title is-3">Grupos</h1>
+            <p class="subtitle is-6">Chats, carpetas y archivos compartidos con otros usuarios de la web.</p>
+        </div>
+    </div>
+    <div class="level-right">
+        <button class="button is-primary nb-open-modal" type="button" data-modal="nb-group-modal">
+            <span class="icon"><i class="fas fa-plus" aria-hidden="true"></i></span><span>Crear grupo</span>
+        </button>
+    </div>
+</div>
+
+{% if invites %}
+<h2 class="nb-section-title">Invitaciones pendientes</h2>
+<div class="nb-invites mb-6">
+    {% for inv in invites %}
+    <div class="nb-invite box">
+        <span class="nb-avatar" aria-hidden="true">{{ inv.group.name[:1]|upper }}</span>
+        <div class="nb-invite-text">
+            <strong>{{ inv.group.name }}</strong>
+            <span>{{ inv.inviter.username if inv.inviter else 'Alguien' }} te ha invitado
+                {%- if inv.group.description %} · {{ inv.group.description }}{% endif %}</span>
+        </div>
+        <div class="buttons">
+            <form action="{{ url_for('groups_bp.accept_invite', invite_id=inv.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-primary is-small" type="submit"><span class="icon"><i class="fas fa-check" aria-hidden="true"></i></span><span>Aceptar</span></button>
+            </form>
+            <form action="{{ url_for('groups_bp.decline_invite', invite_id=inv.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-danger is-light is-small" type="submit"><span class="icon"><i class="fas fa-xmark" aria-hidden="true"></i></span><span>Rechazar</span></button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if cards %}
+{% if invites %}<h2 class="nb-section-title">Mis grupos</h2>{% endif %}
+<div class="nb-cards">
+    {% for card in cards %}
+    {% set g = card.group %}
+    <a class="nb-card" href="{{ url_for('groups_bp.group_home', group_id=g.id) }}">
+        <div class="nb-card-head">
+            <span class="nb-avatar" aria-hidden="true">{{ g.name[:1]|upper }}</span>
+            <div>
+                <h2 class="nb-card-title">{{ g.name }}</h2>
+                <p class="nb-card-sub">
+                    {% if card.is_owner %}Creado por ti{% else %}De {{ g.owner.username if g.owner else '—' }}{% endif %}
+                </p>
+            </div>
+            {% if card.unread %}<span class="nb-badge" title="Mensajes sin leer">{{ card.unread if card.unread < 100 else '99+' }}</span>{% endif %}
+        </div>
+        {% if g.description %}<p class="nb-card-text">{{ g.description }}</p>{% endif %}
+        <ul class="nb-card-stats">
+            <li><i class="fa-solid fa-user-group" aria-hidden="true"></i>{{ card.members }} {{ 'miembro' if card.members == 1 else 'miembros' }}</li>
+            <li><i class="fa-regular fa-comments" aria-hidden="true"></i>{{ card.chats }} {{ 'chat' if card.chats == 1 else 'chats' }}</li>
+            <li><i class="fa-solid fa-hard-drive" aria-hidden="true"></i>{{ "%.2f"|format(card.used_gb) }} / {{ "%g"|format(g.storage_gb) }} GB</li>
+        </ul>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="box has-text-centered py-6">
+    <span class="icon is-large has-text-grey"><i class="fa-solid fa-people-roof fa-3x" aria-hidden="true"></i></span>
+    <p class="title is-5 mt-4">Aún no estás en ningún grupo</p>
+    <p class="has-text-grey">Crea uno e invita a otros usuarios, o pide a alguien que te invite al suyo.</p>
+</div>
+{% endif %}
+
+<p class="nb-note mt-5">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    El espacio de los grupos que creas sale del tuyo. Ahora tienes
+    <strong>{{ "%.2f"|format(free_gb) }} GB</strong> libres para reservar
+    {% if committed_gb %}y <strong>{{ "%g"|format(committed_gb) }} GB</strong> ya reservados en tus grupos{% endif %}.
+</p>
+{% endblock %}
+
+{% block nube_after %}
+<div class="modal" id="nb-group-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <h2 class="title is-5">Crear grupo</h2>
+            <form action="{{ url_for('groups_bp.create') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="field">
+                    <label class="label" for="g-name">Nombre</label>
+                    <input class="input" id="g-name" name="name" maxlength="60" required placeholder="Por ejemplo: Proyecto DAW">
+                </div>
+                <div class="field">
+                    <label class="label" for="g-desc">Descripción <span class="nb-optional">(opcional)</span></label>
+                    <textarea class="textarea" id="g-desc" name="description" maxlength="300" rows="2" placeholder="Para qué es el grupo"></textarea>
+                </div>
+                <div class="field">
+                    <label class="label" for="g-gb">Espacio para el grupo (GB)</label>
+                    <input class="input" id="g-gb" name="storage_gb" type="number" min="0.1" step="0.1"
+                           max="{{ '%.2f'|format(free_gb) }}" value="{{ '%g'|format([1, free_gb]|min|round(1, 'floor')) }}" required>
+                    <p class="help">Se descuenta de tu espacio. Puedes reservar hasta {{ "%.2f"|format(free_gb) }} GB y cambiarlo después.</p>
+                </div>
+                <div class="buttons is-right">
+                    <button type="button" class="button nb-close-modal">Cancelar</button>
+                    <button type="submit" class="button is-primary" {% if free_gb < 0.1 %}disabled{% endif %}>
+                        <span class="icon"><i class="fas fa-plus" aria-hidden="true"></i></span><span>Crear</span>
+                    </button>
+                </div>
+                {% if free_gb < 0.1 %}<p class="help is-danger">No tienes espacio libre para reservar. Pide más a un administrador.</p>{% endif %}
+            </form>
+        </div>
+    </div>
+    <button type="button" class="modal-close is-large nb-close-modal" aria-label="Cerrar"></button>
+</div>
+{% endblock %}

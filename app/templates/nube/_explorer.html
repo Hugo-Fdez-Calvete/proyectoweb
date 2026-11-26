@@ -1,0 +1,136 @@
+{#
+  Explorador de archivos reutilizable (archivos de un grupo, carpeta compartida…).
+
+  listing -> {"entries", "current_path", "breadcrumbs"} de cloud_service.get_listing
+  ep      -> endpoints: {"browse", "download", "delete", "upload", "mkdir"}
+  args    -> parámetros fijos de esas rutas (p. ej. {"group_id": 3})
+  can_*   -> qué botones se enseñan (el servidor vuelve a comprobarlo)
+#}
+{% macro explorer(listing, ep, args, can_upload=False, can_mkdir=False, can_delete=False, root_label="Inicio", empty_hint="") %}
+{% set current_path = listing.current_path %}
+<div class="nb-explorer">
+    <div class="nb-explorer-bar">
+        <nav class="breadcrumb" aria-label="Ruta">
+            <ul>
+                <li {% if not current_path %}class="is-active"{% endif %}>
+                    <a href="{{ url_for(ep.browse, **args) }}">
+                        <span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
+                        <span>{{ root_label }}</span>
+                    </a>
+                </li>
+                {% for crumb in listing.breadcrumbs %}
+                <li {% if loop.last %}class="is-active"{% endif %}>
+                    <a href="{{ url_for(ep.browse, path=crumb.path, **args) }}">{{ crumb.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <div class="buttons">
+            {% if can_upload %}
+            <form action="{{ url_for(ep.upload, **args) }}" method="POST" enctype="multipart/form-data" class="nb-upload-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="path" value="{{ current_path }}">
+                <input type="file" name="file" hidden>
+                <button type="button" class="button is-primary nb-upload-btn">
+                    <span class="icon"><i class="fas fa-upload" aria-hidden="true"></i></span>
+                    <span>Subir archivo</span>
+                </button>
+            </form>
+            {% endif %}
+            {% if can_mkdir %}
+            <button class="button nb-open-modal" type="button" data-modal="nb-folder-modal">
+                <span class="icon"><i class="fas fa-folder-plus" aria-hidden="true"></i></span>
+                <span>Nueva carpeta</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="box">
+    {% if listing.entries %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-hoverable">
+                <thead><tr><th>Nombre</th><th>Tamaño</th><th>Acciones</th></tr></thead>
+                <tbody>
+                {% for file in listing.entries %}
+                    {% set child = (current_path ~ '/' ~ file.name) if current_path else file.name %}
+                    <tr>
+                        <td>
+                            <span class="icon mr-2"><i class="fas {{ 'fa-folder' if file.is_dir() else 'fa-file' }}" aria-hidden="true"></i></span>
+                            {% if file.is_dir() %}
+                                <a href="{{ url_for(ep.browse, path=child, **args) }}">{{ file.name }}</a>
+                            {% else %}
+                                {{ file.name }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if file.is_dir() %}<span class="has-text-grey">—</span>
+                            {% else %}{{ "%.2f"|format(file.stat().st_size / (1024 ** 2)) }} MB{% endif %}
+                        </td>
+                        <td>
+                            <div class="buttons are-small">
+                                {% if file.is_dir() %}
+                                <a href="{{ url_for(ep.browse, path=child, **args) }}" class="button is-link is-light" title="Abrir" aria-label="Abrir {{ file.name }}">
+                                    <span class="icon"><i class="fas fa-folder-open" aria-hidden="true"></i></span><span>Abrir</span>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for(ep.download, name=file.name, path=current_path or None, **args) }}" class="button is-info is-light" title="Descargar" aria-label="Descargar {{ file.name }}">
+                                    <span class="icon"><i class="fas fa-download" aria-hidden="true"></i></span><span>Descargar</span>
+                                </a>
+                                {% endif %}
+                                {% if can_delete %}
+                                <form action="{{ url_for(ep.delete, name=file.name, **args) }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="path" value="{{ current_path }}">
+                                    <button type="submit" class="button is-danger is-light" title="Eliminar" aria-label="Eliminar {{ file.name }}"
+                                        onclick="return confirm('{{ '¿Eliminar la carpeta y TODO su contenido? No se puede deshacer.' if file.is_dir() else '¿Seguro que quieres eliminar este archivo?' }}')">
+                                        <span class="icon"><i class="fas fa-trash" aria-hidden="true"></i></span><span>Eliminar</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="has-text-centered py-6">
+            <span class="icon is-large has-text-grey"><i class="fas fa-folder-open fa-3x" aria-hidden="true"></i></span>
+            <p class="title is-5 mt-4">{% if current_path %}Esta carpeta está vacía{% else %}Aún no hay archivos{% endif %}</p>
+            {% if empty_hint %}<p class="has-text-grey">{{ empty_hint }}</p>{% endif %}
+        </div>
+    {% endif %}
+    </div>
+</div>
+
+{% if can_mkdir %}
+<div class="modal" id="nb-folder-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <h2 class="title is-5">Nueva carpeta</h2>
+            <form action="{{ url_for(ep.mkdir, **args) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="path" value="{{ current_path }}">
+                <div class="field">
+                    <label class="label" for="nb-folder-name">Nombre</label>
+                    <div class="control">
+                        <input class="input" type="text" name="folder_name" id="nb-folder-name" maxlength="100" placeholder="Por ejemplo: Documentos" required>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button type="button" class="button nb-close-modal">Cancelar</button>
+                    <button type="submit" class="button is-primary">
+                        <span class="icon"><i class="fas fa-folder-plus" aria-hidden="true"></i></span><span>Crear</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <button type="button" class="modal-close is-large nb-close-modal" aria-label="Cerrar"></button>
+</div>
+{% endif %}
+{% endmacro %}

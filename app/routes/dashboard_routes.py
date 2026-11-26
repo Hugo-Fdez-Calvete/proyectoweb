@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session, request, flash
 
-from app.services import cloud_service
+from app.services import cloud_service, groups_service, public_service, share_service
 from app.repositories import primary_repo
 
 
@@ -49,5 +49,10 @@ def dashboard():
         current_path=listing["current_path"],
         breadcrumbs=listing["breadcrumbs"],
         parent_path=listing["parent_path"],
-        used_storage=used_storage
+        used_storage=used_storage,
+        # Espacio de la nube personal = total menos lo reservado para grupos
+        quota_gb=groups_service.personal_quota_gb(user),
+        committed_gb=groups_service.committed_gb(user),
+        shared_paths=share_service.shared_paths(user),
+        public_paths=public_service.paths_of(user)
     )

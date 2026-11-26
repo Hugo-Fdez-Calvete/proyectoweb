@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 
-from app.services import cloud_service
+from werkzeug.utils import secure_filename
+
+from app.services import cloud_service, groups_service, public_service, share_service
 from app.repositories import primary_repo
 
 
@@ -47,7 +49,11 @@ def cloud():
         current_path=listing["current_path"],
         breadcrumbs=listing["breadcrumbs"],
         parent_path=listing["parent_path"],
-        used_storage=used_storage
+        used_storage=used_storage,
+        quota_gb=groups_service.personal_quota_gb(user),
+        committed_gb=groups_service.committed_gb(user),
+        shared_paths=share_service.shared_paths(user),
+        public_paths=public_service.paths_of(user)
     )
 
 
@@ -82,10 +88,11 @@ def upload():
         return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
     # Guardar archivo
+    # La cuota personal es el total menos lo reservado para grupos
     success, error = cloud_service.save_file(
         user.username,
         file,
-        user.storage_gb,
+        groups_service.personal_quota_gb(user),
         current_path
     )
 
@@ -212,6 +219,9 @@ def delete(filename):
 
         return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
 
+    # Si era una carpeta compartida (o tenía alguna dentro), deja de estarlo
+    share_service.folder_deleted(user, current_path, secure_filename(filename))
+
     flash(
         "Elemento eliminado correctamente.",
         "success"
@@ -262,6 +272,9 @@ def rename(filename):
         flash(error, "danger")
 
         return redirect(url_for("dashboard_bp.dashboard", path=current_path or None))
+
+    # Las comparticiones siguen a la carpeta renombrada
+    share_service.folder_renamed(user, current_path, secure_filename(filename), secure_filename(new_filename))
 
     flash(
         "Renombrado correctamente.",

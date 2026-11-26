@@ -1,0 +1,21 @@
+{% extends "publico/_base.html" %}
+{% from "nube/_explorer.html" import explorer %}
+{% block pub_title %}{{ access.name }}{% endblock %}
+
+{% block pub_content %}
+<header class="nb-group-head">
+    <a class="nb-back" href="{{ url_for('public_bp.listing') }}" aria-label="Ver todas las carpetas públicas"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+    <span class="nb-avatar is-large" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+    <div class="nb-group-meta">
+        <h1 class="title is-3">{{ access.name }}</h1>
+        {% if access.public.description %}<p class="subtitle is-6">{{ access.public.description }}</p>{% endif %}
+        <ul class="nb-chips">
+            <li><i class="fa-solid fa-user" aria-hidden="true"></i>De {{ access.owner.username }}</li>
+            <li><i class="fa-solid fa-globe" aria-hidden="true"></i>Carpeta pública · solo lectura</li>
+        </ul>
+    </div>
+</header>
+
+{{ explorer(listing, {"browse": "public_bp.folder", "download": "public_bp.download"}, {"token": token},
+            root_label=access.name, empty_hint="La carpeta está vacía.") }}
+{% endblock %}

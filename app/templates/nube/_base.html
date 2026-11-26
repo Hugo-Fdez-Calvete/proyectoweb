@@ -1,0 +1,32 @@
+{#
+  Plantilla común de La Nube: Mis archivos, Compartido, Grupos y sus páginas.
+  Bloques: nube_title, nube_tab (pestaña activa), nube_content, nube_scripts
+#}
+{% extends "base.html" %}
+
+{% block title %}Hugo Fernández | {% block nube_title %}La Nube{% endblock %}{% endblock %}
+{% block body_class %}nube-body{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+
+<div class="nube">
+<section class="section nube-main">
+    <div class="container mt-6">
+        {% include "nube/_tabs.html" %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="notification is-{{ category }} mb-5">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block nube_content %}{% endblock %}
+    </div>
+</section>
+{% block nube_after %}{% endblock %}
+</div>
+
+<script src="{{ url_for('static', filename='js/nube.js') }}" defer></script>
+{% block nube_scripts %}{% endblock %}
+{% endblock %}

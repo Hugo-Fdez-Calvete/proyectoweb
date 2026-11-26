@@ -1,0 +1,16 @@
+{% extends "grupos/_layout.html" %}
+{% from "nube/_explorer.html" import explorer %}
+
+{% block group_content %}
+{{ explorer(listing,
+            {"browse": "groups_bp.files", "download": "groups_bp.download", "delete": "groups_bp.delete_entry",
+             "upload": "groups_bp.upload", "mkdir": "groups_bp.create_folder"},
+            {"group_id": group.id},
+            can_upload=perms.can_upload, can_mkdir=perms.can_create_folders, can_delete=perms.can_delete,
+            root_label=group.name,
+            empty_hint="Sube un archivo o crea una carpeta: lo verán todos los miembros." if perms.can_upload else "Cuando alguien suba archivos aparecerán aquí.") }}
+
+{% if not perms.can_upload and not perms.can_delete %}
+<p class="nb-note mt-4"><i class="fa-solid fa-eye" aria-hidden="true"></i>En este grupo puedes ver y descargar los archivos. Para subir o borrar, pide permiso a {{ group.owner.username if group.owner else 'su creador' }}.</p>
+{% endif %}
+{% endblock %}

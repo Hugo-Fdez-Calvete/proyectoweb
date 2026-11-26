@@ -19,13 +19,30 @@ def create_cloud_folder():
     CLOUD_PATH.mkdir(parents=True, exist_ok=True)
 
 
+def _base(username):
+    """
+    Carpeta raíz de un almacenamiento.
+
+    username puede ser:
+        str  -> nombre de usuario: app/cloud/<usuario>
+        Path -> otra carpeta ya calculada (p. ej. la de un grupo,
+                app/cloud_groups/<id>), así se reutilizan todas las
+                funciones de este archivo para los grupos.
+    """
+    if isinstance(username, Path):
+        return username
+
+    return CLOUD_PATH / username
+
+
 def create_user_folder(username):
     """
     Crea la carpeta del usuario si no existe.
     """
-    create_cloud_folder()
+    if not isinstance(username, Path):
+        create_cloud_folder()
 
-    user_folder = CLOUD_PATH / username
+    user_folder = _base(username)
     user_folder.mkdir(parents=True, exist_ok=True)
 
     return user_folder
@@ -35,7 +52,7 @@ def user_folder_exists(username):
     """
     Comprueba si existe la carpeta del usuario.
     """
-    user_folder = CLOUD_PATH / username
+    user_folder = _base(username)
 
     return user_folder.exists() and user_folder.is_dir()
 
@@ -241,3 +258,44 @@ def rename_entry(username, old_name, new_name, rel_path=""):
     old_path.rename(folder / new_name)
 
     return True
+
+
+def rename_user_folder(old_username, new_username):
+    """
+    Cambia el nombre de la carpeta de un usuario cuando cambia su nombre
+    de usuario (si no, dejaría de ver sus archivos).
+
+    Devuelve:
+        True si se ha renombrado o no había nada que mover.
+        False si ya existe una carpeta con el nombre nuevo.
+    """
+    old_folder = CLOUD_PATH / old_username
+    new_folder = CLOUD_PATH / new_username
+
+    if not old_folder.is_dir():
+        return True
+
+    if new_folder.exists():
+        return False
+
+    old_folder.rename(new_folder)
+
+    return True
+
+
+def delete_root(username):
+    """
+    Borra por completo un almacenamiento (por ejemplo, el de un grupo
+    que se elimina). No hace nada si no existe.
+    """
+    # Protección: nunca borrar la carpeta general ni salirse de ella
+    if not isinstance(username, Path) and (not username or username in (".", "..") or "/" in username or "\\" in username):
+        return
+
+    folder = _base(username)
+
+    if folder.resolve() == CLOUD_PATH.resolve():
+        return
+
+    if folder.is_dir():
+        shutil.rmtree(folder)

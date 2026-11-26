@@ -1,0 +1,40 @@
+{#
+  Cabecera y pestañas de un grupo. Las páginas del grupo heredan de aquí
+  y rellenan group_content.
+#}
+{% extends "nube/_base.html" %}
+{% set nube_tab = 'grupos' %}
+{% block nube_title %}{{ group.name }}{% endblock %}
+
+{% block nube_content %}
+<header class="nb-group-head">
+    <a class="nb-back" href="{{ url_for('groups_bp.groups') }}" aria-label="Volver a mis grupos"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+    <span class="nb-avatar is-large" aria-hidden="true">{{ group.name[:1]|upper }}</span>
+    <div class="nb-group-meta">
+        <h1 class="title is-3">{{ group.name }}</h1>
+        {% if group.description %}<p class="subtitle is-6">{{ group.description }}</p>{% endif %}
+        <ul class="nb-chips">
+            <li><i class="fa-solid fa-user-group" aria-hidden="true"></i>{{ member_count }} {{ 'miembro' if member_count == 1 else 'miembros' }}</li>
+            <li><i class="fa-solid fa-hard-drive" aria-hidden="true"></i>{{ "%.2f"|format(used_gb) }} / {{ "%g"|format(group.storage_gb) }} GB</li>
+            {% if access.is_owner %}<li class="is-accent"><i class="fa-solid fa-crown" aria-hidden="true"></i>Creador</li>
+            {% elif access.is_admin and not access.member %}<li class="is-accent"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Viendo como administrador</li>
+            {% elif access.is_admin %}<li class="is-accent"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Administrador</li>{% endif %}
+        </ul>
+    </div>
+</header>
+
+<nav class="nb-subtabs" aria-label="Secciones del grupo">
+    <a href="{{ url_for('groups_bp.group_home', group_id=group.id) }}" {% if active_tab == 'chats' %}class="is-active"{% endif %}>
+        <i class="fa-regular fa-comments" aria-hidden="true"></i>Chats</a>
+    <a href="{{ url_for('groups_bp.files', group_id=group.id) }}" {% if active_tab == 'files' %}class="is-active"{% endif %}>
+        <i class="fa-regular fa-folder" aria-hidden="true"></i>Archivos</a>
+    <a href="{{ url_for('groups_bp.members', group_id=group.id) }}" {% if active_tab == 'members' %}class="is-active"{% endif %}>
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i>Miembros</a>
+    {% if access.manage %}
+    <a href="{{ url_for('groups_bp.settings', group_id=group.id) }}" {% if active_tab == 'settings' %}class="is-active"{% endif %}>
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i>Ajustes</a>
+    {% endif %}
+</nav>
+
+{% block group_content %}{% endblock %}
+{% endblock %}

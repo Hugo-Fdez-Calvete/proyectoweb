@@ -37,6 +37,7 @@ instance/
 # =========================
 app/data/*
 app/cloud/*
+app/cloud_groups/*
 
 # =========================
 # Logs y temporales
@@ -51,3 +52,5 @@ app/cloud/*
 .vscode/
 .idea/
 .DS_Store
+# Tests
+.pytest_cache/

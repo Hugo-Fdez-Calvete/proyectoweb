@@ -1,0 +1,77 @@
+{% extends "nube/_base.html" %}
+{% set nube_tab = 'compartido' %}
+{% block nube_title %}Compartido{% endblock %}
+
+{% block nube_content %}
+<h1 class="title is-3">Compartido</h1>
+<p class="subtitle is-6 mb-5">Carpetas de otros usuarios que puedes abrir, y las tuyas que compartes.</p>
+
+<h2 class="nb-section-title">Compartido conmigo</h2>
+{% if received %}
+<div class="nb-cards">
+    {% for item in received %}
+    {% set s = item.share %}
+    {% if item.exists %}
+    <a class="nb-card" href="{{ url_for('shares_bp.browse', share_id=s.id) }}">
+    {% else %}
+    <div class="nb-card is-disabled">
+    {% endif %}
+        <div class="nb-card-head">
+            <span class="nb-avatar" aria-hidden="true"><i class="fa-solid fa-folder"></i></span>
+            <div>
+                <h3 class="nb-card-title">{{ item.name }}</h3>
+                <p class="nb-card-sub">De {{ item.owner.username if item.owner else 'usuario eliminado' }}</p>
+            </div>
+        </div>
+        <ul class="nb-card-stats">
+            {% if not item.exists %}
+            <li><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>Ya no está disponible</li>
+            {% elif s.can_edit %}
+            <li class="is-accent"><i class="fa-solid fa-pen" aria-hidden="true"></i>Puedes editar</li>
+            {% else %}
+            <li><i class="fa-solid fa-eye" aria-hidden="true"></i>Solo ver</li>
+            {% endif %}
+        </ul>
+    {% if item.exists %}</a>{% else %}</div>{% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="box has-text-centered py-5">
+    <p class="has-text-grey">Nadie ha compartido carpetas contigo todavía.</p>
+</div>
+{% endif %}
+
+<h2 class="nb-section-title mt-6">Lo que compartes</h2>
+{% if given %}
+<div class="box">
+    <div class="table-container">
+        <table class="table is-fullwidth is-hoverable">
+            <thead><tr><th>Carpeta</th><th>Con</th><th>Permiso</th><th>Acciones</th></tr></thead>
+            <tbody>
+            {% for s in given %}
+                <tr>
+                    <td><span class="icon mr-2"><i class="fas fa-folder" aria-hidden="true"></i></span>
+                        <a href="{{ url_for('dashboard_bp.dashboard', path=s.path) }}">{{ s.path }}</a></td>
+                    <td>{{ s.target.username if s.target else '—' }}</td>
+                    <td>{{ 'Editar' if s.can_edit else 'Ver' }}</td>
+                    <td>
+                        <div class="buttons are-small">
+                            <a class="button is-link is-light" href="{{ url_for('shares_bp.manage', path=s.path) }}">
+                                <span class="icon"><i class="fas fa-user-gear" aria-hidden="true"></i></span><span>Gestionar</span></a>
+                            <form action="{{ url_for('shares_bp.unshare', share_id=s.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="next" value="list">
+                                <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-link-slash" aria-hidden="true"></i></span><span>Dejar de compartir</span></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<p class="nb-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Para compartir una carpeta, ve a <a href="{{ url_for('dashboard_bp.dashboard') }}">Mis archivos</a> y pulsa <strong>Compartir</strong> en ella.</p>
+{% endif %}
+{% endblock %}

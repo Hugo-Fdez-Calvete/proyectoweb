@@ -1,0 +1,15 @@
+{# Páginas públicas (sin cuenta): mismo aspecto que La Nube, sin sus pestañas #}
+{% extends "base.html" %}
+{% block title %}Hugo Fernández | {% block pub_title %}Carpetas públicas{% endblock %}{% endblock %}
+{% block body_class %}nube-body{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+<div class="nube">
+<section class="section nube-main">
+    <div class="container mt-6">
+        {% block pub_content %}{% endblock %}
+    </div>
+</section>
+</div>
+{% endblock %}

@@ -2,7 +2,8 @@ from functools import wraps
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request, session, url_for,)
 
-from app.services import admin_service
+from app.services import admin_service, groups_service, notify_service
+from app.repositories import groups_repo
 from app.services.admin_service import AdminError
 from app.services.query_service import user_repo
 
@@ -75,6 +76,9 @@ def _back():
 @admin_required
 def approve(current_user, user_id):
     _run(admin_service.approve_user, "Usuario aprobado.", user_id)
+    approved = user_repo.find_by_id(user_id)
+    if approved is not None and approved.status == "active":
+        notify_service.safe(notify_service.account_approved, approved)
     return _back()
 
 
@@ -97,6 +101,14 @@ def toggle_admin(current_user, user_id):
 def storage(current_user, user_id):
     _run(admin_service.set_user_storage, "Almacenamiento actualizado.",
          user_id, request.form.get("storage_gb"))
+    changed = user_repo.find_by_id(user_id)
+    if changed is not None:
+        reserved = groups_service.committed_gb(changed)
+        if float(changed.storage_gb or 0) < reserved:
+            flash(f"Ojo: {changed.username} tiene {reserved:g} GB reservados para sus grupos, "
+                  "más que su espacio total. No podrá subir archivos a su nube hasta que reduzca sus grupos.",
+                  "warning")
+        notify_service.safe(notify_service.storage_changed, changed, changed.storage_gb)
     return _back()
 
 
@@ -105,3 +117,29 @@ def storage(current_user, user_id):
 def delete(current_user, user_id):
     _run(admin_service.delete_user, "Usuario eliminado.", user_id, current_user.id)
     return _back()
+
+
+
+# ---------- Grupos ----------
+@admin_bp.route("/admin/grupos")
+@admin_required
+def groups(current_user):
+    return render_template(
+        "admin/admin_grupos.html",
+        rows=groups_service.admin_overview(),
+        current_user=current_user,
+        active_page="groups",
+    )
+
+
+# ---------- Carpetas compartidas ----------
+@admin_bp.route("/admin/compartidos")
+@admin_required
+def shares(current_user):
+    return render_template(
+        "admin/admin_compartidos.html",
+        shares=groups_repo.all_shares(),
+        publics=groups_repo.all_publics(),
+        current_user=current_user,
+        active_page="shares",
+    )

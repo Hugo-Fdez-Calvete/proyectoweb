@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "admin/_user_actions.html" import flash_messages %}
+
+{% block title %}HomeCloud_Admin · Compartidos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+<div class="columns is-gapless mt-6">
+
+    {% include "admin/_sidebar.html" %}
+
+    <main class="column nube">
+        <section class="section nube-main">
+            <div class="container">
+                <h1 class="title is-3">Carpetas compartidas</h1>
+                <p class="subtitle is-6 mb-5">Todas las carpetas que los usuarios comparten entre sí o con todo el mundo. Puedes abrirlas o retirarlas.</p>
+
+                {{ flash_messages() }}
+
+                <div class="box">
+                {% if shares %}
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-hoverable">
+                            <thead><tr><th>Carpeta</th><th>Propietario</th><th>Compartida con</th><th>Permiso</th><th>Desde</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                            {% for s in shares %}
+                                <tr>
+                                    <td><span class="icon mr-2"><i class="fas fa-folder" aria-hidden="true"></i></span>{{ s.path }}</td>
+                                    <td>{{ s.owner.username if s.owner else '—' }}</td>
+                                    <td>{{ s.target.username if s.target else '—' }}</td>
+                                    <td>{{ 'Editar' if s.can_edit else 'Ver' }}</td>
+                                    <td>{{ s.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <div class="buttons are-small">
+                                            <a class="button is-link is-light" href="{{ url_for('shares_bp.browse', share_id=s.id) }}"><span class="icon"><i class="fas fa-eye" aria-hidden="true"></i></span><span>Abrir</span></a>
+                                            <form action="{{ url_for('shares_bp.unshare', share_id=s.id) }}" method="POST"
+                                                  onsubmit="return confirm('¿Retirar esta compartición?')">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="next" value="admin">
+                                                <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-link-slash" aria-hidden="true"></i></span><span>Retirar</span></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="has-text-grey">Nadie comparte carpetas todavía.</p>
+                {% endif %}
+                </div>
+
+                <h2 class="nb-section-title mt-6" id="publicas">Carpetas públicas</h2>
+                <div class="box">
+                {% if publics %}
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-hoverable">
+                            <thead><tr><th>Carpeta</th><th>Propietario</th><th>En el listado</th><th>Desde</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                            {% for p in publics %}
+                                <tr>
+                                    <td><span class="icon mr-2"><i class="fas fa-globe" aria-hidden="true"></i></span>{{ p.path }}</td>
+                                    <td>{{ p.owner.username if p.owner else '—' }}</td>
+                                    <td>{{ 'Sí' if p.listed else 'No (solo enlace)' }}</td>
+                                    <td>{{ p.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <div class="buttons are-small">
+                                            <a class="button is-link is-light" href="{{ url_for('public_bp.folder', token=p.token) }}" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye" aria-hidden="true"></i></span><span>Abrir</span></a>
+                                            <form action="{{ url_for('public_bp.unpublish', public_id=p.id) }}" method="POST"
+                                                  onsubmit="return confirm('¿Dejar de publicar esta carpeta?')">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="next" value="admin">
+                                                <button class="button is-danger is-light" type="submit"><span class="icon"><i class="fas fa-eye-slash" aria-hidden="true"></i></span><span>Retirar</span></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="has-text-grey">No hay carpetas públicas.</p>
+                {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

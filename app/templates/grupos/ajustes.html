@@ -1,0 +1,39 @@
+{% extends "grupos/_layout.html" %}
+
+{% block group_content %}
+<form class="box" action="{{ url_for('groups_bp.settings', group_id=group.id) }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2 class="title is-5">Datos del grupo</h2>
+    <div class="field">
+        <label class="label" for="s-name">Nombre</label>
+        <input class="input" id="s-name" name="name" maxlength="60" required value="{{ group.name }}">
+    </div>
+    <div class="field">
+        <label class="label" for="s-desc">Descripción <span class="nb-optional">(opcional)</span></label>
+        <textarea class="textarea" id="s-desc" name="description" maxlength="300" rows="2">{{ group.description or '' }}</textarea>
+    </div>
+    <div class="field">
+        <label class="label" for="s-gb">Espacio del grupo (GB)</label>
+        <input class="input" id="s-gb" name="storage_gb" type="number" step="0.1"
+               min="{{ '%.1f'|format([0.1, (used_gb * 10)|round(0, 'ceil') / 10]|max) }}"
+               max="{{ '%.2f'|format(group.storage_gb + owner_free_gb) }}" value="{{ '%g'|format(group.storage_gb) }}" required>
+        <p class="help">
+            Usa {{ "%.2f"|format(used_gb) }} GB.
+            {% if access.is_owner %}Tienes {{ "%.2f"|format(owner_free_gb) }} GB libres para ampliarlo; si lo reduces, lo que sobra vuelve a tu nube.
+            {% else %}Su creador tiene {{ "%.2f"|format(owner_free_gb) }} GB libres para ampliarlo.{% endif %}
+        </p>
+    </div>
+    <div class="buttons is-right">
+        <button class="button is-primary" type="submit"><span class="icon"><i class="fas fa-floppy-disk" aria-hidden="true"></i></span><span>Guardar</span></button>
+    </div>
+</form>
+
+<form class="box nb-danger-zone" action="{{ url_for('groups_bp.delete_group', group_id=group.id) }}" method="POST"
+      onsubmit="return confirm('¿Borrar el grupo «{{ group.name|e }}»? Se borrarán sus archivos, chats y mensajes. No se puede deshacer.')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if access.is_admin and not access.is_owner %}<input type="hidden" name="next" value="admin">{% endif %}
+    <h2 class="title is-5">Borrar el grupo</h2>
+    <p class="mb-4">Se borran todos sus archivos, chats y mensajes, y el espacio reservado vuelve a {{ 'tu nube' if access.is_owner else 'la nube de su creador' }}.</p>
+    <button class="button is-danger" type="submit"><span class="icon"><i class="fas fa-trash" aria-hidden="true"></i></span><span>Borrar grupo</span></button>
+</form>
+{% endblock %}

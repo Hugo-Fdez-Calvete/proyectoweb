@@ -10,7 +10,14 @@
                 <a class="has-text-white my-2 {% if active_page == 'users' %}is-active{% endif %}"
                    href="{{ url_for('admin_bp.users') }}">Usuarios</a>
             </li>
-            <li><a class="has-text-grey my-2" title="Próximamente">Archivos</a></li>
+            <li>
+                <a class="has-text-white my-2 {% if active_page == 'groups' %}is-active{% endif %}"
+                   href="{{ url_for('admin_bp.groups') }}">Grupos</a>
+            </li>
+            <li>
+                <a class="has-text-white my-2 {% if active_page == 'shares' %}is-active{% endif %}"
+                   href="{{ url_for('admin_bp.shares') }}">Compartidos</a>
+            </li>
             <li><a class="has-text-grey my-2" title="Próximamente">Configuración</a></li>
         </ul>
     </div>

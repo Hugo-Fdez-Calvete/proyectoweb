@@ -1,0 +1,16 @@
+# Lo que no hace falta dentro de la imagen de Docker
+.git
+.github
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+docs/
+README_img/
+deploy/
+# Datos locales: en el servidor van en volúmenes, nunca dentro de la imagen
+app/data/
+app/cloud/
+app/cloud_groups/
+.flask_session/
+.env

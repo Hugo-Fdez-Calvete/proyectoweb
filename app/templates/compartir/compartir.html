@@ -1,0 +1,128 @@
+{% extends "nube/_base.html" %}
+{% set nube_tab = 'archivos' %}
+{% block nube_title %}Compartir {{ folder }}{% endblock %}
+
+{% block nube_content %}
+<header class="nb-group-head">
+    <a class="nb-back" href="{{ url_for('dashboard_bp.dashboard', path=parent or None) }}" aria-label="Volver a Mis archivos"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+    <span class="nb-avatar is-large" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span>
+    <div class="nb-group-meta">
+        <h1 class="title is-3">Compartir «{{ folder }}»</h1>
+        <p class="subtitle is-6">{{ path }}</p>
+    </div>
+</header>
+
+<form class="box nb-inline-form" action="{{ url_for('shares_bp.share') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="path" value="{{ path }}">
+    <label class="label" for="sh-user">Compartir con un usuario de la web</label>
+    <div class="nb-inline">
+        <input class="input" id="sh-user" name="username" list="sh-user-list" maxlength="30" required
+               placeholder="Nombre de usuario" data-suggest="{{ url_for('groups_bp.api_users') }}">
+        <datalist id="sh-user-list"></datalist>
+        <div class="select">
+            <select name="can_edit" aria-label="Permiso">
+                <option value="0">Puede ver y descargar</option>
+                <option value="1">Puede editar (subir, crear y borrar)</option>
+            </select>
+        </div>
+        <button class="button is-primary" type="submit"><span class="icon"><i class="fas fa-share-nodes" aria-hidden="true"></i></span><span>Compartir</span></button>
+    </div>
+    <p class="help">Lo que suban otras personas ocupa espacio de tu nube. Si borras o renombras la carpeta, la compartición la sigue.</p>
+</form>
+
+<!-- ENLACE PÚBLICO -->
+<div class="box nb-public" id="publica">
+    <h2 class="title is-5"><i class="fa-solid fa-globe" aria-hidden="true"></i> Carpeta pública</h2>
+    {% if public %}
+        {% set link = url_for('public_bp.folder', token=public.token, _external=True) %}
+        <p class="mb-3">Cualquiera con este enlace puede ver y descargar la carpeta, sin cuenta y sin poder cambiar nada.</p>
+        <div class="nb-inline nb-copy">
+            <input class="input" id="pub-link" value="{{ link }}" readonly aria-label="Enlace público">
+            <button class="button is-primary" type="button" data-copy="#pub-link"><span class="icon"><i class="fas fa-copy" aria-hidden="true"></i></span><span>Copiar</span></button>
+            <a class="button" href="{{ link }}" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-up-right-from-square" aria-hidden="true"></i></span><span>Abrir</span></a>
+        </div>
+        <form class="mt-4" action="{{ url_for('public_bp.settings', public_id=public.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field">
+                <label class="label" for="pub-desc">Descripción <span class="nb-optional">(opcional)</span></label>
+                <input class="input" id="pub-desc" name="description" maxlength="200" value="{{ public.description or '' }}" placeholder="Qué hay en la carpeta">
+            </div>
+            <label class="nb-pref">
+                <span class="nb-switch"><input type="checkbox" name="listed" value="1" {% if public.listed %}checked{% endif %}><span aria-hidden="true"></span></span>
+                <span><span class="nb-pref-label">Mostrar en el <a href="{{ url_for('public_bp.listing') }}" target="_blank" rel="noopener">listado público</a></span>
+                <span class="nb-pref-help">Si lo desactivas, solo entra quien tenga el enlace.</span></span>
+            </label>
+            <div class="buttons mt-4">
+                <button class="button is-primary" type="submit"><span class="icon"><i class="fas fa-floppy-disk" aria-hidden="true"></i></span><span>Guardar</span></button>
+            </div>
+        </form>
+        <div class="buttons mt-2">
+            <form action="{{ url_for('public_bp.new_link', public_id=public.id) }}" method="POST"
+                  onsubmit="return confirm('El enlace actual dejará de funcionar. ¿Crear uno nuevo?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-small" type="submit"><span class="icon"><i class="fas fa-rotate" aria-hidden="true"></i></span><span>Cambiar enlace</span></button>
+            </form>
+            <form action="{{ url_for('public_bp.unpublish', public_id=public.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button is-small is-danger is-light" type="submit"><span class="icon"><i class="fas fa-eye-slash" aria-hidden="true"></i></span><span>Dejar de publicar</span></button>
+            </form>
+        </div>
+    {% else %}
+        <form action="{{ url_for('public_bp.publish') }}" method="POST"
+              onsubmit="return confirm('Cualquiera con el enlace podrá ver y descargar todo lo que hay en «{{ folder|e }}». ¿Continuar?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="path" value="{{ path }}">
+            <p class="mb-3">Hazla pública para que cualquiera pueda verla y descargarla <strong>sin cuenta</strong>. Nadie podrá cambiar nada.</p>
+            <div class="field">
+                <label class="label" for="pub-desc">Descripción <span class="nb-optional">(opcional)</span></label>
+                <input class="input" id="pub-desc" name="description" maxlength="200" placeholder="Qué hay en la carpeta">
+            </div>
+            <label class="nb-pref">
+                <span class="nb-switch"><input type="checkbox" name="listed" value="1" checked><span aria-hidden="true"></span></span>
+                <span><span class="nb-pref-label">Mostrar en el listado público</span>
+                <span class="nb-pref-help">Si lo desactivas, solo entra quien tenga el enlace.</span></span>
+            </label>
+            <button class="button is-primary mt-4" type="submit"><span class="icon"><i class="fas fa-globe" aria-hidden="true"></i></span><span>Hacer pública</span></button>
+        </form>
+    {% endif %}
+</div>
+
+<div class="box">
+    <h2 class="title is-5">Con quién la compartes</h2>
+    {% if shares %}
+    <div class="table-container">
+        <table class="table is-fullwidth">
+            <thead><tr><th>Usuario</th><th>Permiso</th><th>Acciones</th></tr></thead>
+            <tbody>
+            {% for s in shares %}
+                <tr>
+                    <td><span class="nb-avatar is-small" aria-hidden="true">{{ s.target.username[:1]|upper }}</span><strong>{{ s.target.username }}</strong></td>
+                    <td>
+                        <form action="{{ url_for('shares_bp.set_permission', share_id=s.id) }}" method="POST" class="nb-autosubmit">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="select is-small">
+                                <select name="can_edit" aria-label="Permiso de {{ s.target.username }}">
+                                    <option value="0" {% if not s.can_edit %}selected{% endif %}>Ver y descargar</option>
+                                    <option value="1" {% if s.can_edit %}selected{% endif %}>Editar</option>
+                                </select>
+                            </div>
+                            <noscript><button class="button is-small" type="submit">Guardar</button></noscript>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('shares_bp.unshare', share_id=s.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="button is-small is-danger is-light" type="submit"><span class="icon"><i class="fas fa-link-slash" aria-hidden="true"></i></span><span>Dejar de compartir</span></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="has-text-grey">Aún no la compartes con nadie.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "nube/_base.html" %}
+{% from "nube/_explorer.html" import explorer %}
+{% set nube_tab = 'compartido' %}
+{% block nube_title %}{{ share.path.split('/')[-1] }}{% endblock %}
+
+{% block nube_content %}
+<header class="nb-group-head">
+    <a class="nb-back" href="{{ url_for('shares_bp.shared_with_me') }}" aria-label="Volver a Compartido"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+    <span class="nb-avatar is-large" aria-hidden="true"><i class="fa-solid fa-folder"></i></span>
+    <div class="nb-group-meta">
+        <h1 class="title is-3">{{ share.path.split('/')[-1] }}</h1>
+        <ul class="nb-chips">
+            <li><i class="fa-solid fa-user" aria-hidden="true"></i>De {{ access.owner.username }}</li>
+            {% if access.can_edit %}<li class="is-accent"><i class="fa-solid fa-pen" aria-hidden="true"></i>Puedes editar</li>
+            {% else %}<li><i class="fa-solid fa-eye" aria-hidden="true"></i>Solo ver y descargar</li>{% endif %}
+        </ul>
+    </div>
+</header>
+
+{{ explorer(listing,
+            {"browse": "shares_bp.browse", "download": "shares_bp.download", "delete": "shares_bp.delete_entry",
+             "upload": "shares_bp.upload", "mkdir": "shares_bp.create_folder"},
+            {"share_id": share.id},
+            can_upload=access.can_edit, can_mkdir=access.can_edit, can_delete=access.can_edit,
+            root_label=share.path.split('/')[-1],
+            empty_hint="La carpeta está vacía.") }}
+
+{% if access.can_edit %}
+<p class="nb-note mt-4"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Lo que subas aquí ocupa espacio de {{ access.owner.username }}.</p>
+{% endif %}
+{% endblock %}

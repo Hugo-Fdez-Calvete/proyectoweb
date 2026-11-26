@@ -1,216 +1,168 @@
-{% extends "base.html" %}
+{% extends "nube/_base.html" %}
+{% set nube_tab = 'archivos' %}
+{% block nube_title %}Mis archivos{% endblock %}
 
-{% block title %}Hugo Fernández | Mis archivos{% endblock %}
-{% block body_class %}nube-body{% endblock %}
+{% block nube_content %}
+{# Espacio de la nube personal: el total menos lo reservado para grupos #}
+{% set quota = quota_gb if quota_gb is defined else user.storage_gb %}
+{% set reserved = committed_gb if committed_gb is defined else 0 %}
+{% set shared = shared_paths if shared_paths is defined else {} %}
+{% set publics = public_paths if public_paths is defined else [] %}
 
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}">
+<!-- CABECERA -->
+<div class="level mb-5">
+    <div class="level-left">
+        <div>
+            <h1 class="title is-3">Mis archivos</h1>
+            <p class="subtitle is-6">Gestiona tus archivos y carpetas.</p>
 
-<div class="nube">
-<section class="section nube-main">
-    <div class="container mt-6">
+            <!-- RUTA ACTUAL -->
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li {% if not current_path %}class="is-active"{% endif %}>
+                        <a href="{{ url_for('dashboard_bp.dashboard') }}">
+                            <span class="icon is-small"><i class="fas fa-home"></i></span>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+                    {% for crumb in breadcrumbs %}
+                        <li {% if loop.last %}class="is-active"{% endif %}>
+                            <a href="{{ url_for('dashboard_bp.dashboard', path=crumb.path) }}">{{ crumb.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="level-right">
+        <div class="buttons">
+            <!-- BOTÓN SUBIR -->
+            <form action="{{ url_for('cloud_bp.upload') }}" method="POST" enctype="multipart/form-data" class="nb-upload-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="path" value="{{ current_path }}">
+                <input type="file" name="file" hidden>
+                <button type="button" class="button is-primary nb-upload-btn">
+                    <span class="icon"><i class="fas fa-upload"></i></span>
+                    <span>Subir archivo</span>
+                </button>
+            </form>
 
-        <!-- MENSAJES -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="notification is-{{ category }} mb-5">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+            <!-- NUEVA CARPETA -->
+            <button class="button nb-open-modal" type="button" data-modal="folder-modal">
+                <span class="icon"><i class="fas fa-folder-plus"></i></span>
+                <span>Nueva carpeta</span>
+            </button>
+
+            {% if current_path %}
+            <!-- COMPARTIR LA CARPETA ACTUAL -->
+            <a class="button" href="{{ url_for('shares_bp.manage', path=current_path) }}">
+                <span class="icon"><i class="fas fa-share-nodes"></i></span>
+                <span>Compartir esta carpeta</span>
+            </a>
             {% endif %}
-        {% endwith %}
+        </div>
+    </div>
+</div>
 
-        <!-- CABECERA -->
-        <div class="level mb-5">
-            <div class="level-left">
-                <div>
-                    <h1 class="title is-3">
-                        Mis archivos
-                    </h1>
-                    <p class="subtitle is-6">
-                        Gestiona tus archivos y carpetas.
-                    </p>
-
-                    <!-- RUTA ACTUAL -->
-                    <nav class="breadcrumb" aria-label="breadcrumbs">
-                        <ul>
-                            <li {% if not current_path %}class="is-active"{% endif %}>
-                                <a href="{{ url_for('dashboard_bp.dashboard') }}">
-                                    <span class="icon is-small"><i class="fas fa-home"></i></span>
-                                    <span>Inicio</span>
-                                </a>
-                            </li>
-                            {% for crumb in breadcrumbs %}
-                                <li {% if loop.last %}class="is-active"{% endif %}>
-                                    <a href="{{ url_for('dashboard_bp.dashboard', path=crumb.path) }}">{{ crumb.name }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-            <div class="level-right">
-                <div class="buttons">
-
-                    <!-- BOTÓN SUBIR -->
-                    <form action="{{ url_for('cloud_bp.upload') }}" method="POST" enctype="multipart/form-data" id="upload-form">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="path" value="{{ current_path }}">
-                        <input type="file" name="file" id="file-input" hidden >
-                        <button type="button" class="button is-primary" onclick="document.getElementById('file-input').click()">
-                            <span class="icon">
-                                <i class="fas fa-upload"></i>
-                            </span>
-                            <span>
-                                Subir archivo
-                            </span>
-                        </button>
-                    </form>
-
-                    <!-- NUEVA CARPETA -->
-                    <button class="button" type="button" id="new-folder-btn">
-                        <span class="icon">
-                            <i class="fas fa-folder-plus"></i>
-                        </span>
-                        <span>
-                            Nueva carpeta
-                        </span>
-                    </button>
-                </div>
+<!-- ALMACENAMIENTO -->
+<div class="box mb-5">
+    <div class="level">
+        <div class="level-left">
+            <div>
+                <p class="heading">Almacenamiento</p>
+                <p class="title is-5">
+                    {{ "%.2f"|format(used_storage) }} GB
+                    <span class="has-text-grey is-size-6">/ {{ "%.2f"|format(quota) }} GB</span>
+                </p>
             </div>
         </div>
-
-        <!-- ALMACENAMIENTO -->
-        <div class="box mb-5">
-            <div class="level">
-                <div class="level-left">
-                    <div>
-                        <p class="heading">
-                            Almacenamiento
-                        </p>
-                        <p class="title is-5">
-                            {{ "%.2f"|format(used_storage) }} GB
-                            <span class="has-text-grey is-size-6">
-                                /
-                                {{ "%.2f"|format(user.storage_gb) }} GB
-                            </span>
-                        </p>
-                    </div>
+        <div class="level-right">
+            {% if quota > 0 %}
+                {% set storage_percentage = [(used_storage / quota) * 100, 100]|min %}
+                <div style="width: 250px;">
+                    <progress class="progress is-primary" value="{{ storage_percentage }}" max="100">
+                        {{ "%.0f"|format(storage_percentage) }}%
+                    </progress>
                 </div>
-                <div class="level-right">
-
-                    {% if user.storage_gb > 0 %}
-
-                        {% set storage_percentage=(used_storage / user.storage_gb)*100%}
-
-                        {% if storage_percentage > 100 %}
-                            {% set storage_percentage = 100 %}
-                        {% endif %}
-
-                        <div style="width: 250px;">
-                        <progress class="progress is-primary" value="{{ storage_percentage }}" max="100">
-                                {{ "%.0f"|format(storage_percentage) }}%
-                            </progress>
-                        </div>
-
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- ESPACIO DISPONIBLE -->
-            {% set available_storage = user.storage_gb - used_storage %}
-
-            {% if available_storage < 0 %} {% set available_storage=0 %} {% endif %} <p
-                class="has-text-grey is-size-7 mt-2">
-                {{ "%.2f"|format(available_storage) }} GB disponibles
-            </p>
+            {% endif %}
         </div>
+    </div>
 
-        <!-- ARCHIVOS -->
-        <div class="box">
+    <!-- ESPACIO DISPONIBLE -->
+    {% set available_storage = [quota - used_storage, 0]|max %}
+    <p class="has-text-grey is-size-7 mt-2">
+        {{ "%.2f"|format(available_storage) }} GB disponibles
+        {% if reserved %}
+            · {{ "%g"|format(reserved) }} GB reservados para
+            <a href="{{ url_for('groups_bp.groups') }}">tus grupos</a>
+        {% endif %}
+    </p>
+</div>
 
-            {% if files %}
-                <div class="table-container">
-                    <table class="table is-fullwidth is-hoverable">
-                        <thead>
-                            <tr>
-                                <th>
-                                    Nombre
-                                </th>
-                                <th>
-                                    Tamaño
-                                </th>
-                                <th>
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            {% for file in files %}
-                                <tr>
-
-                                    <!-- NOMBRE -->
-                                    <td>
-                                        <span class="icon mr-2">
-                                            {% if file.is_dir() %}
-                                                <i class="fas fa-folder"></i>
-                                            {% else %}
-                                                <i class="fas fa-file"></i>
-                                            {% endif %}
+<!-- ARCHIVOS -->
+<div class="box">
+    {% if files %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-hoverable">
+                <thead>
+                    <tr><th>Nombre</th><th>Tamaño</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                        {% set child_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
+                        <tr>
+                            <!-- NOMBRE -->
+                            <td>
+                                <span class="icon mr-2">
+                                    {% if file.is_dir() %}<i class="fas fa-folder"></i>{% else %}<i class="fas fa-file"></i>{% endif %}
+                                </span>
+                                {% if file.is_dir() %}
+                                    <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}">{{ file.name }}</a>
+                                    {% if shared.get(child_path) %}
+                                        <span class="tag nb-tag" title="Compartida con {{ shared[child_path] }} {{ 'persona' if shared[child_path] == 1 else 'personas' }}">
+                                            <i class="fa-solid fa-user-group" aria-hidden="true"></i>&nbsp;{{ shared[child_path] }}
                                         </span>
-                                        {% if file.is_dir() %}
-                                            {% set name_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
-                                            <a href="{{ url_for('dashboard_bp.dashboard', path=name_path) }}">{{ file.name }}</a>
-                                        {% else %}
-                                            {{ file.name }}
-                                        {% endif %}
-                                    </td>
+                                    {% endif %}
+                                    {% if child_path in publics %}
+                                        <span class="tag nb-tag" title="Carpeta pública"><i class="fa-solid fa-globe" aria-hidden="true"></i>&nbsp;Pública</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ file.name }}
+                                {% endif %}
+                            </td>
 
-                                    <!-- TAMAÑO -->
-                                    <td>
-                                        {% if file.is_dir() %}
-                                            <span class="has-text-grey">
-                                                —
-                                            </span>
-                                        {% else %}
-                                            {{ "%.2f"|format(file.stat().st_size / (1024 ** 2)) }} MB
-                                        {% endif %}
-                                    </td>
+                            <!-- TAMAÑO -->
+                            <td>
+                                {% if file.is_dir() %}
+                                    <span class="has-text-grey">—</span>
+                                {% else %}
+                                    {{ "%.2f"|format(file.stat().st_size / (1024 ** 2)) }} MB
+                                {% endif %}
+                            </td>
 
-                                    <!-- ACCIONES -->
-                                    <td>
-                                        <div class="buttons are-small">
+                            <!-- ACCIONES -->
+                            <td>
+                                <div class="buttons are-small">
+                                    {% if file.is_dir() %}
+                                        <!-- ABRIR CARPETA -->
+                                        <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}" class="button is-link is-light" title="Abrir" aria-label="Abrir {{ file.name }}">
+                                            <span class="icon"><i class="fas fa-folder-open"></i></span>
+                                            <span>Abrir</span>
+                                        </a>
+                                        <!-- COMPARTIR CARPETA -->
+                                        <a href="{{ url_for('shares_bp.manage', path=child_path) }}" class="button is-link is-light" title="Compartir" aria-label="Compartir {{ file.name }}">
+                                            <span class="icon"><i class="fas fa-share-nodes"></i></span>
+                                            <span>Compartir</span>
+                                        </a>
+                                    {% else %}
+                                        <!-- DESCARGAR -->
+                                        <a href="{{ url_for('cloud_bp.download', filename=file.name, path=current_path or None) }}" class="button is-info is-light" title="Descargar" aria-label="Descargar {{ file.name }}">
+                                            <span class="icon"><i class="fas fa-download"></i></span>
+                                            <span>Descargar</span>
+                                        </a>
+                                    {% endif %}
 
-                                            {% if file.is_dir() %}
-
-                                                <!-- ABRIR CARPETA -->
-                                    {% set child_path = (current_path ~ '/' ~ file.name) if current_path else file.name %}
-                                    <a href="{{ url_for('dashboard_bp.dashboard', path=child_path) }}" class="button is-link is-light" title="Abrir" aria-label="Abrir {{ file.name }}">
-                                                    <span class="icon">
-                                                        <i class="fas fa-folder-open"></i>
-                                                    </span>
-                                                    <span>
-                                                        Abrir
-                                                    </span>
-                                                </a>
-
-                                            {% else %}
-
-                                                <!-- DESCARGAR -->
-                                    <a href="{{ url_for('cloud_bp.download', filename=file.name, path=current_path or None) }}" class="button is-info is-light" title="Descargar" aria-label="Descargar {{ file.name }}">
-                                                    <span class="icon">
-                                                        <i class="fas fa-download"></i>
-                                                    </span>
-                                                    <span>
-                                                        Descargar
-                                                    </span>
-                                                </a>
-
-                                            {% endif %}
-
-                                            <!-- ELIMINAR -->
+                                    <!-- ELIMINAR -->
                                     <form action="{{ url_for('cloud_bp.delete', filename=file.name, path=current_path or None) }}" method="POST">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="button is-danger is-light" title="Eliminar" aria-label="Eliminar {{ file.name }}"
@@ -219,54 +171,38 @@
                                             {% else %}
                                                 onclick="return confirm('¿Seguro que quieres eliminar este elemento?')"
                                             {% endif %}>
-                                                    <span class="icon">
-                                                        <i class="fas fa-trash"></i>
-                                                    </span>
-                                                    <span>
-                                                        Eliminar
-                                                    </span>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-
-                <!-- SIN ARCHIVOS -->
-                <div class="has-text-centered py-6">
-                    <span class="icon is-large has-text-grey">
-                        <i class="fas fa-folder-open fa-3x"></i>
-                    </span>
-
-                    <p class="title is-5 mt-4">
-                        {% if current_path %}Esta carpeta está vacía{% else %}No hay archivos{% endif %}
-                    </p>
-
-                    <p class="has-text-grey">
-                        Sube un archivo o crea una carpeta para comenzar.
-                    </p>
-                </div>
-
-            {% endif %}
+                                            <span class="icon"><i class="fas fa-trash"></i></span>
+                                            <span>Eliminar</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-</section>
+    {% else %}
+        <!-- SIN ARCHIVOS -->
+        <div class="has-text-centered py-6">
+            <span class="icon is-large has-text-grey"><i class="fas fa-folder-open fa-3x"></i></span>
+            <p class="title is-5 mt-4">{% if current_path %}Esta carpeta está vacía{% else %}No hay archivos{% endif %}</p>
+            <p class="has-text-grey">Sube un archivo o crea una carpeta para comenzar.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
 
+{% block nube_after %}
 <!-- MODAL NUEVA CARPETA -->
 <div class="modal" id="folder-modal">
     <div class="modal-background"></div>
     <div class="modal-content">
         <div class="box">
             <h2 class="title is-5">Nueva carpeta</h2>
-
             <form action="{{ url_for('cloud_bp.create_folder') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="path" value="{{ current_path }}">
-
                 <div class="field">
                     <label class="label" for="folder-name">Nombre</label>
                     <div class="control">
@@ -274,9 +210,8 @@
                                maxlength="100" placeholder="Por ejemplo: Documentos" required>
                     </div>
                 </div>
-
                 <div class="buttons is-right">
-                    <button type="button" class="button" id="folder-cancel">Cancelar</button>
+                    <button type="button" class="button nb-close-modal">Cancelar</button>
                     <button type="submit" class="button is-primary">
                         <span class="icon"><i class="fas fa-folder-plus"></i></span>
                         <span>Crear</span>
@@ -285,47 +220,6 @@
             </form>
         </div>
     </div>
-    <button type="button" class="modal-close is-large" aria-label="Cerrar" id="folder-close"></button>
+    <button type="button" class="modal-close is-large nb-close-modal" aria-label="Cerrar"></button>
 </div>
-</div>
-
-<!-- MODAL NUEVA CARPETA: abrir / cerrar -->
-<script>
-    (function () {
-        const modal = document.getElementById("folder-modal");
-        const input = document.getElementById("folder-name");
-
-        function openModal() {
-            modal.classList.add("is-active");
-            input.value = "";
-            input.focus();
-        }
-
-        function closeModal() {
-            modal.classList.remove("is-active");
-        }
-
-        document.getElementById("new-folder-btn").addEventListener("click", openModal);
-        document.getElementById("folder-cancel").addEventListener("click", closeModal);
-        document.getElementById("folder-close").addEventListener("click", closeModal);
-        modal.querySelector(".modal-background").addEventListener("click", closeModal);
-
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape") closeModal();
-        });
-    })();
-</script>
-
-<!-- SUBIDA AUTOMÁTICA -->
-<script>
-    document.getElementById("file-input").addEventListener("change", function () {
-            if (this.files.length > 0) {
-                document
-                    .getElementById("upload-form")
-                    .submit();
-            }
-        }
-    );
-</script>
-
 {% endblock %}
